@@ -18,9 +18,9 @@
       </a>
       <p class="currentLoginAccount" v-if="currentLoginAccount">
         <label>hi~ {{currentLoginAccount}}</label>
-        <a href="javascript:void(0);" class="login-btn" @click="showLogin()">
+        <a href="javascript:void(0);" class="login-btn" @click="logout()">
           <img src="../assets/images/login-user.png" alt />
-          <span>重新登录</span>
+          <span>退出登录</span>
         </a>
       </p>
     </div>
@@ -113,7 +113,7 @@
             <td>得票率</td>
             <td>投票账户数</td>
             <td v-if="isWitnesses">已生产区块数</td>
-            <td>待申领奖励(EOS)</td>
+            <td>待申领奖励(COCOS)</td>
           </tr>
           <!-- <tr>
             <td>
@@ -198,7 +198,8 @@ import {
   queryAccountInfo,
   queryDataByIds,
   publishVotes,
-  passwordLogin
+  passwordLogin,
+  logout
 } from "../../libs/bcx.api";
 import { cacheSession, cacheKey } from '../../libs/Utils'
 import { Message } from 'element-ui';
@@ -234,17 +235,30 @@ export default {
   },
   watch: {},
   mounted() {
+      let _this = this;
     if (cacheSession.get(cacheKey.accountName)) {
       // this.isLogin = true
       this.currentLoginAccount = cacheSession.get(cacheKey.accountName)
     }
     
-    this.queryVotesAjax();
-    this.queryAccountInfoAjax();
+    _this.queryVotesAjax();
+    _this.queryAccountInfoAjax();
   },
   methods: {
+    logout(){
+      let _this = this;
+      cacheSession.remove(cacheKey.accountName)
+      logout().then(res => {
+        
+          Message({
+            duration: 2000,
+            message: '已退出登录',
+            type: 'success',
+          })
+          location.reload()
+      })
+    },
     hideLogin(){
-      console.log('1111111111111111')
       this.isShowLogin = false
     },
     showLogin(){
@@ -270,7 +284,9 @@ export default {
           console.log(cacheKey.accountName)
           console.log(res.data.account_name)
           cacheSession.set(cacheKey.accountName, res.data.account_name)
-          this.currentLoginAccount = res.data.account_name
+          _this.currentLoginAccount = res.data.account_name
+          _this.queryVotesAjax();
+          _this.queryAccountInfoAjax();
         } else {
           
           Message({
@@ -315,7 +331,6 @@ export default {
           return false
       }
       if (this.isWitnesses) {
-        params.witnessesIds;
         params.witnessesIds = [];
         for (const key in this.myVotesWitnesses) {
           params.witnessesIds.push(key);
@@ -399,7 +414,7 @@ export default {
       this.$axios
         .post(resUrl, formData)
         .then(function(response) {
-          _this.tableList = [];
+          _this.tableList= ''
           _this.tableList = response.data.result;
           console.log("_this.tableList");
           console.log(_this.tableList);
@@ -439,9 +454,11 @@ export default {
         queryType = "committee";
       }
       let params = {
-        queryAccount: "",
+        queryAccount: cacheSession.get(cacheKey.accountName) || '',
         type: queryType
       };
+      console.log('---------params-----------')
+      console.log(params)
       queryVotes(params).then(res => {
         function sortId(a, b) {
           return b.votes - a.votes;
@@ -473,6 +490,7 @@ export default {
             committee: requestQueryVotesList
           };
         }
+          _this.tableList = [];
         _this.witnessesAjax(formData);
       });
     },
