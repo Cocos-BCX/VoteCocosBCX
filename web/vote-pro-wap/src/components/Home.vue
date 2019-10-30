@@ -2,64 +2,82 @@
   <div class="home">
     <div class="search-bar">
       <div class="search-main">
-        <a href="javascript:void(0);" class="search-btn"></a>
-        <input type="text" class="search-input" />
+        <a href="javascript:void(0);" class="search-btn" @click="searchBtn()"></a>
+        <input type="text" class="search-input" v-model="searchAccountName" />
       </div>
     </div>
 
     <div class="change-btn">
-      <a href="javascript:void(0);" class="active">超级节点</a>
-      <a href="javascript:void(0);">理事会</a>
+      <a href="javascript:void(0);" :class="{active: isWitnesses}" @click="changeTpye()">超级节点</a>
+      <a href="javascript:void(0);" :class="{active: !isWitnesses}" @click="changeTpye()">理事会</a>
     </div>
 
     <div class="node-lists">
       <div class="node-main">
-        <div class="node">
-          <img src="../assets/images/test-node-icon.png" class="node-icon" alt />
+        <div class="node" v-for="(li, index) in tableList" :key="index">
+          <img :src="li.logo" v-if="li.logo" class="node-icon" alt />
           <ul class="node-message">
-            <li class="name">eoshuobipool</li>
-            <li class="author">itokenpocket</li>
+            <li class="name">{{li.account_name}}</li>
             <li class="spec">
               <p>
-                <img src="../assets/images/ranking-mobile.png" alt /> No.1
+                <img src="../assets/images/ranking-mobile.png" alt /> No.{{li.ranking}}
               </p>
               <p>
-                <img src="../assets/images/percentage-mobile.png" alt /> 2.8878%
+                <img src="../assets/images/percentage-mobile.png" alt /> {{li.voteRate}}
               </p>
               <p>
-                <img src="../assets/images/pos-mobile.png" alt /> 中国
+                <img src="../assets/images/pos-mobile.png" alt /> {{li.country}}
               </p>
             </li>
           </ul>
-          <!-- ranking percentage pos -->
-          <a href="javascript:void(0);" class="node-choice-btn">
-            <img src="../assets/images/choice.png" alt />
+          <a href="javascript:void(0);" class="node-choice-btn" @click="checkboxChangeEvents(li)">
+            <img v-if="li.supported" src="../assets/images/choice.png" alt />
           </a>
         </div>
+
+        <div class="blank55"></div>
       </div>
     </div>
 
     <div class="bottom-btn-bar">
-      <div>已投节点：2</div>
-      <!-- <div>投票</div> -->
+      <div @click="showDropDom()">已投节点：{{isWitnesses?Object.keys(myVotesWitnesses).length:Object.keys(myVotesCommittee).length}}</div>
+      <div @click="vote()">投票</div>
     </div>
     <div class="mask" v-if="isMask">
       <div class="already-voted-list-container" ref="hideDropDom">
         <p class="drop-btn" @click="hidedrop()" :style="{bottom: dropbtnbottom}">
           <img src="../assets/images/drop.png" alt />
         </p>
-        <ul class="already-voted-list">
-          <li>
-            <p class="info">
-              <img src="../assets/images/test-node-icon.png" class="node-icon" alt />
-              <span>TokenPocket</span>
-            </p>
 
-            <a href="javascript:void(0);" class="node-choice-btn">
-              <img src="../assets/images/choice.png" alt />
-            </a>
-          </li>
-        </ul>
+        <div class="already-voted-list-container">
+
+            <ul class="already-voted-list" v-if="isWitnesses">
+                <li v-for="(li, key) in myVotesWitnesses" :key="key">
+                    <p class="info">
+                    <img src="../assets/images/test-node-icon.png" class="node-icon" alt />
+                    <span>{{li}}</span>
+                    </p>
+
+                    <a href="javascript:void(0);" @click="handleClose(key, 'witnesses')" class="node-choice-btn">
+                    <img src="../assets/images/choice.png" alt />
+                    </a>
+                </li>
+            </ul>
+
+            <ul class="already-voted-list" v-if="!isWitnesses">
+                <li v-for="(li, key) in myVotesCommittee" :key="key">
+                    <p class="info">
+                    <img src="../assets/images/test-node-icon.png" class="node-icon" alt />
+                    <span>TokenPocket</span>
+                    </p>
+
+                    <a href="javascript:void(0);" @click="handleClose(key, 'committee')" class="node-choice-btn">
+                    <img src="../assets/images/choice.png" alt />
+                    </a>
+                </li>
+            </ul>
+                
+        </div>
       </div>
     </div>
   </div>
@@ -73,13 +91,18 @@ import {
   lookupBlockRewardsById,
   queryAccountInfo,
   queryDataByIds,
-  publishVotes
-} from "../../libs/bcx.api"
+  publishVotes,
+  passwordLogin
+} from "../../libs/bcx.api";
+import { cacheSession, cacheKey } from '../../libs/Utils'
+// import { Message } from 'element-ui';
+import { Indicator } from 'mint-ui';
+
 export default {
   data() {
     return {
       dropbtnbottom: "0",
-      isMask: true,
+      isMask: false,
       
       dynamicTags: ["标签一", "标签二", "标签三"],
       checked: true,
@@ -97,7 +120,15 @@ export default {
       searchAccountName: "",
 
       myVotesWitnesses: {},
-      myVotesCommittee: {}
+      myVotesCommittee: {},
+
+      // login
+      account: '',
+      password: '',
+      isShowLogin: false,
+
+      isLogin: false,
+      currentLoginAccount: ''
     };
   },
   watch: {
@@ -106,10 +137,59 @@ export default {
     }
   },
   mounted() {
+      Indicator.open({
+        text: '加载中...',
+        spinnerType: 'fading-circle'
+      });
+    if (cacheSession.get(cacheKey.accountName)) {
+      // this.isLogin = true
+      this.currentLoginAccount = cacheSession.get(cacheKey.accountName)
+    }
+    
     this.queryVotesAjax();
     this.queryAccountInfoAjax();
   },
   methods: {
+      showDropDom(){
+          this.isMask = true
+        if (this.isWitnesses) {
+        } else {
+        }
+      },
+
+
+    passwordLoginAjax() {
+      let _this = this;
+      passwordLogin({
+        account: _this.account,
+        password: _this.password
+      }).then(res => {
+        console.log("-----------passwordLogin-------------");
+        console.log(res);
+        if (res.code == 1) {
+          _this.account = "";
+          _this.password = "";
+          _this.isShowLogin = false;
+        //   Message({
+        //     duration: 2000,
+        //     message: "登录成功",
+        //     type: "success"
+        //   });
+          console.log(cacheKey.accountName);
+          console.log(res.data.account_name);
+          cacheSession.set(cacheKey.accountName, res.data.account_name);
+          this.currentLoginAccount = res.data.account_name;
+        } else {
+        //   Message({
+        //     duration: 2000,
+        //     message: "登录失败",
+        //     type: "error"
+        //   });
+          return false;
+        }
+      });
+    },
+
     searchBtn() {
       let _this = this;
       let searchResult = this.tableList.filter(stu => {
@@ -132,7 +212,6 @@ export default {
     vote() {
       let _this = this;
       let params = {};
-
       if (this.isWitnesses) {
         params.witnessesIds;
         params.witnessesIds = [];
@@ -145,6 +224,7 @@ export default {
           params.committee_ids.push(key);
         }
       }
+
       publishVotes(params).then(res => {
         console.log("--------publishVotes-------------res------");
         console.log(res);
@@ -163,8 +243,8 @@ export default {
     },
 
     queryAccountInfoAjax() {
+      let _this = this;
       queryAccountInfo().then(res => {
-        let _this = this;
         console.log("---res----");
         console.log(res.data.votes);
         let myVotes = res.data.votes;
@@ -207,11 +287,11 @@ export default {
       //   var formData = new FormData();
       //   formData.append("picture", files);
 
-      let resUrl = "http://localhost:8888/api/v1/witnesses";
+      let resUrl = "http://vote.test.cjfan.net/api/api/v1/witnesses";
       if (this.isWitnesses) {
-        resUrl = "http://localhost:8888/api/v1/witnesses";
+        resUrl = "http://vote.test.cjfan.net/api/api/v1/witnesses";
       } else {
-        resUrl = "http://localhost:8888/api/v1/committee";
+        resUrl = "http://vote.test.cjfan.net/api/api/v1/committee";
       }
       this.$axios
         .post(resUrl, formData)
@@ -223,10 +303,10 @@ export default {
           _this.lookupBlock = new Array(response.data.result.length);
           for (let i = 0; i < _this.tableList.length; i++) {
             _this.tableList[i].voteRate =
-              Number(
+              Number(Number(
                 Number(_this.tableList[i].votes) / Number(_this.votesTotal)
               ).toFixed(4) *
-                100 +
+                100).toFixed(2) +
               "%";
             _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
           }
@@ -235,16 +315,6 @@ export default {
           console.log("error");
           console.log(error);
         });
-    },
-    lookupBlockRewardsByIdAjax(account_id, index) {
-      let _this = this;
-      lookupBlockRewardsById(account_id).then(res => {
-        if (res.code == 1) {
-          _this.lookupBlock.splice(index, 1, res.data.earned_coindays);
-        } else {
-          _this.lookupBlock.splice(index, 1, 0);
-        }
-      });
     },
     queryVotesAjax() {
       let _this = this;
@@ -292,6 +362,76 @@ export default {
         }
         _this.witnessesAjax(formData);
       });
+    },
+    lookupBlockRewardsByIdAjax(account_id, index) {
+      let _this = this;
+      lookupBlockRewardsById(account_id).then(res => {
+        if (res.code == 1) {
+          _this.lookupBlock.splice(index, 1, res.data.earned_coindays);
+        } else {
+          _this.lookupBlock.splice(index, 1, 0);
+        }
+      });
+    },
+    checkboxChangeEvents(li) {
+      li.supported = !li.supported
+      let myVotesObj = {
+          name: '',
+          logo: ''
+      }
+      myVotesObj.name = li.account_name
+      myVotesObj.logo = li.logo
+      if (li.supported) {
+        if (this.isWitnesses) {
+          this.myVotesWitnesses[li.account_id] = myVotesObj
+        } else {
+          this.myVotesCommittee[li.account_id] = myVotesObj
+        }
+      } else {
+        let dynamicTags = {};
+        if (this.isWitnesses) {
+          delete this.myVotesWitnesses[li.account_id];
+          dynamicTags = this.myVotesWitnesses;
+          this.myVotesWitnesses = {};
+          this.myVotesWitnesses = dynamicTags;
+        } else {
+          delete this.myVotesCommittee[li.account_id];
+          dynamicTags = this.myVotesCommittee;
+          this.myVotesCommittee = {};
+          this.myVotesCommittee = dynamicTags;
+        }
+      }
+    },
+
+    handleClose(key, typeName) {
+      console.log(key);
+      // witnesses 见证人    committee 理事会
+      let dynamicTags = {};
+      if (typeName == "witnesses") {
+        delete this.myVotesWitnesses[key];
+        dynamicTags = this.myVotesWitnesses;
+        this.myVotesWitnesses = {};
+        this.myVotesWitnesses = dynamicTags;
+      } else if (typeName == "committee") {
+        delete this.myVotesCommittee[key];
+        dynamicTags = this.myVotesCommittee;
+        this.myVotesCommittee = {};
+        this.myVotesCommittee = dynamicTags;
+      }
+      for (let i = 0; i < this.tableList.length; i++) {
+        if (this.tableList[i].account_id == key) {
+          this.tableList[i].supported = false;
+        }
+      }
+      // this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
+    },
+
+    hidedrop: function() {
+      let _this = this;
+      this.$refs.hideDropDom.style.bottom = "-2.6rem";
+      setTimeout(() => {
+        _this.isMask = false;
+      }, 500);
     }
   }
 };
@@ -356,7 +496,7 @@ export default {
 }
 .change-btn a.active {
   color: rgba(38, 42, 51, 1);
-  background: url("../assets/images/change-bg.png") no-repeat bottom center;
+  background: rgba(236, 238, 255, 1) url("../assets/images/change-bg.png") no-repeat bottom center;
 }
 
 .node-lists {
@@ -514,12 +654,16 @@ export default {
   width: 0.3rem;
   height: 0.12rem;
 }
-.already-voted-list-container .already-voted-list {
-  height: 2.18rem;
+.already-voted-list-container .already-voted-list-container {
+    width: 100%;
+    height: 2.18rem;
+    overflow-y: auto;
+}
+.already-voted-list-container .already-voted-list-container .already-voted-list {
   width: 3.45rem;
   margin: 0 auto;
 }
-.already-voted-list-container .already-voted-list li {
+.already-voted-list-container .already-voted-list-container .already-voted-list li {
   width: 100%;
   height: 60px;
   display: flex;
@@ -552,6 +696,11 @@ export default {
 .already-voted-list-container .already-voted-list li .node-choice-btn img {
   width: 100%;
   height: 100%;
+}
+
+.blank55{
+    width: 100%;
+    height: 0.5rem;
 }
 </style>
 
