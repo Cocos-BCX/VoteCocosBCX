@@ -134,7 +134,7 @@
           </tr>-->
           <tr v-for="(li, index) in tableList" :key="index">
             <td>
-              <el-checkbox @change="checkboxChangeEvents(li)" v-model="li.supported"></el-checkbox>
+              <el-checkbox @change="checkboxChangeEvents(li, index)" v-model="li.supported"></el-checkbox>
             </td>
             <td>
               <p class="ranking">{{li.ranking}}</p>
@@ -170,8 +170,10 @@
       </div>
     </div>
 
-    <div class="mask" v-if="isShowLogin">
-      <div class="login-Popup">
+    <div class="mask" v-if="isShowLogin" @click.stop="hideLogin()">
+      
+    </div>
+    <div class="login-Popup" v-if="isShowLogin">
         <p class="title">登录</p>
 
         <div class="input-bar">
@@ -185,7 +187,6 @@
         </div>
         <input type="button" class="form-login-btn" @click="passwordLoginAjax()" value="登录">
       </div>
-    </div>
   </div>
 </template>
 
@@ -212,7 +213,7 @@ export default {
       isWitnesses: true,
 
       // page: 1,
-      pageSize: 10,
+      pageSize: 15,
       queryVotesList: [],
       votesTotal: 0,
       tableList: [],
@@ -242,6 +243,10 @@ export default {
     this.queryAccountInfoAjax();
   },
   methods: {
+    hideLogin(){
+      console.log('1111111111111111')
+      this.isShowLogin = false
+    },
     showLogin(){
       this.isShowLogin = true
     },
@@ -384,11 +389,12 @@ export default {
       //   var formData = new FormData();
       //   formData.append("picture", files);
 
-      let resUrl = "http://localhost:8888/api/v1/witnesses";
+      
+      let resUrl = "http://vote.test.cjfan.net/api/api/v1/witnesses";
       if (this.isWitnesses) {
-        resUrl = "http://localhost:8888/api/v1/witnesses";
+        resUrl = "http://vote.test.cjfan.net/api/api/v1/witnesses";
       } else {
-        resUrl = "http://localhost:8888/api/v1/committee";
+        resUrl = "http://vote.test.cjfan.net/api/api/v1/committee";
       }
       this.$axios
         .post(resUrl, formData)
@@ -400,10 +406,10 @@ export default {
           _this.lookupBlock = new Array(response.data.result.length);
           for (let i = 0; i < _this.tableList.length; i++) {
             _this.tableList[i].voteRate =
-              Number(
+              Number(Number(
                 Number(_this.tableList[i].votes) / Number(_this.votesTotal)
               ).toFixed(4) *
-                100 +
+                100).toFixed(2) +
               "%";
             _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
           }
@@ -470,25 +476,6 @@ export default {
         _this.witnessesAjax(formData);
       });
     },
-    // arrSort: function() {
-    //   let _this = this;
-    //   var result = [
-    //     { votes: 1, name: "中国银行" },
-    //     { votes: 3, name: "北京银行" },
-    //     { votes: 2, name: "河北银行" },
-    //     { votes: 10, name: "保定银行" },
-    //     { votes: 7, name: "涞水银行" },
-    //     { votes: 7, name: "农行银行" },
-    //     { votes: 7, name: "建设银行" }
-    //   ];
-
-    //   function sortId(a, b) {
-    //     return a.votes - b.votes;
-    //   }
-    //   result.sort(sortId);
-    //   console.log("---------result-----------");
-    //   console.log(result);
-    // },
 
     // element ui
     handleSizeChange(val) {
@@ -501,8 +488,9 @@ export default {
       this.queryVotesAjax();
     },
 
-    checkboxChangeEvents(li) {
+    checkboxChangeEvents(li, index) {
       console.log(li);
+      this.tableList[index].supported = !this.tableList[index].supported
       if (li.supported) {
         if (this.isWitnesses) {
           this.myVotesWitnesses[li.account_id] = li.account_name;
@@ -854,7 +842,7 @@ table.table-main tr td div.name span {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.4);
-  z-index: 500;
+  z-index: 100;
 }
 .login-Popup{
   width: 500px;
@@ -866,6 +854,7 @@ table.table-main tr td div.name span {
   margin-left: -250px;
   background: #fff;
   border-radius: 4px;
+  z-index: 1100;
 }
 .login-Popup .title{
   width: 100%;

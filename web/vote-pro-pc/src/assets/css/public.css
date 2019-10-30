@@ -355,6 +355,7 @@ input:focus{
 }
 .lang:hover .lang-drop{
     display: block;
+    z-index: 1000;
 }
 .lang-drop{
     width: 70px;
