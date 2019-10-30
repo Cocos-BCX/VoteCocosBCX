@@ -298,3 +298,15 @@ export let queryVotes = function (params) {
   })
 }
 
+
+// 退出登录
+export let logout = function (params) {
+  let loadingInstance = Loading.service();
+  return new Promise(function (resolve, reject) {
+    bcx.logout().then(res=>{
+      loadingInstance.close();
+      resolve(res)
+    })
+  })
+
+}
