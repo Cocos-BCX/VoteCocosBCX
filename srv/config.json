@@ -1,0 +1,33 @@
+{
+    "server":{
+        "run_mode":"debug",
+        "listen_addr":":8009",
+        "limit_connection":0,
+        "root_router_prefix":"api",
+        "read_timeout":60,
+        "write_timeout":60,
+        "idle_timeout":120,
+        "max_header_bytes":1048576
+    },
+    "witnesses":{
+        "1.6.1":{
+            "country":"China",
+            "logo":""
+        },
+        "1.6.2":{
+            "country":"China",
+            "logo":""
+        }
+    },
+    "committee":{
+        "1.5.0":{
+            "country":"China",
+            "logo":""
+        },
+        "1.5.1":{
+            "country":"China",
+            "logo":""
+        }
+    }
+
+}
