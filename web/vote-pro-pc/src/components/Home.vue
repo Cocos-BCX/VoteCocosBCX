@@ -134,7 +134,7 @@
           </tr>-->
           <tr v-for="(li, index) in tableList" :key="index">
             <td>
-              <el-checkbox @change="checkboxChangeEvents(li, index)" v-model="li.supported"></el-checkbox>
+              <el-checkbox @change="checkboxChangeEvents(li, index)" :checked="li.supported"></el-checkbox>
             </td>
             <td>
               <p class="ranking">{{li.ranking}}</p>
