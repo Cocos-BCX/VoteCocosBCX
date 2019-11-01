@@ -46,6 +46,7 @@ type WitnessesRequest struct {
 
 func Witnesses(c *gin.Context) {
 	var req WitnessesRequest
+	lang := c.MustGet("lang").(string)
 	witnessesConfig := config.GetConfig().Witnesses
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -56,7 +57,7 @@ func Witnesses(c *gin.Context) {
 	}
 	for k, v := range req.Witnesses {
 		if witness, ok := witnessesConfig[v.WitnessID]; ok {
-			req.Witnesses[k].Country = witness.Country
+			req.Witnesses[k].Country = witness.Country[lang]
 			req.Witnesses[k].Logo = witness.Logo
 		}
 

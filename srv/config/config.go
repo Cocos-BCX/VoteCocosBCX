@@ -24,13 +24,18 @@ type ServerConfig struct {
 }
 
 type WitnessConfig struct {
-	Country string `json:"country"`
-	Logo    string `json:"logo"`
+	Country map[string]string `json:"country"`
+	Logo    string            `json:"logo"`
 }
 
 type CommitteeConfig struct {
-	Country string `json:"country"`
-	Logo    string `json:"logo"`
+	Country map[string]string `json:"country"`
+	Logo    string            `json:"logo"`
+}
+
+type LangsConfig struct {
+	Allows  []string `json:"allows"`
+	Default string   `json:"default"`
 }
 
 type (
@@ -38,6 +43,7 @@ type (
 		Server    ServerConfig               `json:"server"`
 		Witnesses map[string]WitnessConfig   `json:"witnesses"`
 		Committee map[string]CommitteeConfig `json:"committee"`
+		Langs     LangsConfig                `json:"langs"`
 	}
 )
 

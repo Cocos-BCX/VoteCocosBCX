@@ -10,6 +10,7 @@ import (
 
 	"github.com/Cocos-BCX/VoteCocosBCX/srv/config"
 	"github.com/Cocos-BCX/VoteCocosBCX/srv/handlers"
+	"github.com/Cocos-BCX/VoteCocosBCX/srv/middleware"
 	limit "github.com/aviddiviner/gin-limit"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
@@ -28,12 +29,17 @@ func main() {
 		panic(err)
 	}
 	fmt.Println(cfg)
+
 	r := InitRouter(cfg)
+
+	r.Use(middleware.LanguageMiddleware())
+
 	v1 := r.Group("/api/v1")
 	{
 		v1.POST("/witnesses", handlers.Witnesses)
 		v1.POST("/committee", handlers.Committee)
 	}
+
 	r.Run(cfg.Server.ListenAddr)
 	quit := make(chan os.Signal)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
