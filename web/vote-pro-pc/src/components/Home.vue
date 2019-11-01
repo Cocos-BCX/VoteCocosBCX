@@ -34,8 +34,8 @@
       <div class="tag-container">
         <p
           class="selected-node-title"
-          v-show="isWitnesses"
-        >已选节点（11/{{Object.keys(myVotesWitnesses).length}}）</p>
+          v-show="isWitnesses"  
+        >已选节点（{{Object.keys(myVotesWitnesses).length}}/11）</p>
         <div class="node-container-tag" v-show="isWitnesses">
           <el-tag
             class="tag"
@@ -51,7 +51,7 @@
         <p
           class="selected-node-title"
           v-show="!isWitnesses"
-        >已选节点（11/{{Object.keys(myVotesCommittee).length}}）</p>
+        >已选节点（{{Object.keys(myVotesCommittee).length}}/11）</p>
         <div class="node-container-tag" v-show="!isWitnesses">
           <el-tag
             class="tag"
@@ -75,7 +75,7 @@
           href="javascript:void(0);"
           class="change-btn"
           :class="{active: isWitnesses}"
-          @click="changeTpye()"
+          @click="changeTpye(true)"
         >
           <img src="../assets/images/super-node-change.png" alt />
           <span>超级节点</span>
@@ -84,7 +84,7 @@
           href="javascript:void(0);"
           class="change-btn"
           :class="{active: !isWitnesses}"
-          @click="changeTpye()"
+          @click="changeTpye(false)"
         >
           <img src="../assets/images/council-change.png" alt />
           <span>理事会</span>
@@ -99,7 +99,7 @@
             <p>总计：{{count}}个</p>
           </ul>
           <div class="search-input">
-            <input type="text" placeholder="请输入节点名称" v-model="searchAccountName" />
+            <input type="text" placeholder="请输入节点名称" @keyup="searchKeyboard($event)" v-model="searchAccountName" />
             <a href="javascript:void(0);" class="search-btn" @click="searchBtn()"></a>
           </div>
         </div>
@@ -134,7 +134,11 @@
           </tr>-->
           <tr v-for="(li, index) in tableList" :key="index">
             <td>
-              <el-checkbox @change="checkboxChangeEvents(li, index)" v-model="li.supported"></el-checkbox>
+              
+              <a href="javascript:void(0);" @click="checkboxChangeEvents(li, index)" class="node-choice-btn">
+                <img v-if="li.supported" src="../assets/images/choice.png" alt />
+              </a>
+              <!-- <el-checkbox @change="checkboxChangeEvents(li, index)" :checked="li.supported"></el-checkbox> -->
             </td>
             <td>
               <p class="ranking">{{li.ranking}}</p>
@@ -211,7 +215,7 @@ export default {
       count: 0,
       currentPage: 1,
 
-      isWitnesses: true,
+      isWitnesses: false,
 
       // page: 1,
       pageSize: 15,
@@ -298,11 +302,16 @@ export default {
         }
       })
     },
-
+    searchKeyboard(ev){
+      
+      if (ev.keyCode==13) {
+        this.searchBtn();
+      }
+    },
     searchBtn() {
       let _this = this;
-      let searchResult = this.tableList.filter(stu => {
-        return stu.account_name == _this.searchAccountName;
+      let searchResult = this.queryVotesList.filter(stu => {
+        return stu.account_name.indexOf(_this.searchAccountName) > -1 ;
       });
 
       let formData = {};
@@ -343,16 +352,44 @@ export default {
       }
 
       publishVotes(params).then(res => {
+        
         console.log("--------publishVotes-------------res------");
         console.log(res);
-
+        if (res.code == 1) {
+          
+             
+            Message({
+              duration: 2000,
+              message: '投票成功',
+              type: 'success',
+            })
         _this.queryVotesAjax();
         _this.queryAccountInfoAjax();
+        } else {
+          
+          if (res.message.indexOf('Account is locked or not logged in') > -1) {
+            
+            Message({
+              duration: 2000,
+              message: _this.$t('interFaceMessage.common[114]'),
+              type: 'error',
+            })
+          } else {
+             
+            Message({
+              duration: 2000,
+              message: '投票失败',
+              type: 'error',
+            })
+          }
+        }
+
       });
     },
-    changeTpye() {
+    changeTpye(val) {
+      if (this.isWitnesses == val) return false
       let _this = this;
-      this.isWitnesses = !this.isWitnesses;
+      this.isWitnesses = val;
       this.currentPage = 1;
       this.lookupBlock = [];
       this.tableList = [];
@@ -420,8 +457,10 @@ export default {
           console.log(_this.tableList);
           _this.lookupBlock = new Array(response.data.result.length);
           for (let i = 0; i < _this.tableList.length; i++) {
-            _this.tableList[i].voteRate =
-              Number(Number(
+            console.log(Number(_this.tableList[i].votes))
+            console.log('_this.votesTotal')
+            console.log(_this.votesTotal)
+            _this.tableList[i].voteRate = Number(_this.votesTotal) == 0 ? "0%":Number(Number(
                 Number(_this.tableList[i].votes) / Number(_this.votesTotal)
               ).toFixed(4) *
                 100).toFixed(2) +
@@ -507,7 +546,23 @@ export default {
     },
 
     checkboxChangeEvents(li, index) {
-      console.log(li);
+      let _this = this;
+      let myVotesCount = 0
+      if (this.isWitnesses) {
+        myVotesCount = Object.keys(_this.myVotesWitnesses).length
+      } else {
+        myVotesCount = Object.keys(_this.myVotesCommittee).length
+      }
+
+      if (myVotesCount == 11) {
+          Message({
+            duration: 2000,
+            message: '已到达票数上限',
+            type: 'error',
+          })
+          return false
+        }
+
       this.tableList[index].supported = !this.tableList[index].supported
       if (li.supported) {
         if (this.isWitnesses) {
@@ -549,6 +604,11 @@ export default {
       for (let i = 0; i < this.tableList.length; i++) {
         if (this.tableList[i].account_id == key) {
           this.tableList[i].supported = false;
+          let targetObj = this.tableList
+          this.tableList = []
+          this.tableList = targetObj
+      console.log(this.tableList)
+          return false
         }
       }
       // this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
@@ -822,6 +882,24 @@ table.table-main tr td p.ranking {
   font-weight: 600;
   color: rgba(68, 200, 145, 1);
   text-align: center;
+}
+table.table-main tr td a.node-choice-btn {
+  width:18px;
+  height:18px;
+  line-height: 14px;
+  border-radius: 4px;
+  overflow: hidden;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -7px;
+  margin-top: -7px;
+  display: block;
+  border: 1px solid #ccc;
+}
+table.table-main tr td a.node-choice-btn img{
+  width:18px;
+  height:18px;
 }
 table.table-main tr td:nth-child(3) {
   text-align: left;

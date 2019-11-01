@@ -35,7 +35,7 @@ let promiseObjArr = []
 // bcx对象初始化
 export let initBcx = function () {
 
-  cacheSession.remove(cacheKey.accountName)
+  // cacheSession.remove(cacheKey.accountName)
   //   var _configParams = {
   //         default_ws_node: "ws://39.106.126.54:8049",
   //         ws_node_list: [{
@@ -149,6 +149,11 @@ export let publishVotes = function (params) {
       loadingInstance.close();
       resolve(res)
       // console.info("bcx passwordLogin res", res);
+    }).catch(err=>{
+      loadingInstance.close();
+      console.log(err)
+      resolve(false)
+      
     });
   })
 }
