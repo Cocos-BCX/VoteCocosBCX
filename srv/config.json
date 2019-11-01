@@ -1,7 +1,7 @@
 {
     "server":{
         "run_mode":"debug",
-        "listen_addr":":8009",
+        "listen_addr":":8010",
         "limit_connection":0,
         "root_router_prefix":"api",
         "read_timeout":60,
