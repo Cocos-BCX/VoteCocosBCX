@@ -27,7 +27,7 @@ let bcx = null
 let requestSeconds = 0
 
 // 浏览器插件链接 请求最大秒数
-let requestSecondsMax = 5
+let requestSecondsMax = 7
 
 let promiseObjArr = []
 
@@ -84,30 +84,35 @@ export let browserConnect = function () {
     if (window.BcxWeb) {
       bcx = window.BcxWeb
       resolve(true)
+      console.log('----- 11111    window.BcxWeb   success ------- ')
       return false
     } else {
       currentTimer = setInterval(() => {
+        if (window.BcxWeb) {
+          bcx = window.BcxWeb
+          console.log('----- 22222    window.BcxWeb   success ------- ')
+          clearInterval(currentTimer)
+          resolve(true)
+          return false
+        }
         requestSeconds++
         if (requestSeconds >= requestSecondsMax) {
           clearInterval(currentTimer)
 
           let tipsMessage = {}
-          if (cacheSession.get(cacheKey.lang) == 'zh') {
-            tipsMessage = langZh.tipsMessage
-          } else {
-            tipsMessage = langEn.tipsMessage
-          }
-          Message({
-            duration: 2000,
-            message: tipsMessage.common.linkFailure,
-            type: 'error',
-          })
-          return false
-        }
-        if (window.BcxWeb) {
-          bcx = window.BcxWeb
-          clearInterval(currentTimer)
-          resolve(true)
+          // if (cacheSession.get(cacheKey.lang) == 'zh') {
+          //   tipsMessage = langZh.tipsMessage
+          // } else {
+          //   tipsMessage = langEn.tipsMessage
+          // }
+          console.log('-----    window.BcxWeb   Failure ------- ')
+          // Message({
+          //   duration: 2000,
+          //   message: tipsMessage.common.linkFailure,
+          //   type: 'error',
+          // })
+          
+          resolve(false)
           return false
         }
       }, 1000)
@@ -126,10 +131,6 @@ export let passwordLogin = function (params) {
   });
   return new Promise(async function (resolve, reject) {
     
-    // account: params.account, //query.loginUserName,
-    // password: params.password
-    // account: params.account || "syling", //query.loginUserName,
-    // password: params.password || "12345678"
     bcx.passwordLogin({
       account: params.account || "syling", //query.loginUserName,
       password: params.password || "12345678"
@@ -161,7 +162,11 @@ export let publishVotes = function (params) {
       Indicator.close();
       resolve(res)
       // console.info("bcx passwordLogin res", res);
-    });
+    }).catch(err => {
+      console.log(err)
+      Indicator.close();
+      resolve(false)
+    })
   })
 }
 
@@ -175,9 +180,12 @@ export let getAccountInfo = function () {
     spinnerType: 'fading-circle'
   });
   return new Promise(async function (resolve, reject) {
-
+    let browserConnectResult = await browserConnect()
+    if (!browserConnectResult) {
+      Indicator.close();
+      return false
+    }
     bcx.getAccountInfo().then(res => {
-      // loadingInstance.close();
       Indicator.close();
       if (res.locked) {
         let tipsMessage = {}
@@ -196,10 +204,12 @@ export let getAccountInfo = function () {
       } else {
         cacheSession.set(cacheKey.accountName, res.account_name)
         cacheSession.remove(cacheKey.myWorldView)
-        resolve(true)
+        resolve(res)
         return false
       }
     }).catch(err => {
+      
+      Indicator.close();
       console.log('----------browserConnectResult------err--------')
       console.log(err)
       reject(err)
@@ -229,8 +239,8 @@ export let desktopConnect = function () {
       const cocos = Cocosjs.cocos
       bcx = cocos.cocosBcx(bcx)
       bcx.getAccountInfo().then(res => {
-        cacheSession.set(cacheKey.accountName, res[cacheKey.accountName])
-        cacheSession.remove(cacheKey.myWorldView)
+        // cacheSession.set(cacheKey.accountName, res[cacheKey.accountName])
+        // cacheSession.remove(cacheKey.myWorldView)
       }).catch(function (err) {})
     }
 
@@ -241,22 +251,20 @@ export let desktopConnect = function () {
 
 // 查询账户信息
 export let queryAccountInfo = function () {
-  // let loadingInstance = Loading.service();
-  Indicator.open({
-    // text: '加载中...',
-    spinnerType: 'fading-circle'
-  });
-  return new Promise(function (resolve, reject) {
-    // account: 'syling'
+  return new Promise(async function (resolve, reject) {
+    Indicator.open({
+      // text: '加载中...',
+      spinnerType: 'fading-circle'
+    });
+    let getAccountInfoResult = await getAccountInfo()
+    if (!getAccountInfoResult) return false
     bcx.queryAccountInfo({
-      // account: cacheSession.get(cacheKey.accountName)
-      account: 'syling'
+      account: getAccountInfoResult[cacheKey.accountName] || ''
+      // account: 'syling'
     }).then(res=>{
-      // loadingInstance.close();
       Indicator.close();
       resolve(res)
     }).catch(err=>{
-      // loadingInstance.close();
       Indicator.close();
       console.log('--------err-------')
       console.log(err)
@@ -266,7 +274,6 @@ export let queryAccountInfo = function () {
 
 // 查询数据通过id
 export let queryDataByIds = function (ids) {
-  // let loadingInstance = Loading.service();
   Indicator.open({
     // text: '加载中...',
     spinnerType: 'fading-circle'
@@ -275,11 +282,9 @@ export let queryDataByIds = function (ids) {
     bcx.queryDataByIds({
         ids: ids
     }).then(res=>{
-      // loadingInstance.close();
       Indicator.close();
       resolve(res)
     }).catch(err=>{
-      // loadingInstance.close();
       Indicator.close();
       console.log('--------err-------')
       console.log(err)
@@ -290,26 +295,22 @@ export let queryDataByIds = function (ids) {
 
 
 
-export let lookupBlockRewardsById = async function (account_id) {
-  // let loadingInstance = Loading.service();
-  Indicator.open({
-    // text: '加载中...',
-    spinnerType: 'fading-circle'
-  });
-  await passwordLogin({
-    account: 'syling',
-    password: '12345678'
-  })
-  return new Promise(function (resolve, reject) {
+export let lookupBlockRewardsById =  function (account_id) {
+  // Indicator.open({
+  //   // text: '加载中...',
+  //   spinnerType: 'fading-circle'
+  // });
+  return new Promise(async function (resolve, reject) {
+    
+    let getAccountInfoResult = await getAccountInfo()
+    if (!getAccountInfoResult) return false
     bcx.lookupBlockRewardsById({
-      account_id: account_id
+      account_id: getAccountInfoResult[cacheKey.accountName] || ''
     }).then(res => {
-      // loadingInstance.close();
-      Indicator.close();
+      // Indicator.close();
       resolve(res)
     }).catch(err=>{
-      // loadingInstance.close();
-      Indicator.close();
+      // Indicator.close();
       console.log('--------err-------')
       console.log(err)
     })
@@ -320,22 +321,24 @@ export let lookupBlockRewardsById = async function (account_id) {
 
 // 投票列表
 export let queryVotes = function (params) {
-  // let loadingInstance = Loading.service();
   Indicator.open({
     // text: '加载中...',
     spinnerType: 'fading-circle'
   });
-  return new Promise(function (resolve, reject) {
+  return new Promise(async function (resolve, reject) {
+    let getAccountInfoResult = await getAccountInfo()
+    if (!getAccountInfoResult) return false
     let param = {
       // type: witnesses 见证人    committee 理事会
-      queryAccount: params.queryAccount,
+      queryAccount: getAccountInfoResult[cacheKey.accountName] || '',
       type: params.type || ''
     }
-    bcx.queryVotes(param).then(res => {
-      // loadingInstance.close();
-      Indicator.close();
-      resolve(res)
-    })
+
+    
+      bcx.queryVotes(param).then(res => {
+        Indicator.close();
+        resolve(res)
+      })
   })
 }
 
