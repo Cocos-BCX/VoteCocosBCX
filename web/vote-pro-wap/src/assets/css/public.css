@@ -350,26 +350,14 @@ input  {
 }
 
 
-.jv-container .jv-code.boxed{
-    text-align: left!important;
-}
-.el-input--suffix .el-input__inner{
-    height: 48px!important;
-    border:1px solid rgba(207,207,207,1);
-}
-.el-pagination.is-background .btn-prev:disabled{
-    color: #606266!important;
-}
-.el-pagination.is-background .btn-next{
-    color: #C0C4CC!important;
-}
-.required{
-    color: #ff0000!important;
-}
 .mint-indicator-wrapper{
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+}
+.page-loadmore-wrapper {
+    overflow: scroll!important;
+    z-index: 100!important;
 }

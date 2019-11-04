@@ -8,12 +8,13 @@
     </div>
 
     <div class="change-btn">
-      <a href="javascript:void(0);" :class="{active: isWitnesses}" @click="changeTpye()">超级节点</a>
-      <a href="javascript:void(0);" :class="{active: !isWitnesses}" @click="changeTpye()">理事会</a>
+      <a href="javascript:void(0);" :class="{active: isWitnesses}" @click="changeTpye(true)">超级节点</a>
+      <a href="javascript:void(0);" :class="{active: !isWitnesses}" @click="changeTpye(false)">理事会</a>
     </div>
 
     <div class="node-lists">
       <div class="node-main">
+      <mt-loadmore :top-method="loadTop" :bottom-method="loadBottom" :bottom-all-loaded="allLoaded" :autoFill="false" bottomPullText="上拉加载更多" bottomDropText="释放加载更多" bottomLoadingText="加载更多" ref="loadmore">
         <div class="node" v-for="(li, index) in tableList" :key="index">
           <img :src="li.logo" v-if="li.logo" class="node-icon" alt />
           <ul class="node-message">
@@ -35,6 +36,7 @@
           </a>
         </div>
 
+          </mt-loadmore>
         <div class="blank55"></div>
       </div>
     </div>
@@ -54,8 +56,8 @@
             <ul class="already-voted-list" v-if="isWitnesses">
                 <li v-for="(li, key) in myVotesWitnesses" :key="key">
                     <p class="info">
-                    <img src="../assets/images/test-node-icon.png" class="node-icon" alt />
-                    <span>{{li}}</span>
+                    <img :src="li.logo" v-if="li.logo" class="node-icon" alt />
+                    <span>{{li.name}}</span>
                     </p>
 
                     <a href="javascript:void(0);" @click="handleClose(key, 'witnesses')" class="node-choice-btn">
@@ -67,12 +69,12 @@
             <ul class="already-voted-list" v-if="!isWitnesses">
                 <li v-for="(li, key) in myVotesCommittee" :key="key">
                     <p class="info">
-                    <img src="../assets/images/test-node-icon.png" class="node-icon" alt />
-                    <span>TokenPocket</span>
+                    <img :src="li.logo" v-if="li.logo" class="node-icon" alt />
+                    <span>{{li.name}}</span>
                     </p>
 
                     <a href="javascript:void(0);" @click="handleClose(key, 'committee')" class="node-choice-btn">
-                    <img src="../assets/images/choice.png" alt />
+                    <img src="../assets/images/remove.png" alt />
                     </a>
                 </li>
             </ul>
@@ -112,12 +114,83 @@ export default {
       isWitnesses: true,
 
       // page: 1,
-      pageSize: 10,
+      pageSize: 4,
       queryVotesList: [],
+      // queryVotesList: [{
+      //   account_name: 'test2323',
+      //   voteRate: 0,
+      //   country: 'China'
+      // },{
+      //   account_name: 'test12',
+      //   voteRate: 0,
+      //   country: 'China'
+      // },{
+      //   account_name: 'test123456',
+      //   voteRate: 0,
+      //   country: 'China'
+      // },{
+      //   account_name: 'test88',
+      //   voteRate: 0,
+      //   country: 'China'
+      // },{
+      //   account_name: 'test9',
+      //   voteRate: 0,
+      //   country: 'China'
+      // },{
+      //   account_name: 'test1111',
+      //   voteRate: 0,
+      //   country: 'China'
+      // },{
+      //   account_name: 'test8181',
+      //   voteRate: 0,
+      //   country: 'China'
+      // },{
+      //   account_name: 'test92215',
+      //   voteRate: 0,
+      //   country: 'China'
+      // },{
+      //   account_name: 'test884',
+      //   voteRate: 0,
+      //   country: 'China'
+      // },{
+      //   account_name: 'test44665',
+      //   voteRate: 0,
+      //   country: 'China'
+      // },{
+      //   account_name: 'test88',
+      //   voteRate: 0,
+      //   country: 'China'
+      // },{
+      //   account_name: 'test7744',
+      //   voteRate: 0,
+      //   country: 'China'
+      // },{
+      //   account_name: 'test65',
+      //   voteRate: 0,
+      //   country: 'China'
+      // },{
+      //   account_name: 'test132',
+      //   voteRate: 0,
+      //   country: 'China'
+      // },{
+      //   account_name: 'test5654',
+      //   voteRate: 0,
+      //   country: 'China'
+      // },{
+      //   account_name: 'test59988',
+      //   voteRate: 0,
+      //   country: 'China'
+      // },{
+      //   account_name: 'test7',
+      //   voteRate: 0,
+      //   country: 'China'
+      // }],
+
       votesTotal: 0,
       tableList: [],
       lookupBlock: [],
       searchAccountName: "",
+      allLoaded: false,
 
       myVotesWitnesses: {},
       myVotesCommittee: {},
@@ -132,29 +205,20 @@ export default {
     };
   },
   watch: {
-    "$refs.hideDropDom.style.bottom": function(val) {
-      console.log("---------------");
-    }
   },
   mounted() {
-      Indicator.open({
-        text: '加载中...',
-        spinnerType: 'fading-circle'
-      });
     if (cacheSession.get(cacheKey.accountName)) {
       // this.isLogin = true
       this.currentLoginAccount = cacheSession.get(cacheKey.accountName)
     }
-    
     this.queryVotesAjax();
-    this.queryAccountInfoAjax();
   },
   methods: {
       showDropDom(){
           this.isMask = true
-        if (this.isWitnesses) {
-        } else {
-        }
+        // if (this.isWitnesses) {
+        // } else {
+        // }
       },
 
 
@@ -164,8 +228,6 @@ export default {
         account: _this.account,
         password: _this.password
       }).then(res => {
-        console.log("-----------passwordLogin-------------");
-        console.log(res);
         if (res.code == 1) {
           _this.account = "";
           _this.password = "";
@@ -175,8 +237,6 @@ export default {
         //     message: "登录成功",
         //     type: "success"
         //   });
-          console.log(cacheKey.accountName);
-          console.log(res.data.account_name);
           cacheSession.set(cacheKey.accountName, res.data.account_name);
           this.currentLoginAccount = res.data.account_name;
         } else {
@@ -226,27 +286,32 @@ export default {
       }
 
       publishVotes(params).then(res => {
-        console.log("--------publishVotes-------------res------");
-        console.log(res);
+        if (res.code == 1) {
+          alert('success vote')
+        } else {
+          alert('error vote')
+        }
 
         _this.queryVotesAjax();
-        _this.queryAccountInfoAjax();
       });
     },
-    changeTpye() {
+    changeTpye(val) {
+      
+      if (val == this.isWitnesses) return false
       let _this = this;
-      this.isWitnesses = !this.isWitnesses;
+      this.isWitnesses = val;
       this.currentPage = 1;
+      this.votesTotal = 0
       this.lookupBlock = [];
       this.tableList = [];
+      
       this.queryVotesAjax();
     },
 
+    // 个人投票情况
     queryAccountInfoAjax() {
       let _this = this;
       queryAccountInfo().then(res => {
-        console.log("---res----");
-        console.log(res.data.votes);
         let myVotes = res.data.votes;
         // myVotesWitnesses myVotesCommittee
         let myVotesIds = [];
@@ -262,22 +327,32 @@ export default {
         let duplicateRemovalMyVotesIds = myVotesIds.filter(
           (item, index, self) => self.indexOf(item) === index
         );
-        console.log("----------myVotesIds-----------");
-        console.log(myVotesIds);
-        console.log(duplicateRemovalMyVotesIds);
         queryDataByIds(duplicateRemovalMyVotesIds).then(res => {
-          console.log("---------queryDataByIds------------");
-          console.log(res);
+          let myVotesWitnesses = {}
+          let myVotesCommittee = {}
           for (let i = 0; i < res.data.length; i++) {
+            let myVotesObj = {
+              name: res.data[i].name,
+              logo: res.data[i].logo
+            }
             if (_this.myVotesWitnesses.hasOwnProperty(res.data[i].id)) {
-              _this.myVotesWitnesses[res.data[i].id] = res.data[i].name;
+              // _this.myVotesWitnesses[res.data[i].id] = res.data[i].name;
+              myVotesWitnesses[res.data[i].id] = {
+                name: res.data[i].name,
+                logo: res.data[i].logo
+              };
+
             }
             if (_this.myVotesCommittee.hasOwnProperty(res.data[i].id)) {
-              _this.myVotesCommittee[res.data[i].id] = res.data[i].name;
+              // _this.myVotesCommittee[res.data[i].id] = res.data[i].name;
+              myVotesCommittee[res.data[i].id] = {
+                name: res.data[i].name,
+                logo: res.data[i].logo
+              };
             }
           }
-          console.log(_this.myVotesWitnesses);
-          console.log(_this.myVotesCommittee);
+          _this.myVotesWitnesses = myVotesWitnesses
+          _this.myVotesCommittee = myVotesCommittee
         });
       });
     },
@@ -286,7 +361,7 @@ export default {
       let _this = this;
       //   var formData = new FormData();
       //   formData.append("picture", files);
-
+      // lang=en/zh-CN
       let resUrl = "http://vote.test.cjfan.net/api/api/v1/witnesses";
       if (this.isWitnesses) {
         resUrl = "http://vote.test.cjfan.net/api/api/v1/witnesses";
@@ -298,18 +373,32 @@ export default {
         .then(function(response) {
           _this.tableList = [];
           _this.tableList = response.data.result;
-          console.log("_this.tableList");
-          console.log(_this.tableList);
+          
           _this.lookupBlock = new Array(response.data.result.length);
-          for (let i = 0; i < _this.tableList.length; i++) {
-            _this.tableList[i].voteRate =
-              Number(Number(
-                Number(_this.tableList[i].votes) / Number(_this.votesTotal)
-              ).toFixed(4) *
-                100).toFixed(2) +
-              "%";
-            _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
+          if (_this.votesTotal == 0) {
+            
+            for (let i = 0; i < _this.tableList.length; i++) {
+              _this.tableList[i].voteRate = "0%"
+              // _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
+            }
+          } else {
+            for (let i = 0; i < _this.tableList.length; i++) {
+              _this.tableList[i].voteRate =
+                Number(Number(
+                  Number(_this.tableList[i].votes) / Number(_this.votesTotal)
+                ).toFixed(4) *
+                  100).toFixed(2) +
+                "%";
+              // _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
+            }
+            
+            _this.$nextTick(function () {
+              _this.$refs.loadmore.onBottomLoaded();
+            })
+            
           }
+          _this.queryAccountInfoAjax();
+          
         })
         .catch(function(error) {
           console.log("error");
@@ -326,7 +415,6 @@ export default {
         queryType = "committee";
       }
       let params = {
-        queryAccount: "",
         type: queryType
       };
       queryVotes(params).then(res => {
@@ -335,7 +423,7 @@ export default {
         }
         res.data.sort(sortId);
         _this.count = res.data.length;
-        _this.queryVotesList = [];
+        // _this.queryVotesList = [];
         _this.votesTotal = 0;
         for (let i = 0; i < res.data.length; i++) {
           _this.votesTotal += Number(res.data[i].votes);
@@ -344,11 +432,21 @@ export default {
             : (res.data[i].supporters_count = 0);
           res.data[i].ranking = i + 1;
         }
-        _this.queryVotesList = res.data;
-        let requestQueryVotesList = res.data.slice(
-          Number(_this.currentPage - 1) * Number(_this.pageSize),
-          Number(_this.currentPage) * Number(_this.pageSize)
-        );
+        // _this.queryVotesList = res.data;
+        // let requestQueryVotesList = res.data.slice(
+        //   Number(_this.currentPage - 1) * Number(_this.pageSize),
+        //   Number(_this.currentPage) * Number(_this.pageSize)
+        // );
+        
+
+        let currentPageSize = _this.currentPage * _this.pageSize
+        if (currentPageSize > res.data.length) {
+          currentPageSize = res.data.length
+          if (_this.currentPage > 0) {
+            _this.currentPage--
+          }
+        }
+        let requestQueryVotesList = res.data.slice(0, Number(currentPageSize));
         let formData = {};
         if (this.isWitnesses) {
           formData = {
@@ -357,9 +455,11 @@ export default {
           };
         } else {
           formData = {
-            committee: requestQueryVotesList
+            committee: requestQueryVotesList,
+            
           };
         }
+        
         _this.witnessesAjax(formData);
       });
     },
@@ -402,7 +502,7 @@ export default {
         }
       }
     },
-
+    
     handleClose(key, typeName) {
       console.log(key);
       // witnesses 见证人    committee 理事会
@@ -432,6 +532,17 @@ export default {
       setTimeout(() => {
         _this.isMask = false;
       }, 500);
+    },
+
+    
+    loadTop() {
+      this.currentPage = 1
+      this.queryVotesAjax();
+      this.$refs.loadmore.onTopLoaded();
+    },
+    loadBottom(){
+      this.currentPage++
+      this.queryVotesAjax();
     }
   }
 };
@@ -442,6 +553,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.home{
+  width: 100%;
+  height: 100%;
+}
 .search-bar {
   width: 100%;
   height: 0.64rem;
@@ -502,9 +617,12 @@ export default {
 .node-lists {
   margin-top: 0.12rem;
   background: #fff;
+  height: calc( 100% - 1.26rem);
 }
 .node-lists .node-main {
+  height: 100%;
   margin-left: 0.2rem;
+  overflow-y: auto;
 }
 .node-lists .node-main .node {
   width: 100%;
@@ -700,7 +818,7 @@ export default {
 
 .blank55{
     width: 100%;
-    height: 0.5rem;
+    height: 0.8rem;
 }
 </style>
 
