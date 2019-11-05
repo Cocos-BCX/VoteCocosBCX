@@ -332,22 +332,6 @@ input  {
   }
 
 
-  
-.el-pager li{
-    background: none!important;
-}
-.el-pager li:hover{
-    background:rgba(90,103,128,1)!important;
-    border-radius: 50%!important;
-    color: #fff;
-}
-.el-pager li.active{
-    background:rgba(90,103,128,1)!important;
-    border-radius: 50%!important;
-}
-.el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev{
-    background: none!important;
-}
 
 
 .mint-indicator-wrapper{
@@ -360,4 +344,11 @@ input  {
 .page-loadmore-wrapper {
     overflow: scroll!important;
     z-index: 100!important;
+}
+.toast-style span{
+  color: #fff!important;
+}
+
+.mint-msgbox .mint-msgbox-content .mint-msgbox-message{
+  color: #333333 !important;
 }
