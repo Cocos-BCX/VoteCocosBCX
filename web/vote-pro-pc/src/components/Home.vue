@@ -141,7 +141,7 @@
               <!-- <el-checkbox @change="checkboxChangeEvents(li, index)" :checked="li.supported"></el-checkbox> -->
             </td>
             <td>
-              <p class="ranking">{{li.ranking}}</p>
+              <p class="ranking" :class="li.ranking>11?'standby':'top'">{{li.ranking}}</p>
             </td>
             <td>
               <div class="name">
@@ -274,8 +274,6 @@ export default {
         account: _this.account,
         password: _this.password
       }).then( res=>{
-        console.log('-----------passwordLogin-------------')
-        console.log(res)
         if (res.code == 1) {
           _this.account = ''
           _this.password = ''
@@ -285,8 +283,6 @@ export default {
             message: '登录成功',
             type: 'success',
           })
-          console.log(cacheKey.accountName)
-          console.log(res.data.account_name)
           cacheSession.set(cacheKey.accountName, res.data.account_name)
           _this.currentLoginAccount = res.data.account_name
           _this.queryVotesAjax();
@@ -353,8 +349,6 @@ export default {
 
       publishVotes(params).then(res => {
         
-        console.log("--------publishVotes-------------res------");
-        console.log(res);
         if (res.code == 1) {
           
              
@@ -394,6 +388,7 @@ export default {
       this.lookupBlock = [];
       this.tableList = [];
       this.queryVotesAjax();
+      this.queryAccountInfoAjax();
     },
 
     queryAccountInfoAjax() {
@@ -404,6 +399,8 @@ export default {
         let myVotes = res.data.votes;
         // myVotesWitnesses myVotesCommittee
         let myVotesIds = [];
+        _this.myVotesWitnesses = {}
+        _this.myVotesCommittee = {}
         for (let i = 0; i < myVotes.length; i++) {
           if (myVotes[i].hasOwnProperty("witness_account")) {
             myVotesIds.push(myVotes[i].witness_account);
@@ -416,12 +413,7 @@ export default {
         let duplicateRemovalMyVotesIds = myVotesIds.filter(
           (item, index, self) => self.indexOf(item) === index
         );
-        console.log("----------myVotesIds-----------");
-        console.log(myVotesIds);
-        console.log(duplicateRemovalMyVotesIds);
         queryDataByIds(duplicateRemovalMyVotesIds).then(res => {
-          console.log("---------queryDataByIds------------");
-          console.log(res);
           for (let i = 0; i < res.data.length; i++) {
             if (_this.myVotesWitnesses.hasOwnProperty(res.data[i].id)) {
               _this.myVotesWitnesses[res.data[i].id] = res.data[i].name;
@@ -430,8 +422,6 @@ export default {
               _this.myVotesCommittee[res.data[i].id] = res.data[i].name;
             }
           }
-          console.log(_this.myVotesWitnesses);
-          console.log(_this.myVotesCommittee);
         });
       });
     },
@@ -444,22 +434,17 @@ export default {
       
       let resUrl = "http://vote.test.cjfan.net/api/api/v1/witnesses";
       if (this.isWitnesses) {
-        resUrl = "http://vote.test.cjfan.net/api/api/v1/witnesses";
+        resUrl = "http://vote.test.cjfan.net/api/api/v1/witnesses?lang=en";
       } else {
-        resUrl = "http://vote.test.cjfan.net/api/api/v1/committee";
+        resUrl = "http://vote.test.cjfan.net/api/api/v1/committee?lang=en";
       }
       this.$axios
         .post(resUrl, formData)
         .then(function(response) {
           _this.tableList= ''
           _this.tableList = response.data.result;
-          console.log("_this.tableList");
-          console.log(_this.tableList);
           _this.lookupBlock = new Array(response.data.result.length);
           for (let i = 0; i < _this.tableList.length; i++) {
-            console.log(Number(_this.tableList[i].votes))
-            console.log('_this.votesTotal')
-            console.log(_this.votesTotal)
             _this.tableList[i].voteRate = Number(_this.votesTotal) == 0 ? "0%":Number(Number(
                 Number(_this.tableList[i].votes) / Number(_this.votesTotal)
               ).toFixed(4) *
@@ -496,8 +481,6 @@ export default {
         queryAccount: cacheSession.get(cacheKey.accountName) || '',
         type: queryType
       };
-      console.log('---------params-----------')
-      console.log(params)
       queryVotes(params).then(res => {
         function sortId(a, b) {
           return b.votes - a.votes;
@@ -587,7 +570,6 @@ export default {
     },
 
     handleClose(key, typeName) {
-      console.log(key);
       // witnesses 见证人    committee 理事会
       let dynamicTags = {};
       if (typeName == "witnesses") {
@@ -607,7 +589,6 @@ export default {
           let targetObj = this.tableList
           this.tableList = []
           this.tableList = targetObj
-      console.log(this.tableList)
           return false
         }
       }
@@ -882,6 +863,12 @@ table.table-main tr td p.ranking {
   font-weight: 600;
   color: rgba(68, 200, 145, 1);
   text-align: center;
+}
+table.table-main tr td p.ranking.top{
+  color: rgba(121,215,176,1);
+}
+table.table-main tr td p.ranking.standby{
+  color: rgba(255,184,84,1);
 }
 table.table-main tr td a.node-choice-btn {
   width:18px;
