@@ -97,9 +97,7 @@ import {
   passwordLogin
 } from "../../libs/bcx.api";
 import { cacheSession, cacheKey } from '../../libs/Utils'
-// import { Message } from 'element-ui';
-import { Indicator } from 'mint-ui';
-
+import { Indicator, Toast } from 'mint-ui';
 export default {
   data() {
     return {
@@ -114,7 +112,7 @@ export default {
       isWitnesses: true,
 
       // page: 1,
-      pageSize: 4,
+      pageSize: 6,
       queryVotesList: [],
 
       votesTotal: 0,
@@ -405,6 +403,24 @@ export default {
       });
     },
     checkboxChangeEvents(li) {
+      let _this = this
+      
+      let myVotesCount = 0
+      if (this.isWitnesses) {
+        myVotesCount = Object.keys(_this.myVotesWitnesses).length
+      } else {
+        myVotesCount = Object.keys(_this.myVotesCommittee).length
+      }
+      if (!li.supported) {
+        if (myVotesCount == 3) {
+          Toast({
+            message: '已到达票数上限',
+            className: 'toast-style',
+            duration: 2000
+          });
+          return false
+        }
+      }
       li.supported = !li.supported
       let myVotesObj = {
           name: '',
@@ -419,6 +435,7 @@ export default {
           this.myVotesCommittee[li.account_id] = myVotesObj
         }
       } else {
+        
         let dynamicTags = {};
         if (this.isWitnesses) {
           delete this.myVotesWitnesses[li.account_id];

@@ -536,8 +536,8 @@ export default {
       } else {
         myVotesCount = Object.keys(_this.myVotesCommittee).length
       }
-
-      if (myVotesCount == 11) {
+      if (!this.tableList[index].supported) {
+        if (myVotesCount == 11) {
           Message({
             duration: 2000,
             message: '已到达票数上限',
@@ -545,6 +545,7 @@ export default {
           })
           return false
         }
+      }
 
       this.tableList[index].supported = !this.tableList[index].supported
       if (li.supported) {
