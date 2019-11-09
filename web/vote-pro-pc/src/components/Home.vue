@@ -12,7 +12,7 @@
         <!-- /<span>MathWallet</span> -->
       </p>
 
-      <a v-if="!currentLoginAccount" href="javascript:void(0);" class="login-btn" @click="showLogin()">
+      <!-- <a v-if="!currentLoginAccount" href="javascript:void(0);" class="login-btn" @click="showLogin()">
         <img src="../assets/images/login-user.png" alt />
         <span>登录</span>
       </a>
@@ -22,7 +22,7 @@
           <img src="../assets/images/login-user.png" alt />
           <span>退出登录</span>
         </a>
-      </p>
+      </p> -->
     </div>
 
     <div class="node-container">
@@ -430,14 +430,8 @@ export default {
           _this.numberVotesCast = Number(res.data.account.asset_locked.vote_for_committee.amount)/Math.pow(10,5)
           
         }
+        _this.queryAccountBalancesAjax()
       })
-      _this.queryAccountBalancesAjax('syling')
-      // getAccountInfo().then( res => {
-      //   // res[cacheKey.accountName]
-      //   console.log('-----------------getAccountInfo------------')
-      //   console.log(res)
-      //   _this.queryVestingBalanceAjax('syling')
-      // })
     },
     // withdrawalTickets(){
     //   let _this = this;
@@ -549,7 +543,11 @@ export default {
         }
       }
       
-      let params = {};
+      let params = {
+        vote_ids: [],
+        type: 'witnesses',
+        votes: 0
+      };
 
       if (!cacheSession.get(cacheKey.accountName)) {
           Message({
@@ -559,15 +557,16 @@ export default {
           })
           return false
       }
+      params.vote_ids = [];
       if (this.isWitnesses) {
-        params.witnessesIds = [];
+        params.type = 'witnesses'
         for (const key in this.myVotesWitnesses) {
-          params.witnessesIds.push(key);
+          params.vote_ids.push(key);
         }
       } else {
-        params.committee_ids = [];
+        params.type = 'committee'
         for (const key in this.myVotesCommittee) {
-          params.committee_ids.push(key);
+          params.vote_ids.push(key);
         }
       }
       let votesNum = 0
@@ -576,7 +575,9 @@ export default {
       } else {
         votesNum = this.votesNum
       }
-      params.votes_num = this.votesNum
+      params.votes = Number(votesNum)
+      console.log('params')
+      console.log(params)
       publishVotes(params).then(res => {
         console.log('---------------publishVotes----------')
         console.log(res)
@@ -588,8 +589,12 @@ export default {
               message: '投票成功',
               type: 'success',
             })
-        _this.queryVotesAjax();
-        _this.queryAccountInfoAjax();
+            _this.hideLogin()
+          _this.queryVotesAjax();
+          _this.queryAccountInfoAjax();
+        } else if(res.code == 402){
+            _this.hideLogin()
+          return false
         } else {
           
           if (res.message.indexOf('Account is locked or not logged in') > -1) {
@@ -607,6 +612,7 @@ export default {
               type: 'error',
             })
           }
+            _this.hideLogin()
         }
 
       });
@@ -624,6 +630,8 @@ export default {
     queryAccountBalancesAjax(){
       let _this = this;
       queryAccountBalances().then( res => {
+        console.log('-------------------')
+        console.log(res)
         if (res.code == 1) {
           _this.myCOCOS = res.data.COCOS
         }
@@ -777,7 +785,7 @@ export default {
       console.log(`当前页: ${val}`);
       this.currentPage = val;
       this.queryVotesAjax();
-    this.queryAccountInfoAjax();
+      this.queryAccountInfoAjax();
     },
 
     checkboxChangeEvents(li, index) {

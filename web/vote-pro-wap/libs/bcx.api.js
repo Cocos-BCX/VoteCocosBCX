@@ -147,6 +147,7 @@ export let publishVotes = function (params) {
     spinnerType: 'fading-circle'
   });
   return new Promise(async function (resolve, reject) {
+    // witnesses committee
     bcx.publishVotes({
       // witnessesIds: params.witnessesIds || null,
       // committee_ids: params.committee_ids || null,

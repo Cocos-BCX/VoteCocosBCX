@@ -115,34 +115,13 @@ export let passwordLogin = function (params) {
 
 }
 
-// 投票
-export let publishVotes = function (params) {
-  
-  let loadingInstance = Loading.service();
-  return new Promise(async function (resolve, reject) {
-    bcx.publishVotes({
-      witnessesIds: params.witnessesIds || null,
-      committee_ids: params.committee_ids || null,
-      votes: params.votes_num || 0
-    }).then(res => {
-      loadingInstance.close();
-      resolve(res)
-      // console.info("bcx passwordLogin res", res);
-    }).catch(err=>{
-      loadingInstance.close();
-      console.log(err)
-      resolve(false)
-      
-    });
-  })
-}
-
 
 
 // 获取用户信息
 export let getAccountInfo = function () {
   let loadingInstance = Loading.service();
   return new Promise(async function (resolve, reject) {
+    await browserConnect()
     bcx.getAccountInfo().then(res => {
       console.log('---------getAccountInfo------------')
       console.log(res)
@@ -164,7 +143,7 @@ export let getAccountInfo = function () {
       } else {
         cacheSession.set(cacheKey.accountName, res.account_name)
         cacheSession.remove(cacheKey.myWorldView)
-        resolve(true)
+        resolve(res)
         return false
       }
     }).catch(err => {
@@ -176,41 +155,45 @@ export let getAccountInfo = function () {
 }
 
 
-// 桌面钱包链接
-export let desktopConnect = function () {
-  Cocosjs.plugins(new CocosBCX())
-  Cocosjs.cocos.connect('My-App').then(connected => {
-    let tipsMessage = {}
-    if (cacheSession.get(cacheKey.lang) == 'zh') {
-      tipsMessage = langZh.tipsMessage
-    } else {
-      tipsMessage = langEn.tipsMessage
-    }
-    if (!connected) {
-      Message({
-        duration: 2000,
-        message: tipsMessage.interFaceMessage.common[0],
-        type: 'error',
-      })
-      return
-    } else {
-      const cocos = Cocosjs.cocos
-      bcx = cocos.cocosBcx(bcx)
-      bcx.getAccountInfo().then(res => {
-        cacheSession.set(cacheKey.accountName, res[cacheKey.accountName])
-        cacheSession.remove(cacheKey.myWorldView)
-      }).catch(function (err) {})
-    }
 
-  }).catch(function (err) {})
+// 投票
+export let publishVotes = function (params) {
+  
+  let loadingInstance = Loading.service();
+  return new Promise(async function (resolve, reject) {
+    // witnesses committee
+    await browserConnect()
+    bcx.publishVotes({
+      // witnessesIds: params.witnessesIds || null,
+      // committee_ids: params.committee_ids || null,
+      type: params.type,
+      vote_ids: params.vote_ids,
+      votes: params.votes
+    }).then(res => {
+      loadingInstance.close();
+      resolve(res)
+      // console.info("bcx passwordLogin res", res);
+    }).catch(err=>{
+      loadingInstance.close();
+      console.log(err)
+      resolve(false)
+      
+    });
+  })
 }
+
+
+
+
 
 
 
 // 查询账户信息
 export let queryAccountInfo = function () {
   let loadingInstance = Loading.service();
-  return new Promise(function (resolve, reject) {
+  return new Promise(async function (resolve, reject) {
+    
+    await getAccountInfo()
     // account: 'syling'
     bcx.queryAccountInfo({
       account: cacheSession.get(cacheKey.accountName)
@@ -228,7 +211,8 @@ export let queryAccountInfo = function () {
 // 查询数据通过id
 export let queryDataByIds = function (ids) {
   let loadingInstance = Loading.service();
-  return new Promise(function (resolve, reject) {
+  return new Promise(async function (resolve, reject) {
+    await browserConnect()
     bcx.queryDataByIds({
         ids: ids
     }).then(res=>{
@@ -248,7 +232,8 @@ export let queryDataByIds = function (ids) {
 // 查询账户
 export let queryVestingBalance = function (account) {
   let loadingInstance = Loading.service();
-  return new Promise(function (resolve, reject) {
+  return new Promise(async function (resolve, reject) {
+    await browserConnect()
     bcx.queryVestingBalance({
       account: account
     }).then(res => {
@@ -270,31 +255,36 @@ export let queryAccountBalances = function () {
   
   
   let loadingInstance = Loading.service();
-  return new Promise(function (resolve, reject) {
-    // getAccountInfo().then( (getAccountInfoResult) => {
-    //   if (!getAccountInfoResult) return false
-      
+  return new Promise( function (resolve, reject) {
+    getAccountInfo().then( (getAccountInfoResult) => {
+      if (!getAccountInfoResult) return false
+      console.log('getAccountInfoResult')
+      console.log(getAccountInfoResult)
       bcx.queryAccountBalances({
-        // account: getAccountInfoResult[cacheKey.accountName] || ''
-        account: 'syling'
+        account: getAccountInfoResult[cacheKey.accountName] || ''
+        // account: 'syling'
       }).then(res => {
+        console.log('-----syling------')
+        console.log(res)
       loadingInstance.close();
         resolve(res)
       }).catch(err => {
+        console.log('-----syling------')
         console.log(err)
         loadingInstance.close();
         resolve(false)
       })
     })
     
-  // })
+  })
 }
 
 
 // 投票列表
 export let queryVotes = function (params) {
   let loadingInstance = Loading.service();
-  return new Promise(function (resolve, reject) {
+  return new Promise(async function (resolve, reject) {
+    await browserConnect()
     let param = {
       // type: witnesses 见证人    committee 理事会
       queryAccount: params.queryAccount,

@@ -333,7 +333,7 @@ export default {
       
       let params = {
         vote_ids: [],
-        type: 0,
+        type: 'witnesses',
         votes: 0
       };
 
@@ -347,12 +347,12 @@ export default {
       }
       params.vote_ids = [];
       if (this.isWitnesses) {
-        params.type = 1
+        params.type = 'witnesses'
         for (const key in this.myVotesWitnesses) {
           params.vote_ids.push(key);
         }
       } else {
-        params.type = 0
+        params.type = 'committee'
         params.committee_ids = [];
         for (const key in this.myVotesCommittee) {
           params.vote_ids.push(key);
@@ -366,8 +366,6 @@ export default {
       }
       params.votes = votesNum
       publishVotes(params).then(res => {
-        console.log('----publishVotes---res----')
-        console.log(res)
         if (res.code == 1) {
           
           Toast({
