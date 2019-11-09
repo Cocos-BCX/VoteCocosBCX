@@ -16,7 +16,7 @@ import {
 // import {
 //   Loading
 // } from 'element-ui'
-import { Indicator } from 'mint-ui';
+import { Loading,Indicator } from 'mint-ui';
 
 let bcx = null
 
@@ -148,9 +148,11 @@ export let publishVotes = function (params) {
   });
   return new Promise(async function (resolve, reject) {
     bcx.publishVotes({
-      witnessesIds: params.witnessesIds || null,
-      committee_ids: params.committee_ids || null,
-      votes: 1
+      // witnessesIds: params.witnessesIds || null,
+      // committee_ids: params.committee_ids || null,
+      type: params.type,
+      vote_ids: params.vote_ids,
+      votes: params.votes
     }).then(res => {
       // loadingInstance.close();
       Indicator.close();
@@ -290,25 +292,51 @@ export let queryDataByIds = function (ids) {
 
 
 
-export let lookupBlockRewardsById = async function (account_id) {
-  let loadingInstance = Loading.service();
-  // await passwordLogin({
-  //   account: 'syling',
-  //   password: '12345678'
-  // })
+// 查询账户指定资产余额
+export let queryAccountBalances = function () {
+  Indicator.open({
+    spinnerType: 'fading-circle'
+  });
   return new Promise(function (resolve, reject) {
-    bcx.lookupBlockRewardsById({
-      account_id: account_id
-    }).then(res => {
-      loadingInstance.close();
-      resolve(res)
-    }).catch(err=>{
-      loadingInstance.close();
-      console.log('--------err-------')
-      console.log(err)
+    // getAccountInfo().then( (getAccountInfoResult) => {
+    //   if (!getAccountInfoResult) return false
+      
+      bcx.queryAccountBalances({
+        // account: getAccountInfoResult[cacheKey.accountName] || ''
+        account: 'syling'
+      }).then(res => {
+        Indicator.close();
+        resolve(res)
+      }).catch(err => {
+        console.log(err)
+        Indicator.close();
+        resolve(false)
+      })
     })
-  })
+    
+  // })
 }
+
+
+// export let lookupBlockRewardsById = async function (account_id) {
+//   // let loadingInstance = Loading.service();
+//   // await passwordLogin({
+//   //   account: 'syling',
+//   //   password: '12345678'
+//   // })
+//   return new Promise(function (resolve, reject) {
+//     bcx.lookupBlockRewardsById({
+//       account_id: account_id
+//     }).then(res => {
+//       // loadingInstance.close();
+//       resolve(res)
+//     }).catch(err=>{
+//       // loadingInstance.close();
+//       console.log('--------err-------')
+//       console.log(err)
+//     })
+//   })
+// }
 
 
 
@@ -337,3 +365,22 @@ export let queryVotes = function (params) {
 }
 
 
+
+// 查询账户
+export let queryVestingBalance = function (account) {
+  Indicator.open({
+    spinnerType: 'fading-circle'
+  });
+  return new Promise(function (resolve, reject) {
+    bcx.queryVestingBalance({
+      account: account
+    }).then(res => {
+      Indicator.close();
+      resolve(res)
+    }).catch(err=>{
+      Indicator.close();
+      console.log('--------err-------')
+      console.log(err)
+    })
+  })
+}

@@ -16,7 +16,8 @@
       <div class="node-main">
       <mt-loadmore :top-method="loadTop" :bottom-method="loadBottom" :bottom-all-loaded="allLoaded" :autoFill="false" bottomPullText="上拉加载更多" bottomDropText="释放加载更多" bottomLoadingText="加载更多" ref="loadmore">
         <div class="node" v-for="(li, index) in tableList" :key="index">
-          <img :src="li.logo" v-if="li.logo" class="node-icon" alt />
+          <img v-if="li.logo" :src="li.logo"  class="node-icon" alt />
+          <img v-if="!li.logo" src="../assets/images/default-icon.png"  class="node-icon" alt />
           <ul class="node-message">
             <li class="name">{{li.account_name}}</li>
             <li class="spec">
@@ -43,7 +44,7 @@
 
     <div class="bottom-btn-bar">
       <div @click="showDropDom()">已投节点：{{isWitnesses?Object.keys(myVotesWitnesses).length:Object.keys(myVotesCommittee).length}}</div>
-      <div @click="vote()">投票</div>
+      <div @click="showVoteBtn()">投票</div>
     </div>
     <div class="mask" v-if="isMask">
       <div class="already-voted-list-container" ref="hideDropDom">
@@ -82,7 +83,7 @@
         </div>
       </div>
     </div>
-    <div class="mask" v-if="isMask" @click.stop="hideLogin()"></div>
+    <div class="mask" v-if="isShowVotePopup" @click.stop="hideLogin()"></div>
     <div class="vote-Popup" v-if="isShowVotePopup">
       <div class="title">
         <ul class="tab-btn">
@@ -94,10 +95,10 @@
       </div>
       <div class="blance-bar" @click="fullBlance()" v-if="!isWithdrawalTickets">{{myCOCOS}} COCOS</div>
       <div class="blance-bar" @click="fullBlance()" v-if="isWithdrawalTickets">{{numberVotesCast}} COCOS</div>
-      <input type="text" class="num-input">
+      <input type="text" class="num-input" v-model="votesNum">
       <div class="confirm-btn-bar">
         <div class="btn cancel" @click="hideLogin()">取消</div>
-        <div class="btn confirm" @click="showVoteBtn()">确定</div>
+        <div class="btn confirm" @click="vote()">确定</div>
       </div>
     </div>
   </div>
@@ -107,12 +108,15 @@
 
 <script>
 import {
+  getAccountInfo,
   queryVotes,
-  lookupBlockRewardsById,
+  queryVestingBalance,
   queryAccountInfo,
   queryDataByIds,
   publishVotes,
-  passwordLogin
+  passwordLogin,
+  logout,
+  queryAccountBalances
 } from "../../libs/bcx.api";
 import { cacheSession, cacheKey } from '../../libs/Utils'
 import { Indicator, Toast } from 'mint-ui';
@@ -169,7 +173,7 @@ export default {
       // this.isLogin = true
       this.currentLoginAccount = cacheSession.get(cacheKey.accountName)
     }
-    // this.queryVotesAjax();
+    this.queryVotesAjax();
   },
   methods: {
     fullBlance(){
@@ -180,6 +184,15 @@ export default {
         this.votesNum = this.numberVotesCast
       }
       
+    },
+    hideLogin(){
+      this.isMask = false
+      this.isShowLogin = false
+      this.isShowVotePopup = false
+    },
+    showLogin(){
+      this.isMask = true
+      this.isShowLogin = true
     },
       showDropDom(){
           this.isMask = true
@@ -276,7 +289,6 @@ export default {
     },
     showVoteBtn(){
       let _this = this
-      this.isMask = true
       this.isShowVotePopup = true
       
       queryAccountInfo().then(res => {
@@ -287,7 +299,7 @@ export default {
           
         }
       })
-      _this.queryAccountBalancesAjax('syling')
+      _this.queryAccountBalancesAjax(cacheSession.get(cacheKey.accountName))
       // getAccountInfo().then( res => {
       //   // res[cacheKey.accountName]
       //   console.log('-----------------getAccountInfo------------')
@@ -297,7 +309,6 @@ export default {
     },
     vote() {
       let _this = this;
-      
       if (this.isWithdrawalTickets) {
         if (this.votesNum > this.numberVotesCast) {
           
@@ -320,7 +331,11 @@ export default {
         }
       }
       
-      let params = {};
+      let params = {
+        vote_ids: [],
+        type: 0,
+        votes: 0
+      };
 
       if (!cacheSession.get(cacheKey.accountName)) {
           Message({
@@ -330,15 +345,17 @@ export default {
           })
           return false
       }
+      params.vote_ids = [];
       if (this.isWitnesses) {
-        params.witnessesIds = [];
+        params.type = 1
         for (const key in this.myVotesWitnesses) {
-          params.witnessesIds.push(key);
+          params.vote_ids.push(key);
         }
       } else {
+        params.type = 0
         params.committee_ids = [];
         for (const key in this.myVotesCommittee) {
-          params.committee_ids.push(key);
+          params.vote_ids.push(key);
         }
       }
       let votesNum = 0
@@ -347,9 +364,10 @@ export default {
       } else {
         votesNum = this.votesNum
       }
-      params.votes_num = this.votesNum
-
+      params.votes = votesNum
       publishVotes(params).then(res => {
+        console.log('----publishVotes---res----')
+        console.log(res)
         if (res.code == 1) {
           
           Toast({
@@ -364,9 +382,23 @@ export default {
             duration: 2000
           });
         }
-
+        
+        _this.isWitnesses = true;
+        _this.currentPage = 1;
+        _this.lookupBlock = [];
+        _this.tableList = [];
+        _this.hideLogin()
         _this.queryVotesAjax();
       });
+    },
+    queryAccountBalancesAjax(){
+      let _this = this;
+      queryAccountBalances().then( res => {
+        if (res.code == 1) {
+          _this.myCOCOS = res.data.COCOS
+        }
+        
+      })
     },
     changeTpye(val) {
       
@@ -454,7 +486,9 @@ export default {
             
             for (let i = 0; i < _this.tableList.length; i++) {
               _this.tableList[i].voteRate = "0%"
-              _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
+              // _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
+              
+              _this.queryVestingBalanceAjax(_this.tableList[i].account_name, i);
             }
           } else {
             for (let i = 0; i < _this.tableList.length; i++) {
@@ -464,7 +498,9 @@ export default {
                 ).toFixed(4) *
                   100).toFixed(2) +
                 "%";
-              _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
+              // _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
+              
+            _this.queryVestingBalanceAjax(_this.tableList[i].account_name, i);
             }
             
             _this.$nextTick(function () {
@@ -479,6 +515,29 @@ export default {
           console.log("error");
           console.log(error);
         });
+    },
+    
+    queryVestingBalanceAjax(account_name, index) {
+      let _this = this;
+      queryVestingBalance(account_name).then(res => {
+        if (res.code == 1) {
+          if (res.data.length > 0) {
+            for (let i = 0; i < res.data.length; i++) {
+              if (res.data[i].type == "cashback_block") {
+                _this.lookupBlock.splice(index, 1, res.data[i].return_cash)
+                break;
+              }
+              
+            }
+            
+          } else {
+            _this.lookupBlock.splice(index, 1, 0);
+          }
+          
+        } else {
+          _this.lookupBlock.splice(index, 1, 0);
+        }
+      });
     },
     queryVotesAjax() {
       let _this = this;
