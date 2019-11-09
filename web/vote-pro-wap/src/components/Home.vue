@@ -134,6 +134,9 @@ export default {
     };
   },
   watch: {
+    'searchAccountName': function (val) {
+      this.searchBtn()
+    }
   },
   mounted() {
     if (cacheSession.get(cacheKey.accountName)) {
@@ -181,10 +184,9 @@ export default {
 
     searchBtn() {
       let _this = this;
-      let searchResult = this.tableList.filter(stu => {
-        return stu.account_name == _this.searchAccountName;
+      let searchResult = this.queryVotesList.filter(stu => {
+        return stu.account_name.indexOf(_this.searchAccountName) > -1 ;
       });
-
       let formData = {};
       if (this.isWitnesses) {
         formData = {
@@ -234,6 +236,8 @@ export default {
       this.lookupBlock = [];
       this.tableList = [];
       
+      this.myVotesWitnesses = {}
+      this.myVotesCommittee = {}
       this.queryVotesAjax();
     },
 
@@ -308,7 +312,7 @@ export default {
             
             for (let i = 0; i < _this.tableList.length; i++) {
               _this.tableList[i].voteRate = "0%"
-              // _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
+              _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
             }
           } else {
             for (let i = 0; i < _this.tableList.length; i++) {
@@ -318,7 +322,7 @@ export default {
                 ).toFixed(4) *
                   100).toFixed(2) +
                 "%";
-              // _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
+              _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
             }
             
             _this.$nextTick(function () {
@@ -352,7 +356,7 @@ export default {
         }
         res.data.sort(sortId);
         _this.count = res.data.length;
-        // _this.queryVotesList = [];
+        _this.queryVotesList = [];
         _this.votesTotal = 0;
         for (let i = 0; i < res.data.length; i++) {
           _this.votesTotal += Number(res.data[i].votes);
@@ -361,7 +365,7 @@ export default {
             : (res.data[i].supporters_count = 0);
           res.data[i].ranking = i + 1;
         }
-        // _this.queryVotesList = res.data;
+        _this.queryVotesList = res.data;
         // let requestQueryVotesList = res.data.slice(
         //   Number(_this.currentPage - 1) * Number(_this.pageSize),
         //   Number(_this.currentPage) * Number(_this.pageSize)
@@ -412,7 +416,7 @@ export default {
         myVotesCount = Object.keys(_this.myVotesCommittee).length
       }
       if (!li.supported) {
-        if (myVotesCount == 3) {
+        if (myVotesCount == 11) {
           Toast({
             message: '已到达票数上限',
             className: 'toast-style',
@@ -485,10 +489,14 @@ export default {
     
     loadTop() {
       this.currentPage = 1
+      this.myVotesWitnesses = {}
+      this.myVotesCommittee = {}
       this.queryVotesAjax();
       this.$refs.loadmore.onTopLoaded();
     },
     loadBottom(){
+      this.myVotesWitnesses = {}
+      this.myVotesCommittee = {}
       this.currentPage++
       this.queryVotesAjax();
     }
