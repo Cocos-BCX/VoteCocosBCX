@@ -249,9 +249,9 @@
           </ul>
         </div>
         <div class="btn-bar">
-          <a href="javascript:void(0);">取消</a>
+          <a href="javascript:void(0);" @click="hideLogin()">取消</a>
           <a href="javascript:void(0);" v-if="!isWithdrawalTickets" @click="vote()">投票</a>
-          <a href="javascript:void(0);" v-if="isWithdrawalTickets" @click="withdrawalTickets()">撤票</a>
+          <a href="javascript:void(0);" v-if="isWithdrawalTickets" @click="vote()">撤票</a>
           
         </div>
       </div>
@@ -424,7 +424,7 @@ export default {
       this.isWithdrawalTickets = val
       
       queryAccountInfo().then(res => {
-        if (this.isWitnesses) {
+        if (_this.isWitnesses) {
           _this.numberVotesCast = Number(res.data.account.asset_locked.vote_for_witness.amount)/Math.pow(10,5)
         } else {
           _this.numberVotesCast = Number(res.data.account.asset_locked.vote_for_committee.amount)/Math.pow(10,5)
@@ -439,95 +439,19 @@ export default {
       //   _this.queryVestingBalanceAjax('syling')
       // })
     },
-    withdrawalTickets(){
-      let _this = this;
-      
-      let params = {};
-
-      if (!cacheSession.get(cacheKey.accountName)) {
-          Message({
-            duration: 2000,
-            message: _this.$t('interFaceMessage.common[114]'),
-            type: 'error',
-          })
-          return false
-      }
-      
-      if (this.isWithdrawalTickets) {
-        if (this.votesNum > this.numberVotesCast) {
-          Message({
-              duration: 2000,
-              message: '投票数超过可使用余额',
-              type: 'error',
-            })
-          return false
-        }
-      } else {
-        if (this.votesNum > this.myCOCOS) {
-          Message({
-              duration: 2000,
-              message: '投票数超过可使用余额',
-              type: 'error',
-            })
-          return false
-        }
-      }
-      if (this.isWitnesses) {
-        params.witnessesIds = [];
-        for (const key in this.myVotesWitnesses) {
-          params.witnessesIds.push(key);
-        }
-      } else {
-        params.committee_ids = [];
-        for (const key in this.myVotesCommittee) {
-          params.committee_ids.push(key);
-        }
-      }
-      let votesNum = 0
-      if (this.isWithdrawalTickets) {
-        votesNum = this.votesNum
-      } else {
-        votesNum = numberVotesCast - this.votesNum
-      }
-      params.votes_num = votesNum
-      console.log(this.myVotesWitnesses)
-      console.log(this.myVotesCommittee)
-      publishVotes(params).then(res => {
-        console.log('---------------publishVotes----------')
-        console.log(res)
-        if (res.code == 1) {
-          
-             
-            Message({
-              duration: 2000,
-              message: '投票成功',
-              type: 'success',
-            })
-        _this.queryVotesAjax();
-        _this.queryAccountInfoAjax();
-        } else {
-          
-          if (res.message.indexOf('Account is locked or not logged in') > -1) {
-            
-            Message({
-              duration: 2000,
-              message: _this.$t('interFaceMessage.common[114]'),
-              type: 'error',
-            })
-          } else {
-             
-            Message({
-              duration: 2000,
-              message: '投票失败',
-              type: 'error',
-            })
-          }
-        }
-
-      })
-    },
-    // vote() {
+    // withdrawalTickets(){
     //   let _this = this;
+      
+    //   let params = {};
+
+    //   if (!cacheSession.get(cacheKey.accountName)) {
+    //       Message({
+    //         duration: 2000,
+    //         message: _this.$t('interFaceMessage.common[114]'),
+    //         type: 'error',
+    //       })
+    //       return false
+    //   }
       
     //   if (this.isWithdrawalTickets) {
     //     if (this.votesNum > this.numberVotesCast) {
@@ -548,17 +472,6 @@ export default {
     //       return false
     //     }
     //   }
-      
-    //   let params = {};
-
-    //   if (!cacheSession.get(cacheKey.accountName)) {
-    //       Message({
-    //         duration: 2000,
-    //         message: _this.$t('interFaceMessage.common[114]'),
-    //         type: 'error',
-    //       })
-    //       return false
-    //   }
     //   if (this.isWitnesses) {
     //     params.witnessesIds = [];
     //     for (const key in this.myVotesWitnesses) {
@@ -574,7 +487,7 @@ export default {
     //   if (this.isWithdrawalTickets) {
     //     votesNum = this.votesNum
     //   } else {
-    //     votesNum = numberVotesCast - this.votesNum
+    //     votesNum = this.numberVotesCast - this.votesNum
     //   }
     //   params.votes_num = votesNum
     //   console.log(this.myVotesWitnesses)
@@ -611,8 +524,93 @@ export default {
     //       }
     //     }
 
-    //   });
+    //   })
     // },
+    vote() {
+      let _this = this;
+      
+      if (this.isWithdrawalTickets) {
+        if (this.votesNum > this.numberVotesCast) {
+          Message({
+              duration: 2000,
+              message: '投票数超过可使用余额',
+              type: 'error',
+            })
+          return false
+        }
+      } else {
+        if (this.votesNum > this.myCOCOS) {
+          Message({
+              duration: 2000,
+              message: '投票数超过可使用余额',
+              type: 'error',
+            })
+          return false
+        }
+      }
+      
+      let params = {};
+
+      if (!cacheSession.get(cacheKey.accountName)) {
+          Message({
+            duration: 2000,
+            message: _this.$t('interFaceMessage.common[114]'),
+            type: 'error',
+          })
+          return false
+      }
+      if (this.isWitnesses) {
+        params.witnessesIds = [];
+        for (const key in this.myVotesWitnesses) {
+          params.witnessesIds.push(key);
+        }
+      } else {
+        params.committee_ids = [];
+        for (const key in this.myVotesCommittee) {
+          params.committee_ids.push(key);
+        }
+      }
+      let votesNum = 0
+      if (this.isWithdrawalTickets) {
+        votesNum = this.numberVotesCast - this.votesNum
+      } else {
+        votesNum = this.votesNum
+      }
+      params.votes_num = this.votesNum
+      publishVotes(params).then(res => {
+        console.log('---------------publishVotes----------')
+        console.log(res)
+        if (res.code == 1) {
+          
+             
+            Message({
+              duration: 2000,
+              message: '投票成功',
+              type: 'success',
+            })
+        _this.queryVotesAjax();
+        _this.queryAccountInfoAjax();
+        } else {
+          
+          if (res.message.indexOf('Account is locked or not logged in') > -1) {
+            
+            Message({
+              duration: 2000,
+              message: _this.$t('interFaceMessage.common[114]'),
+              type: 'error',
+            })
+          } else {
+             
+            Message({
+              duration: 2000,
+              message: '投票失败',
+              type: 'error',
+            })
+          }
+        }
+
+      });
+    },
     changeTpye(val) {
       if (this.isWitnesses == val) return false
       let _this = this;

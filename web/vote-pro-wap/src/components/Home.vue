@@ -82,6 +82,24 @@
         </div>
       </div>
     </div>
+    <div class="mask" v-if="isMask" @click.stop="hideLogin()"></div>
+    <div class="vote-Popup" v-if="isShowVotePopup">
+      <div class="title">
+        <ul class="tab-btn">
+          <a href="javascript:void(0);" :class="{active: !isWithdrawalTickets}"  @click="tabWithdrawalTickets(false)">投票</a>
+        </ul>
+        <ul class="tab-btn">
+          <a href="javascript:void(0);" :class="{active: isWithdrawalTickets}" @click="tabWithdrawalTickets(true)">撤票</a>
+        </ul>
+      </div>
+      <div class="blance-bar" @click="fullBlance()" v-if="!isWithdrawalTickets">{{myCOCOS}} COCOS</div>
+      <div class="blance-bar" @click="fullBlance()" v-if="isWithdrawalTickets">{{numberVotesCast}} COCOS</div>
+      <input type="text" class="num-input">
+      <div class="confirm-btn-bar">
+        <div class="btn cancel" @click="hideLogin()">取消</div>
+        <div class="btn confirm" @click="showVoteBtn()">确定</div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -127,10 +145,18 @@ export default {
       // login
       account: '',
       password: '',
+      isMask: false,
       isShowLogin: false,
+      isShowVotePopup: false,
 
       isLogin: false,
-      currentLoginAccount: ''
+      currentLoginAccount: '',
+
+      myCOCOS: '',
+      numberVotesCast: '',
+      votesNum: '',
+
+      isWithdrawalTickets: false
     };
   },
   watch: {
@@ -143,9 +169,18 @@ export default {
       // this.isLogin = true
       this.currentLoginAccount = cacheSession.get(cacheKey.accountName)
     }
-    this.queryVotesAjax();
+    // this.queryVotesAjax();
   },
   methods: {
+    fullBlance(){
+      let _this = this;
+      if (!this.isWithdrawalTickets) {
+        this.votesNum = this.myCOCOS
+      } else {
+        this.votesNum = this.numberVotesCast
+      }
+      
+    },
       showDropDom(){
           this.isMask = true
         // if (this.isWitnesses) {
@@ -200,11 +235,102 @@ export default {
       }
       _this.witnessesAjax(formData);
     },
+    
+    // vote() {
+    //   publishVotes(params).then(res => {
+    //     console.log('---------------publishVotes----------')
+    //     console.log(res)
+    //     if (res.code == 1) {
+          
+             
+    //       Toast({
+    //         message: '投票成功',
+    //         className: 'toast-style',
+    //         duration: 2000
+    //       });
+    //     _this.queryVotesAjax();
+    //     _this.queryAccountInfoAjax();
+    //     } else {
+          
+    //       if (res.message.indexOf('Account is locked or not logged in') > -1) {
+            
+    //       Toast({
+    //         message: _this.$t('interFaceMessage.common[114]'),
+    //         className: 'toast-style',
+    //         duration: 2000
+    //       });
+    //       } else {
+             
+    //       Toast({
+    //         message: "投票失败",
+    //         className: 'toast-style',
+    //         duration: 2000
+    //       });
+    //       }
+    //     }
+
+    //   });
+    // }
+    tabWithdrawalTickets(val){
+      this.isWithdrawalTickets = val
+    },
+    showVoteBtn(){
+      let _this = this
+      this.isMask = true
+      this.isShowVotePopup = true
+      
+      queryAccountInfo().then(res => {
+        if (_this.isWitnesses) {
+          _this.numberVotesCast = Number(res.data.account.asset_locked.vote_for_witness.amount)/Math.pow(10,5)
+        } else {
+          _this.numberVotesCast = Number(res.data.account.asset_locked.vote_for_committee.amount)/Math.pow(10,5)
+          
+        }
+      })
+      _this.queryAccountBalancesAjax('syling')
+      // getAccountInfo().then( res => {
+      //   // res[cacheKey.accountName]
+      //   console.log('-----------------getAccountInfo------------')
+      //   console.log(res)
+      //   _this.queryVestingBalanceAjax('syling')
+      // })
+    },
     vote() {
       let _this = this;
+      
+      if (this.isWithdrawalTickets) {
+        if (this.votesNum > this.numberVotesCast) {
+          
+          Toast({
+            message: "投票数超过可使用余额",
+            className: 'toast-style',
+            duration: 2000
+          });
+          return false
+        }
+      } else {
+        if (this.votesNum > this.myCOCOS) {
+          
+          Toast({
+            message: "投票数超过可使用余额",
+            className: 'toast-style',
+            duration: 2000
+          });
+          return false
+        }
+      }
+      
       let params = {};
+
+      if (!cacheSession.get(cacheKey.accountName)) {
+          Message({
+            duration: 2000,
+            message: _this.$t('interFaceMessage.common[114]'),
+            type: 'error',
+          })
+          return false
+      }
       if (this.isWitnesses) {
-        params.witnessesIds;
         params.witnessesIds = [];
         for (const key in this.myVotesWitnesses) {
           params.witnessesIds.push(key);
@@ -215,12 +341,28 @@ export default {
           params.committee_ids.push(key);
         }
       }
+      let votesNum = 0
+      if (this.isWithdrawalTickets) {
+        votesNum = this.numberVotesCast - this.votesNum
+      } else {
+        votesNum = this.votesNum
+      }
+      params.votes_num = this.votesNum
 
       publishVotes(params).then(res => {
         if (res.code == 1) {
-          alert('success vote')
+          
+          Toast({
+            message: "success vote",
+            className: 'toast-style',
+            duration: 2000
+          });
         } else {
-          alert('error vote')
+          Toast({
+            message: "error vote",
+            className: 'toast-style',
+            duration: 2000
+          });
         }
 
         _this.queryVotesAjax();
@@ -775,6 +917,106 @@ export default {
 .blank55{
     width: 100%;
     height: 0.8rem;
+}
+.mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background:rgba(38,42,51,0.4);
+  width: 100%;
+  height: 100%;
+  z-index: 200;
+}
+.vote-Popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  background:rgba(38,42,51,0.4);
+  width: 3.05rem;
+  height: 2.1rem;
+  z-index: 300;
+  background:rgba(255,255,255,1);
+  border-radius: 0.12rem;
+  margin-left: -1.52rem;
+  margin-top: -1.05rem;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+}
+.vote-Popup .title{
+  width: 100%;
+  height: 0.5rem;
+  line-height: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+.vote-Popup .title .tab-btn{
+  width: 50%;
+  height: 0.5rem;
+  line-height: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+.vote-Popup .title .tab-btn a{
+  height: 0.31rem;
+  line-height: 0.24rem;
+  font-size:16px;
+  font-weight:500;
+  color:rgba(38,42,51,1);
+  padding-bottom: 0.07rem;
+}
+.vote-Popup .title .tab-btn a.active{
+  padding-bottom: 0.05rem;
+  background: none;
+  border-bottom: 2px solid rgba(38,42,51,1);
+}
+.vote-Popup .blance-bar{
+  width: 100%;
+  margin-top: 0.23rem;
+  height: 0.18rem;
+  line-height: 0.18rem;
+  font-size: 0.12rem;
+  font-weight:400;
+  color:rgba(165,169,177,1);
+  text-align: left;
+}
+.vote-Popup .num-input{
+  width: 100%;
+  height:44px;
+  background:rgba(246,248,251,1);
+  border-radius:6px;
+  margin-top: 0.03rem;
+  font-size: 0.12rem;
+  color:rgba(165,169,177,1);
+  text-indent: 0.14rem;
+}
+.vote-Popup .confirm-btn-bar{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0.44rem;
+  line-height: 0.44rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid rgba(232,235,241,1);
+}
+.vote-Popup .confirm-btn-bar .btn{
+  width: 50%;
+  height: 0.44rem;
+  line-height: 0.44rem;
+  text-align: center;
+  font-size: 0.16rem;
+}
+.vote-Popup .confirm-btn-bar .btn.confirm{
+  color:rgba(245,97,81,1);
+}
+.vote-Popup .confirm-btn-bar .btn.cancel{
+  color:rgba(72,104,220,1);
 }
 </style>
 
