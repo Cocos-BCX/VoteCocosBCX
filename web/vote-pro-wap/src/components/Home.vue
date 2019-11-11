@@ -16,7 +16,8 @@
       <div class="node-main">
       <mt-loadmore :top-method="loadTop" :bottom-method="loadBottom" :bottom-all-loaded="allLoaded" :autoFill="false" bottomPullText="上拉加载更多" bottomDropText="释放加载更多" bottomLoadingText="加载更多" ref="loadmore">
         <div class="node" v-for="(li, index) in tableList" :key="index">
-          <img :src="li.logo" v-if="li.logo" class="node-icon" alt />
+          <img v-if="li.logo" :src="li.logo"  class="node-icon" alt />
+          <img v-if="!li.logo" src="../assets/images/default-icon.png"  class="node-icon" alt />
           <ul class="node-message">
             <li class="name">{{li.account_name}}</li>
             <li class="spec">
@@ -43,7 +44,7 @@
 
     <div class="bottom-btn-bar">
       <div @click="showDropDom()">已投节点：{{isWitnesses?Object.keys(myVotesWitnesses).length:Object.keys(myVotesCommittee).length}}</div>
-      <div @click="vote()">投票</div>
+      <div @click="showVoteBtn()">投票</div>
     </div>
     <div class="mask" v-if="isMask">
       <div class="already-voted-list-container" ref="hideDropDom">
@@ -56,7 +57,8 @@
             <ul class="already-voted-list" v-if="isWitnesses">
                 <li v-for="(li, key) in myVotesWitnesses" :key="key">
                     <p class="info">
-                    <img :src="li.logo" v-if="li.logo" class="node-icon" alt />
+                    <img v-if="li.logo" :src="li.logo"  class="node-icon" alt />
+                    <img v-if="!li.logo" src="../assets/images/default-icon.png"  class="node-icon" alt />
                     <span>{{li.name}}</span>
                     </p>
 
@@ -82,6 +84,24 @@
         </div>
       </div>
     </div>
+    <div class="mask" v-if="isShowVotePopup" @click.stop="hideLogin()"></div>
+    <div class="vote-Popup" v-if="isShowVotePopup">
+      <div class="title">
+        <ul class="tab-btn">
+          <a href="javascript:void(0);" :class="{active: !isWithdrawalTickets}"  @click="tabWithdrawalTickets(false)">投票</a>
+        </ul>
+        <ul class="tab-btn">
+          <a href="javascript:void(0);" :class="{active: isWithdrawalTickets}" @click="tabWithdrawalTickets(true)">撤票</a>
+        </ul>
+      </div>
+      <div class="blance-bar" @click="fullBlance()" v-if="!isWithdrawalTickets">余额：{{myCOCOS}} COCOS</div>
+      <div class="blance-bar" @click="fullBlance()" v-if="isWithdrawalTickets">已投票数：{{numberVotesCast}} COCOS</div>
+      <input type="text" class="num-input" v-model="votesNum">
+      <div class="confirm-btn-bar">
+        <div class="btn cancel" @click="hideLogin()">取消</div>
+        <div class="btn confirm" @click="vote()">确定</div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -89,12 +109,15 @@
 
 <script>
 import {
+  getAccountInfo,
   queryVotes,
-  lookupBlockRewardsById,
+  queryVestingBalance,
   queryAccountInfo,
   queryDataByIds,
   publishVotes,
-  passwordLogin
+  passwordLogin,
+  logout,
+  queryAccountBalances
 } from "../../libs/bcx.api";
 import { cacheSession, cacheKey } from '../../libs/Utils'
 import { Indicator, Toast } from 'mint-ui';
@@ -127,13 +150,24 @@ export default {
       // login
       account: '',
       password: '',
+      isMask: false,
       isShowLogin: false,
+      isShowVotePopup: false,
 
       isLogin: false,
-      currentLoginAccount: ''
+      currentLoginAccount: '',
+
+      myCOCOS: '',
+      numberVotesCast: '',
+      votesNum: '',
+
+      isWithdrawalTickets: false
     };
   },
   watch: {
+    'searchAccountName': function (val) {
+      this.searchBtn()
+    }
   },
   mounted() {
     if (cacheSession.get(cacheKey.accountName)) {
@@ -143,6 +177,24 @@ export default {
     this.queryVotesAjax();
   },
   methods: {
+    fullBlance(){
+      let _this = this;
+      if (!this.isWithdrawalTickets) {
+        this.votesNum = this.myCOCOS
+      } else {
+        this.votesNum = this.numberVotesCast
+      }
+      
+    },
+    hideLogin(){
+      this.isMask = false
+      this.isShowLogin = false
+      this.isShowVotePopup = false
+    },
+    showLogin(){
+      this.isMask = true
+      this.isShowLogin = true
+    },
       showDropDom(){
           this.isMask = true
         // if (this.isWitnesses) {
@@ -181,10 +233,9 @@ export default {
 
     searchBtn() {
       let _this = this;
-      let searchResult = this.tableList.filter(stu => {
-        return stu.account_name == _this.searchAccountName;
+      let searchResult = this.queryVotesList.filter(stu => {
+        return stu.account_name.indexOf(_this.searchAccountName) > -1 ;
       });
-
       let formData = {};
       if (this.isWitnesses) {
         formData = {
@@ -198,31 +249,159 @@ export default {
       }
       _this.witnessesAjax(formData);
     },
+    
+    // vote() {
+    //   publishVotes(params).then(res => {
+    //     console.log('---------------publishVotes----------')
+    //     console.log(res)
+    //     if (res.code == 1) {
+          
+             
+    //       Toast({
+    //         message: '投票成功',
+    //         className: 'toast-style',
+    //         duration: 2000
+    //       });
+    //     _this.queryVotesAjax();
+    //     _this.queryAccountInfoAjax();
+    //     } else {
+          
+    //       if (res.message.indexOf('Account is locked or not logged in') > -1) {
+            
+    //       Toast({
+    //         message: _this.$t('interFaceMessage.common[114]'),
+    //         className: 'toast-style',
+    //         duration: 2000
+    //       });
+    //       } else {
+             
+    //       Toast({
+    //         message: "投票失败",
+    //         className: 'toast-style',
+    //         duration: 2000
+    //       });
+    //       }
+    //     }
+
+    //   });
+    // }
+    tabWithdrawalTickets(val){
+      this.isWithdrawalTickets = val
+    },
+    showVoteBtn(){
+      let _this = this
+      this.isShowVotePopup = true
+      
+      queryAccountInfo().then(res => {
+        console.log('--------queryAccountInfo------res-----------')
+        console.log(res)
+        if (_this.isWitnesses) {
+          _this.numberVotesCast = Number(res.data.account.asset_locked.vote_for_witness.amount)/Math.pow(10,5)
+        } else {
+          _this.numberVotesCast = Number(res.data.account.asset_locked.vote_for_committee.amount)/Math.pow(10,5)
+          
+        }
+      })
+      _this.queryAccountBalancesAjax(cacheSession.get(cacheKey.accountName))
+      // getAccountInfo().then( res => {
+      //   // res[cacheKey.accountName]
+      //   console.log('-----------------getAccountInfo------------')
+      //   console.log(res)
+      //   _this.queryVestingBalanceAjax('syling')
+      // })
+    },
     vote() {
       let _this = this;
-      let params = {};
-      if (this.isWitnesses) {
-        params.witnessesIds;
-        params.witnessesIds = [];
-        for (const key in this.myVotesWitnesses) {
-          params.witnessesIds.push(key);
+      if (this.isWithdrawalTickets) {
+        if (this.votesNum > this.numberVotesCast) {
+          
+          Toast({
+            message: "投票数超过可使用余额",
+            className: 'toast-style',
+            duration: 2000
+          });
+          return false
         }
       } else {
-        params.committee_ids = [];
-        for (const key in this.myVotesCommittee) {
-          params.committee_ids.push(key);
+        if (this.votesNum > this.myCOCOS) {
+          
+          Toast({
+            message: "投票数超过可使用余额",
+            className: 'toast-style',
+            duration: 2000
+          });
+          return false
         }
       }
+      
+      let params = {
+        vote_ids: [],
+        type: 'witnesses',
+        votes: 0
+      };
 
+      if (!cacheSession.get(cacheKey.accountName)) {
+          Message({
+            duration: 2000,
+            message: _this.$t('interFaceMessage.common[114]'),
+            type: 'error',
+          })
+          return false
+      }
+      params.vote_ids = [];
+      if (this.isWitnesses) {
+        params.type = 'witnesses'
+        for (const key in this.myVotesWitnesses) {
+          params.vote_ids.push(key);
+        }
+      } else {
+        params.type = 'committee'
+        params.committee_ids = [];
+        for (const key in this.myVotesCommittee) {
+          params.vote_ids.push(key);
+        }
+      }
+      let votesNum = 0
+      if (this.isWithdrawalTickets) {
+        votesNum = this.numberVotesCast - this.votesNum
+      } else {
+        votesNum = this.votesNum
+      }
+      params.votes = votesNum
       publishVotes(params).then(res => {
         if (res.code == 1) {
-          alert('success vote')
+          
+          Toast({
+            message: "success vote",
+            className: 'toast-style',
+            duration: 2000
+          });
         } else {
-          alert('error vote')
+          Toast({
+            message: "error vote",
+            className: 'toast-style',
+            duration: 2000
+          });
         }
-
+        
+        _this.isWitnesses = true;
+        _this.currentPage = 1;
+        _this.lookupBlock = [];
+        _this.tableList = [];
+        _this.hideLogin()
         _this.queryVotesAjax();
       });
+    },
+    queryAccountBalancesAjax(){
+      let _this = this;
+      queryAccountBalances().then( res => {
+        console.log('----------queryAccountBalances----------------')
+        console.log(res)
+        if (res.code == 1) {
+          _this.myCOCOS = res.data.COCOS
+        }
+        
+      })
     },
     changeTpye(val) {
       
@@ -234,6 +413,8 @@ export default {
       this.lookupBlock = [];
       this.tableList = [];
       
+      this.myVotesWitnesses = {}
+      this.myVotesCommittee = {}
       this.queryVotesAjax();
     },
 
@@ -309,6 +490,8 @@ export default {
             for (let i = 0; i < _this.tableList.length; i++) {
               _this.tableList[i].voteRate = "0%"
               // _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
+              
+              _this.queryVestingBalanceAjax(_this.tableList[i].account_name, i);
             }
           } else {
             for (let i = 0; i < _this.tableList.length; i++) {
@@ -319,6 +502,8 @@ export default {
                   100).toFixed(2) +
                 "%";
               // _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
+              
+            _this.queryVestingBalanceAjax(_this.tableList[i].account_name, i);
             }
             
             _this.$nextTick(function () {
@@ -333,6 +518,29 @@ export default {
           console.log("error");
           console.log(error);
         });
+    },
+    
+    queryVestingBalanceAjax(account_name, index) {
+      let _this = this;
+      queryVestingBalance(account_name).then(res => {
+        if (res.code == 1) {
+          if (res.data.length > 0) {
+            for (let i = 0; i < res.data.length; i++) {
+              if (res.data[i].type == "cashback_block") {
+                _this.lookupBlock.splice(index, 1, res.data[i].return_cash)
+                break;
+              }
+              
+            }
+            
+          } else {
+            _this.lookupBlock.splice(index, 1, 0);
+          }
+          
+        } else {
+          _this.lookupBlock.splice(index, 1, 0);
+        }
+      });
     },
     queryVotesAjax() {
       let _this = this;
@@ -352,7 +560,7 @@ export default {
         }
         res.data.sort(sortId);
         _this.count = res.data.length;
-        // _this.queryVotesList = [];
+        _this.queryVotesList = [];
         _this.votesTotal = 0;
         for (let i = 0; i < res.data.length; i++) {
           _this.votesTotal += Number(res.data[i].votes);
@@ -361,7 +569,7 @@ export default {
             : (res.data[i].supporters_count = 0);
           res.data[i].ranking = i + 1;
         }
-        // _this.queryVotesList = res.data;
+        _this.queryVotesList = res.data;
         // let requestQueryVotesList = res.data.slice(
         //   Number(_this.currentPage - 1) * Number(_this.pageSize),
         //   Number(_this.currentPage) * Number(_this.pageSize)
@@ -412,7 +620,7 @@ export default {
         myVotesCount = Object.keys(_this.myVotesCommittee).length
       }
       if (!li.supported) {
-        if (myVotesCount == 3) {
+        if (myVotesCount == 11) {
           Toast({
             message: '已到达票数上限',
             className: 'toast-style',
@@ -485,10 +693,14 @@ export default {
     
     loadTop() {
       this.currentPage = 1
+      this.myVotesWitnesses = {}
+      this.myVotesCommittee = {}
       this.queryVotesAjax();
       this.$refs.loadmore.onTopLoaded();
     },
     loadBottom(){
+      this.myVotesWitnesses = {}
+      this.myVotesCommittee = {}
       this.currentPage++
       this.queryVotesAjax();
     }
@@ -552,7 +764,7 @@ export default {
   width: 50%;
   height: 0.5rem;
   line-height: 0.5rem;
-  font-size: 16px;
+  font-size: 0.16rem;
   font-weight: 300;
   color: rgba(98, 102, 112, 1);
   text-align: center;
@@ -614,8 +826,8 @@ export default {
   justify-content: flex-start;
 }
 .node-lists .node-main .node .node-message .spec p {
-  height: 0.14px;
-  line-height: 0.14px;
+  height: 0.14rem;
+  line-height: 0.14rem;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -627,23 +839,23 @@ export default {
   margin-right: 0.05rem;
 }
 .node-lists .node-main .node .node-message .spec .ranking {
-  height: 0.14px;
-  line-height: 0.14px;
+  height: 0.14rem;
+  line-height: 0.14rem;
   padding-left: 0.14rem;
   background: url("../assets/images/ranking-mobile.png") no-repeat center center;
   background-size: 0.08rem;
 }
 .node-lists .node-main .node .node-message .spec .percentage {
-  height: 0.14px;
-  line-height: 0.14px;
+  height: 0.14rem;
+  line-height: 0.14rem;
   padding-left: 0.14rem;
   background: url("../assets/images/percentage-mobile.png") no-repeat center
     center;
   background-size: 0.08rem;
 }
 .node-lists .node-main .node .node-message .spec .pos {
-  height: 0.14px;
-  line-height: 0.14px;
+  height: 0.14rem;
+  line-height: 0.14rem;
   padding-left: 0.14rem;
   background: url("../assets/images/pos-mobile.png") no-repeat center center;
   background-size: 0.08rem;
@@ -661,7 +873,7 @@ export default {
 
 .bottom-btn-bar {
   position: fixed;
-  left: 0px;
+  left: 0;
   bottom: 0;
   width: 100%;
   height: 0.5rem;
@@ -731,7 +943,7 @@ export default {
 }
 .already-voted-list-container .already-voted-list-container .already-voted-list li {
   width: 100%;
-  height: 60px;
+  height: 0.6rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -745,7 +957,7 @@ export default {
 .already-voted-list-container .already-voted-list li .info img {
   width: 0.36rem;
   height: 0.36rem;
-  border: 1px solid rgba(210, 214, 222, 1);
+  /* border: 1px solid rgba(210, 214, 222, 1); */
 }
 .already-voted-list-container .already-voted-list li .info span {
   font-size: 0.16rem;
@@ -767,6 +979,106 @@ export default {
 .blank55{
     width: 100%;
     height: 0.8rem;
+}
+.mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background:rgba(38,42,51,0.4);
+  width: 100%;
+  height: 100%;
+  z-index: 200;
+}
+.vote-Popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  background:rgba(38,42,51,0.4);
+  width: 3.05rem;
+  height: 2.1rem;
+  z-index: 300;
+  background:rgba(255,255,255,1);
+  border-radius: 0.12rem;
+  margin-left: -1.52rem;
+  margin-top: -1.05rem;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+}
+.vote-Popup .title{
+  width: 100%;
+  height: 0.5rem;
+  line-height: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+.vote-Popup .title .tab-btn{
+  width: 50%;
+  height: 0.5rem;
+  line-height: 0.5rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+}
+.vote-Popup .title .tab-btn a{
+  height: 0.31rem;
+  line-height: 0.24rem;
+  font-size: 0.16rem;
+  font-weight:500;
+  color:rgba(38,42,51,1);
+  padding-bottom: 0.07rem;
+}
+.vote-Popup .title .tab-btn a.active{
+  padding-bottom: 0.05rem;
+  background: none;
+  border-bottom: 2px solid rgba(38,42,51,1);
+}
+.vote-Popup .blance-bar{
+  width: 100%;
+  margin-top: 0.23rem;
+  height: 0.18rem;
+  line-height: 0.18rem;
+  font-size: 0.12rem;
+  font-weight:400;
+  color:rgba(165,169,177,1);
+  text-align: left;
+}
+.vote-Popup .num-input{
+  width: 100%;
+  height: 0.44rem;
+  background:rgba(246,248,251,1);
+  border-radius: 0.04rem;
+  margin-top: 0.03rem;
+  font-size: 0.12rem;
+  color:rgba(165,169,177,1);
+  text-indent: 0.14rem;
+}
+.vote-Popup .confirm-btn-bar{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0.44rem;
+  line-height: 0.44rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid rgba(232,235,241,1);
+}
+.vote-Popup .confirm-btn-bar .btn{
+  width: 50%;
+  height: 0.44rem;
+  line-height: 0.44rem;
+  text-align: center;
+  font-size: 0.16rem;
+}
+.vote-Popup .confirm-btn-bar .btn.confirm{
+  color:rgba(245,97,81,1);
+}
+.vote-Popup .confirm-btn-bar .btn.cancel{
+  color:rgba(72,104,220,1);
 }
 </style>
 

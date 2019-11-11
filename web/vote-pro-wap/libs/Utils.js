@@ -1,9 +1,10 @@
 // 网页缓存  当前项目使用session
 
 export const cacheKey = {
-  accountName: 'account_name',
-  myWorldView: 'world_view',
-  lang: 'lang'
+  accountName: "account_name",
+  accountId: "account_id",
+  myWorldView: "world_view",
+  lang: "lang"
 }
 
 export let cacheSession = {
