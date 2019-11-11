@@ -34,38 +34,20 @@ let promiseObjArr = []
 // bcx对象初始化
 export let initBcx = function () {
 
-  
-  // var _configParams = {
-  //   // default_ws_node:"",
-  //   default_ws_node: "ws://123.57.19.148:9049",
-  //   ws_node_list: [{
-  //     url: "ws://123.57.19.148:9049",
-  //     name: "Cocos - China - Beijing"
-  //   }, ],
-  //   networks: [{
-  //     core_asset: "COCOS",
-  //     chain_id: "9e0ef9444fc780fa91aaef2e63c18532634ad67dcc436a4b4915d3adeef62c62"
-  //   }],
-  //   faucet_url: "http://xx.xx.xx.xx:xxxxx",
-  //   auto_reconnect: true,
-  //   real_sub: true,
-  //   check_cached_nodes_data: false
-  // };
   var _configParams={ 
       ws_node_list:[
-          {url:"ws://123.57.19.148:9049",name:"Cocos - China - Beijing"},   
+          {url:"ws://test.cocosbcx.net",name:"Cocos - China - Beijing"},   
       ],
       networks:[
           {
               core_asset:"COCOS",
-              chain_id:"9e0ef9444fc780fa91aaef2e63c18532634ad67dcc436a4b4915d3adeef62c62" 
+              chain_id:"c1ac4bb7bd7d94874a1cb98b39a8a582421d03d022dfa4be8c70567076e03ad0" 
           }
       ], 
-      faucet_url:"",
+      faucet_url: "http://test-faucet.cocosbcx.net",
       auto_reconnect:true,
       real_sub:true,
       check_cached_nodes_data:false
-      //app_keys:["5HxzZncKDjx7NEaEv989Huh7yYY7RukcJLKBDQztXAmZYCHWPgd"]
   };
   bcx = new BCX(_configParams);
 }
@@ -78,13 +60,11 @@ export let browserConnect = function () {
     if (window.BcxWeb) {
       bcx = window.BcxWeb
       resolve(true)
-      console.log('----- 11111    window.BcxWeb   success ------- ')
       return false
     } else {
       currentTimer = setInterval(() => {
         if (window.BcxWeb) {
           bcx = window.BcxWeb
-          console.log('----- 22222    window.BcxWeb   success ------- ')
           clearInterval(currentTimer)
           resolve(true)
           return false
@@ -126,8 +106,10 @@ export let passwordLogin = function (params) {
   return new Promise(async function (resolve, reject) {
     
     bcx.passwordLogin({
-      account: params.account || "syling", //query.loginUserName,
-      password: params.password || "12345678"
+      // account: params.account || "syling", //query.loginUserName,
+      // password: params.password || "12345678"
+      account: params.account, //query.loginUserName,
+      password: params.password
     }).then(res => {
       // loadingInstance.close();
       Indicator.close();
@@ -299,12 +281,11 @@ export let queryAccountBalances = function () {
     spinnerType: 'fading-circle'
   });
   return new Promise(function (resolve, reject) {
-    // getAccountInfo().then( (getAccountInfoResult) => {
-    //   if (!getAccountInfoResult) return false
+    getAccountInfo().then( (getAccountInfoResult) => {
+      if (!getAccountInfoResult) return false
       
       bcx.queryAccountBalances({
-        // account: getAccountInfoResult[cacheKey.accountName] || ''
-        account: 'syling'
+        account: getAccountInfoResult[cacheKey.accountName] || ''
       }).then(res => {
         Indicator.close();
         resolve(res)
@@ -315,7 +296,7 @@ export let queryAccountBalances = function () {
       })
     })
     
-  // })
+  })
 }
 
 

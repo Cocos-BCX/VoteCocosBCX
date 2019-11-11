@@ -57,7 +57,8 @@
             <ul class="already-voted-list" v-if="isWitnesses">
                 <li v-for="(li, key) in myVotesWitnesses" :key="key">
                     <p class="info">
-                    <img :src="li.logo" v-if="li.logo" class="node-icon" alt />
+                    <img v-if="li.logo" :src="li.logo"  class="node-icon" alt />
+                    <img v-if="!li.logo" src="../assets/images/default-icon.png"  class="node-icon" alt />
                     <span>{{li.name}}</span>
                     </p>
 
@@ -93,8 +94,8 @@
           <a href="javascript:void(0);" :class="{active: isWithdrawalTickets}" @click="tabWithdrawalTickets(true)">撤票</a>
         </ul>
       </div>
-      <div class="blance-bar" @click="fullBlance()" v-if="!isWithdrawalTickets">{{myCOCOS}} COCOS</div>
-      <div class="blance-bar" @click="fullBlance()" v-if="isWithdrawalTickets">{{numberVotesCast}} COCOS</div>
+      <div class="blance-bar" @click="fullBlance()" v-if="!isWithdrawalTickets">余额：{{myCOCOS}} COCOS</div>
+      <div class="blance-bar" @click="fullBlance()" v-if="isWithdrawalTickets">已投票数：{{numberVotesCast}} COCOS</div>
       <input type="text" class="num-input" v-model="votesNum">
       <div class="confirm-btn-bar">
         <div class="btn cancel" @click="hideLogin()">取消</div>
@@ -292,6 +293,8 @@ export default {
       this.isShowVotePopup = true
       
       queryAccountInfo().then(res => {
+        console.log('--------queryAccountInfo------res-----------')
+        console.log(res)
         if (_this.isWitnesses) {
           _this.numberVotesCast = Number(res.data.account.asset_locked.vote_for_witness.amount)/Math.pow(10,5)
         } else {
@@ -392,6 +395,8 @@ export default {
     queryAccountBalancesAjax(){
       let _this = this;
       queryAccountBalances().then( res => {
+        console.log('----------queryAccountBalances----------------')
+        console.log(res)
         if (res.code == 1) {
           _this.myCOCOS = res.data.COCOS
         }
@@ -759,7 +764,7 @@ export default {
   width: 50%;
   height: 0.5rem;
   line-height: 0.5rem;
-  font-size: 16px;
+  font-size: 0.16rem;
   font-weight: 300;
   color: rgba(98, 102, 112, 1);
   text-align: center;
@@ -821,8 +826,8 @@ export default {
   justify-content: flex-start;
 }
 .node-lists .node-main .node .node-message .spec p {
-  height: 0.14px;
-  line-height: 0.14px;
+  height: 0.14rem;
+  line-height: 0.14rem;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -834,23 +839,23 @@ export default {
   margin-right: 0.05rem;
 }
 .node-lists .node-main .node .node-message .spec .ranking {
-  height: 0.14px;
-  line-height: 0.14px;
+  height: 0.14rem;
+  line-height: 0.14rem;
   padding-left: 0.14rem;
   background: url("../assets/images/ranking-mobile.png") no-repeat center center;
   background-size: 0.08rem;
 }
 .node-lists .node-main .node .node-message .spec .percentage {
-  height: 0.14px;
-  line-height: 0.14px;
+  height: 0.14rem;
+  line-height: 0.14rem;
   padding-left: 0.14rem;
   background: url("../assets/images/percentage-mobile.png") no-repeat center
     center;
   background-size: 0.08rem;
 }
 .node-lists .node-main .node .node-message .spec .pos {
-  height: 0.14px;
-  line-height: 0.14px;
+  height: 0.14rem;
+  line-height: 0.14rem;
   padding-left: 0.14rem;
   background: url("../assets/images/pos-mobile.png") no-repeat center center;
   background-size: 0.08rem;
@@ -868,7 +873,7 @@ export default {
 
 .bottom-btn-bar {
   position: fixed;
-  left: 0px;
+  left: 0;
   bottom: 0;
   width: 100%;
   height: 0.5rem;
@@ -938,7 +943,7 @@ export default {
 }
 .already-voted-list-container .already-voted-list-container .already-voted-list li {
   width: 100%;
-  height: 60px;
+  height: 0.6rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -952,7 +957,7 @@ export default {
 .already-voted-list-container .already-voted-list li .info img {
   width: 0.36rem;
   height: 0.36rem;
-  border: 1px solid rgba(210, 214, 222, 1);
+  /* border: 1px solid rgba(210, 214, 222, 1); */
 }
 .already-voted-list-container .already-voted-list li .info span {
   font-size: 0.16rem;
@@ -1013,14 +1018,14 @@ export default {
   height: 0.5rem;
   line-height: 0.5rem;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
 
 }
 .vote-Popup .title .tab-btn a{
   height: 0.31rem;
   line-height: 0.24rem;
-  font-size:16px;
+  font-size: 0.16rem;
   font-weight:500;
   color:rgba(38,42,51,1);
   padding-bottom: 0.07rem;
@@ -1042,9 +1047,9 @@ export default {
 }
 .vote-Popup .num-input{
   width: 100%;
-  height:44px;
+  height: 0.44rem;
   background:rgba(246,248,251,1);
-  border-radius:6px;
+  border-radius: 0.04rem;
   margin-top: 0.03rem;
   font-size: 0.12rem;
   color:rgba(165,169,177,1);

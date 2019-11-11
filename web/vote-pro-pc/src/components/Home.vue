@@ -1,28 +1,29 @@
 <template>
   <div class="center-container">
-    <div class="login-bar">
-      <p class="install-tips">
+    <div class="login-bar" v-if="isBrowserConnect">
+      <div class="install-tips" v-if="!isBrowserConnect">
+
         请确认您已安装
-        <a
+        <a 
           href="https://chrome.google.com/webstore/detail/cocospay/ffbhaeoepdfapfjhcihbbhlaigejfack?utm_source=chrome-ntp-icon"
           target="_blank"
         >CocosPay</a>
         <!-- <span>CocosPay</span> -->
 
         <!-- /<span>MathWallet</span> -->
-      </p>
+      </div>
 
       <!-- <a v-if="!currentLoginAccount" href="javascript:void(0);" class="login-btn" @click="showLogin()">
         <img src="../assets/images/login-user.png" alt />
         <span>登录</span>
-      </a>
-      <p class="currentLoginAccount" v-if="currentLoginAccount">
-        <label>hi~ {{currentLoginAccount}}</label>
-        <a href="javascript:void(0);" class="login-btn" @click="logout()">
+      </a> -->
+      <p class="currentLoginAccount" v-if="myAccount">
+        <label>hi~ {{myAccount}}</label>
+        <!-- <a href="javascript:void(0);" class="login-btn" @click="logout()">
           <img src="../assets/images/login-user.png" alt />
           <span>退出登录</span>
-        </a>
-      </p> -->
+        </a> -->
+      </p>
     </div>
 
     <div class="node-container">
@@ -107,8 +108,10 @@
             <a href="javascript:void(0);" class="search-btn" @click="searchBtn()"></a>
           </div>
         </div>
-
-        <table class="table-main" border="0" cellpadding="0" cellspacing="0">
+        <div class="empty-table" v-if="tableList.length == 0">
+          暂无数据
+        </div>
+        <table class="table-main" border="0" cellpadding="0" cellspacing="0" v-if="tableList.length != 0">
           <tr>
             <td>选择</td>
             <td>排名</td>
@@ -261,6 +264,7 @@
 
 <script>
 import {
+  browserConnect,
   getAccountInfo,
   queryVotes,
   queryVestingBalance,
@@ -276,6 +280,8 @@ import { Message } from 'element-ui';
 export default {
   data() {
     return {
+      isBrowserConnect: true,
+      myAccount: '',
       dynamicTags: ["标签一", "标签二", "标签三"],
       checked: true,
       count: 0,
@@ -314,16 +320,25 @@ export default {
   watch: {},
   mounted() {
       let _this = this;
-    if (cacheSession.get(cacheKey.accountName)) {
-      // this.isLogin = true
-      this.currentLoginAccount = cacheSession.get(cacheKey.accountName)
-    }
-    // _this.getAccountInfoAjax()
+    // if (cacheSession.get(cacheKey.accountName)) {
+    //   // this.isLogin = true
+    //   this.currentLoginAccount = cacheSession.get(cacheKey.accountName)
+    // }
+    _this.browserConnectAjax()
+    _this.getAccountInfoAjax()
 
     _this.queryVotesAjax();
     _this.queryAccountInfoAjax();
   },
   methods: {
+    browserConnectAjax(){
+      let _this = this;
+      browserConnect().then( res => {
+        console.log('------------browserConnect---------')
+        console.log(res)
+        _this.isBrowserConnect = res
+      })
+    },
     fullBlance(){
       let _this = this;
       if (!this.isWithdrawalTickets) {
@@ -334,9 +349,12 @@ export default {
       
     },
     getAccountInfoAjax(){
+      let _this = this;
       getAccountInfo().then(res=>{
-        console.log('--------------------getAccountInfo--------res-------')
+        console.log('--------getAccountInfoAjax-----res---------')
         console.log(res)
+          _this.myAccount = res.account_name
+        
       })
     },
     logout(){
@@ -361,37 +379,37 @@ export default {
       this.isMask = true
       this.isShowLogin = true
     },
-    passwordLoginAjax(){
-      let _this = this;
-      passwordLogin({
-        account: _this.account,
-        password: _this.password
-      }).then( res=>{
-        if (res.code == 1) {
-          _this.account = ''
-          _this.password = ''
-          _this.isMask = false
-          _this.isShowLogin = false
-          Message({
-            duration: 2000,
-            message: '登录成功',
-            type: 'success',
-          })
-          cacheSession.set(cacheKey.accountName, res.data.account_name)
-          _this.currentLoginAccount = res.data.account_name
-          _this.queryVotesAjax();
-          _this.queryAccountInfoAjax();
-        } else {
+    // passwordLoginAjax(){
+    //   let _this = this;
+    //   passwordLogin({
+    //     account: _this.account,
+    //     password: _this.password
+    //   }).then( res=>{
+    //     if (res.code == 1) {
+    //       _this.account = ''
+    //       _this.password = ''
+    //       _this.isMask = false
+    //       _this.isShowLogin = false
+    //       Message({
+    //         duration: 2000,
+    //         message: '登录成功',
+    //         type: 'success',
+    //       })
+    //       cacheSession.set(cacheKey.accountName, res.data.account_name)
+    //       _this.currentLoginAccount = res.data.account_name
+    //       _this.queryVotesAjax();
+    //       _this.queryAccountInfoAjax();
+    //     } else {
           
-          Message({
-            duration: 2000,
-            message: '登录失败',
-            type: 'error',
-          })
-          return false
-        }
-      })
-    },
+    //       Message({
+    //         duration: 2000,
+    //         message: '登录失败',
+    //         type: 'error',
+    //       })
+    //       return false
+    //     }
+    //   })
+    // },
     searchKeyboard(ev){
       
       if (ev.keyCode==13) {
@@ -641,6 +659,7 @@ export default {
     queryAccountInfoAjax() {
       let _this = this;
       queryAccountInfo().then(res => {
+        console.log('-------queryAccountInfoAjax-------res--------')
         let myVotes = res.data.votes;
         // myVotesWitnesses myVotesCommittee
         let myVotesIds = [];
@@ -864,20 +883,24 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .login-bar {
+  width: 100%;
   height: 64px;
   background: rgba(255, 255, 255, 1);
   border-radius: 4px;
   border: 1px solid rgba(230, 230, 230, 1);
-  display: flex;
+  /* display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-between; */
   margin-top: 12px;
 }
 .install-tips {
+  height: 64px;
+  line-height: 64px;
   margin-left: 30px;
   font-size: 14px;
   font-weight: 500;
   color: rgba(51, 51, 51, 1);
+  float: left;
 }
 .install-tips a {
   font-size: 14px;
@@ -1266,11 +1289,13 @@ table.table-main tr td div.name span {
   align-items: center;
   justify-content: flex-start;
   padding-right: 30px;
+  float: right;
+  height: 64px;
+  line-height: 64px;
 }
 .currentLoginAccount label{
   color: rgba(100, 103, 207, 1);
   font-size: 16px;
-  margin-right: 20px;
 }
 .vote-Popup{
   width:660px;
@@ -1362,6 +1387,14 @@ table.table-main tr td div.name span {
   margin-left: 68px;
   background: #3E9AFF;
   color: #fff;
+}
+.empty-table{
+  width: 100%;
+  font-size: 24px;
+  text-align: center;
+  padding-top: 60px;
+  padding-bottom: 60px;
+  color: rgba(140, 148, 176, 1);
 }
 </style>
 
