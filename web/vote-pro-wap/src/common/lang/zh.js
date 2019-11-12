@@ -10,7 +10,9 @@ export const langZh = {
             '2': '你不是资产拥有者',
             'InsufficientBalance': '余额不足',
             '3': '账号不匹配',
-            '4': '网络繁忙或账号不匹配'
+            '4': '网络繁忙或账号不匹配',
+            '5': '网络繁忙',
+            '6': '密码错误'
         },
         creatNHAssetOrder: {
             '1': '挂单成功',
@@ -46,31 +48,6 @@ export const langZh = {
         }
     },
     
-    // 10-10 
-    myAssets: {
-        title: '我的资产',
-        createAssetsBtn: '创建新资产',
-        myAssetsTable: {
-            tableHead: ['缩略图', 'NH资产ID', '通行资产', '世界观', '基础数据', '操作']
-        },
-        createFirstAsset: {
-            title: '试试创建你的第一笔资产吧'
-        },
-        step: [
-            {
-                key: '步骤1. ',
-                value: '注册成为开发者'
-            },
-            {
-                key: '步骤2. ',
-                value: '创建一个世界观'
-            },
-            {
-                key: '步骤3. ',
-                value: '开始创建你的资产吧'
-            }
-        ]
-    },
     common: {
         sellOut: '卖 出',
         discard: '丢 弃',
@@ -83,52 +60,6 @@ export const langZh = {
         addbtn: '添 加',
         immediatePurchaseBtn: '立即购买',
         cancellationOfOrderBtn: '取消订单'
-    },
-    sellOutAssets: {
-        title: '填写交易信息',
-        price: '价格',
-        expiration: '过期时间',
-        expirationUnit: '秒',
-        memo: '备注',
-        // 10-15
-        expirationPlaceholder: '最大1209500',
-    },
-
-    creatWorldView: {
-        title: '填写交易信息',
-        worldViewName: '世界观名'
-    },
-    
-    createassets: [
-        {
-            key: '类别名称',
-            placeholder: '如“炸弹”'
-        },
-        {
-            key: '生产数量',
-            placeholder: '如“1”'
-        },
-        {
-            key: '通行资产',
-            placeholder: '如“COCOS”'
-        },
-        {
-            key: '世界观',
-            placeholder: '请选择'
-        },
-        {
-            key: '缩略图',
-            placeholder: '选择文件'
-        },
-        {
-            key: '基础数据'
-        }
-    ],
-    tradingMarket: {
-        title: '交易市场',
-        price: '价格',
-        seller: '卖家',
-        memo: '备注',
     },
     
     tipsMessage: {
