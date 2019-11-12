@@ -46,32 +46,7 @@ export const langEn = {
             '2': 'Registration failed'
         }
     },
-    
-    // 10-10 
-    myAssets: {
-        title: 'My assets',
-        createAssetsBtn: 'Create A New Asset',
-        myAssetsTable: {
-            tableHead: ['Thumbnail', 'NH Asset ID', 'Coin', 'Multiverse', 'Basic data', 'Operation']
-        },
-        createFirstAsset: {
-            title: ' Try to create your first asset.'
-        },
-        step: [
-            {
-                key: 'Step 1. ',
-                value: 'Register a developer account'
-            },
-            {
-                key: 'Step 2. ',
-                value: 'Create a Multiverse'
-            },
-            {
-                key: 'Step 3. ',
-                value: 'Start creating your asset.'
-            }
-        ]
-    },
+
     common: {
         sellOut: 'Sell',
         discard: 'Discard',
@@ -86,54 +61,6 @@ export const langEn = {
         cancellationOfOrderBtn: 'Cancel the order'
     },
 
-    sellOutAssets: {
-        title: 'Fill in the trading info',
-        price: 'Price',
-        expiration: 'Expire in',
-        expirationUnit: 'seconds',
-        memo: 'Memo',
-        // 10-15
-        expirationPlaceholder: 'Up to 1209500',
-    },
-
-    creatWorldView: {
-        title: 'Fill in the trading info',
-        // worldViewName: 'Multiverse Name'
-        worldViewName: 'Multiverse'
-    },
-
-    createassets: [
-        {
-            key: 'Category',
-            placeholder: 'e.g. "bomb"'
-        },
-        {
-            // key: 'Quantity to be produced',
-            key: 'Quantity',
-            placeholder: 'e.g. "1"'
-        },
-        {
-            key: 'Coin',
-            placeholder: 'e.g. "COCOS"'
-        },
-        {
-            key: 'Multiverse',
-            placeholder: 'Please select one'
-        },
-        {
-            key: 'Thumbnail',
-            placeholder: 'Select a file'
-        },
-        {
-            key: 'Basic data'
-        }
-    ],
-    tradingMarket: {
-        title: 'Market',
-        price: 'Price',
-        seller: 'Seller',
-        memo: 'Memo',
-    },
     
     tipsMessage: {
         common: {

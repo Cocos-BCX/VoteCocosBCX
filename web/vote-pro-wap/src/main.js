@@ -23,8 +23,8 @@ initRootFontSize();
 const i18n = new VueI18n({
     locale: 'zh',    // 语言标识, 通过切换locale的值来实现语言切换,this.$i18n.locale 
     messages: {
-      'zh': require('./common/lang/zh'),   // 中文语言包
-      'en': require('./common/lang/en')    // 英文语言包
+      'zh': require('./common/lang/zh').langZh,   // 中文语言包
+      'en': require('./common/lang/en').langEn    // 英文语言包
     }
 })
 

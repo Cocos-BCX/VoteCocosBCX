@@ -94,9 +94,9 @@
           <a href="javascript:void(0);" :class="{active: isWithdrawalTickets}" @click="tabWithdrawalTickets(true)">撤票</a>
         </ul>
       </div>
-      <div class="blance-bar" @click="fullBlance()" v-if="!isWithdrawalTickets">余额：{{myCOCOS}} COCOS</div>
-      <div class="blance-bar" @click="fullBlance()" v-if="isWithdrawalTickets">已投票数：{{numberVotesCast}} COCOS</div>
-      <input type="text" class="num-input" v-model="votesNum">
+      <div class="blance-bar" @click="fullBlance()" v-if="!isWithdrawalTickets">余额：{{myCOCOS || 0}} COCOS</div>
+      <div class="blance-bar" @click="fullBlance()" v-if="isWithdrawalTickets">已投票数：{{numberVotesCast || 0}} COCOS</div>
+      <input type="text" class="num-input" placeholder="请输入" v-model="votesNum">
       <div class="confirm-btn-bar">
         <div class="btn cancel" @click="hideLogin()">取消</div>
         <div class="btn confirm" @click="vote()">确定</div>
@@ -121,6 +121,7 @@ import {
 } from "../../libs/bcx.api";
 import { cacheSession, cacheKey } from '../../libs/Utils'
 import { Indicator, Toast } from 'mint-ui';
+import { IntReg } from '../../libs/regular'
 export default {
   data() {
     return {
@@ -135,7 +136,7 @@ export default {
       isWitnesses: true,
 
       // page: 1,
-      pageSize: 6,
+      pageSize: 8,
       queryVotesList: [],
 
       votesTotal: 0,
@@ -158,8 +159,11 @@ export default {
       currentLoginAccount: '',
 
       myCOCOS: '',
+      myCOCOSRegular: '',
       numberVotesCast: '',
+      numberVotesCastRegular: '',
       votesNum: '',
+      votesNumRegular: '',
 
       isWithdrawalTickets: false
     };
@@ -167,6 +171,24 @@ export default {
   watch: {
     'searchAccountName': function (val) {
       this.searchBtn()
+    },
+    // 'numberVotesCast': function (params) {
+    //   if (IntegerOrDecimalReg1.test(val)) {
+    //     this.numberVotesCastRegular = this.numberVotesCast
+    //   } else {
+    //     this.numberVotesCast = this.numberVotesCastRegular
+    //   }
+    // },
+    'votesNum': function (val) {
+      if (!val) {
+        this.votesNumRegular = this.votesNum
+        return false
+      }
+      if (IntReg.test(val)) {
+        this.votesNumRegular = this.votesNum
+      } else {
+        this.votesNum = this.votesNumRegular
+      }
     }
   },
   mounted() {
@@ -179,6 +201,7 @@ export default {
   methods: {
     fullBlance(){
       let _this = this;
+      this.votesNum = ''
       if (!this.isWithdrawalTickets) {
         this.votesNum = this.myCOCOS
       } else {
@@ -190,17 +213,15 @@ export default {
       this.isMask = false
       this.isShowLogin = false
       this.isShowVotePopup = false
+      this.votesNum = ''
     },
     showLogin(){
       this.isMask = true
       this.isShowLogin = true
     },
-      showDropDom(){
-          this.isMask = true
-        // if (this.isWitnesses) {
-        // } else {
-        // }
-      },
+    showDropDom(){
+        this.isMask = true
+    },
 
 
     passwordLoginAjax() {
@@ -213,19 +234,10 @@ export default {
           _this.account = "";
           _this.password = "";
           _this.isShowLogin = false;
-        //   Message({
-        //     duration: 2000,
-        //     message: "登录成功",
-        //     type: "success"
-        //   });
           cacheSession.set(cacheKey.accountName, res.data.account_name);
           this.currentLoginAccount = res.data.account_name;
         } else {
-        //   Message({
-        //     duration: 2000,
-        //     message: "登录失败",
-        //     type: "error"
-        //   });
+          _this.codeErr(res)
           return false;
         }
       });
@@ -250,41 +262,6 @@ export default {
       _this.witnessesAjax(formData);
     },
     
-    // vote() {
-    //   publishVotes(params).then(res => {
-    //     console.log('---------------publishVotes----------')
-    //     console.log(res)
-    //     if (res.code == 1) {
-          
-             
-    //       Toast({
-    //         message: '投票成功',
-    //         className: 'toast-style',
-    //         duration: 2000
-    //       });
-    //     _this.queryVotesAjax();
-    //     _this.queryAccountInfoAjax();
-    //     } else {
-          
-    //       if (res.message.indexOf('Account is locked or not logged in') > -1) {
-            
-    //       Toast({
-    //         message: _this.$t('interFaceMessage.common[114]'),
-    //         className: 'toast-style',
-    //         duration: 2000
-    //       });
-    //       } else {
-             
-    //       Toast({
-    //         message: "投票失败",
-    //         className: 'toast-style',
-    //         duration: 2000
-    //       });
-    //       }
-    //     }
-
-    //   });
-    // }
     tabWithdrawalTickets(val){
       this.isWithdrawalTickets = val
     },
@@ -293,16 +270,21 @@ export default {
       this.isShowVotePopup = true
       
       queryAccountInfo().then(res => {
-        console.log('--------queryAccountInfo------res-----------')
-        console.log(res)
-        if (_this.isWitnesses) {
-          _this.numberVotesCast = Number(res.data.account.asset_locked.vote_for_witness.amount)/Math.pow(10,5)
-        } else {
-          _this.numberVotesCast = Number(res.data.account.asset_locked.vote_for_committee.amount)/Math.pow(10,5)
+        if (res.code == 1) {
           
+          console.log('--------queryAccountInfo------res-----------')
+          console.log(res)
+          if (_this.isWitnesses) {
+            _this.numberVotesCast = Number(res.data.account.asset_locked.vote_for_witness.amount)/Math.pow(10,5)
+          } else {
+            _this.numberVotesCast = Number(res.data.account.asset_locked.vote_for_committee.amount)/Math.pow(10,5)
+            
+          }
+          _this.queryAccountBalancesAjax(cacheSession.get(cacheKey.accountName))
+        } else {
+          _this.codeErr(res)
         }
       })
-      _this.queryAccountBalancesAjax(cacheSession.get(cacheKey.accountName))
       // getAccountInfo().then( res => {
       //   // res[cacheKey.accountName]
       //   console.log('-----------------getAccountInfo------------')
@@ -341,10 +323,10 @@ export default {
       };
 
       if (!cacheSession.get(cacheKey.accountName)) {
-          Message({
+          Toast({
             duration: 2000,
             message: _this.$t('interFaceMessage.common[114]'),
-            type: 'error',
+            className: 'toast-style',
           })
           return false
       }
@@ -363,25 +345,69 @@ export default {
       }
       let votesNum = 0
       if (this.isWithdrawalTickets) {
-        votesNum = this.numberVotesCast - this.votesNum
+        console.log(this.numberVotesCast, this.votesNum)
+        votesNum = Number(this.numberVotesCast) - Number(this.votesNum)
       } else {
         votesNum = this.votesNum
       }
+      console.log(this.isWithdrawalTickets)
+      console.log(this.votesNum)
       params.votes = votesNum
+      console.log('params')
+      console.log(params)
+      
+      if (!params.vote_ids || params.vote_ids.length == 0) {
+          Toast({
+            message: "请选择节点",
+            className: 'toast-style',
+            duration: 2000
+          });
+          return false
+        
+      }
+      if (!this.isWithdrawalTickets) {
+        if (!params.votes || params.votes == 0) {
+            Toast({
+              message: "票数不能为零",
+              className: 'toast-style',
+              duration: 2000
+            });
+            return false
+          
+        }
+      } else {
+        if (params.votes || params.votes == 0) {
+            Toast({
+              message: "票数不能为零",
+              className: 'toast-style',
+              duration: 2000
+            });
+            return false
+          
+        }
+      }
       publishVotes(params).then(res => {
+        console.log('=========publishVotes======res==================')
+        console.log(res)
         if (res.code == 1) {
           
-          Toast({
-            message: "success vote",
-            className: 'toast-style',
-            duration: 2000
-          });
+          if (this.isWithdrawalTickets) {
+            Toast({
+                message: "撤票成功",
+                className: 'toast-style',
+                duration: 2000
+              });
+          } else {
+            Toast({
+                message: "投票成功",
+                className: 'toast-style',
+                duration: 2000
+              });
+          }
+          
         } else {
-          Toast({
-            message: "error vote",
-            className: 'toast-style',
-            duration: 2000
-          });
+          
+          _this.codeErr(res)
         }
         
         _this.isWitnesses = true;
@@ -399,6 +425,9 @@ export default {
         console.log(res)
         if (res.code == 1) {
           _this.myCOCOS = res.data.COCOS
+        } else {
+          _this.codeErr(res)
+
         }
         
       })
@@ -422,48 +451,53 @@ export default {
     queryAccountInfoAjax() {
       let _this = this;
       queryAccountInfo().then(res => {
-        let myVotes = res.data.votes;
-        // myVotesWitnesses myVotesCommittee
-        let myVotesIds = [];
-        for (let i = 0; i < myVotes.length; i++) {
-          if (myVotes[i].hasOwnProperty("witness_account")) {
-            myVotesIds.push(myVotes[i].witness_account);
-            _this.myVotesWitnesses[myVotes[i].witness_account] = "";
-          } else if (myVotes[i].hasOwnProperty("committee_member_account")) {
-            myVotesIds.push(myVotes[i].committee_member_account);
-            _this.myVotesCommittee[myVotes[i].committee_member_account] = "";
-          }
-        }
-        let duplicateRemovalMyVotesIds = myVotesIds.filter(
-          (item, index, self) => self.indexOf(item) === index
-        );
-        queryDataByIds(duplicateRemovalMyVotesIds).then(res => {
-          let myVotesWitnesses = {}
-          let myVotesCommittee = {}
-          for (let i = 0; i < res.data.length; i++) {
-            let myVotesObj = {
-              name: res.data[i].name,
-              logo: res.data[i].logo
+        if (res.code == 1) {
+          let myVotes = res.data.votes;
+          // myVotesWitnesses myVotesCommittee
+          let myVotesIds = [];
+          for (let i = 0; i < myVotes.length; i++) {
+            if (myVotes[i].hasOwnProperty("witness_account")) {
+              myVotesIds.push(myVotes[i].witness_account);
+              _this.myVotesWitnesses[myVotes[i].witness_account] = "";
+            } else if (myVotes[i].hasOwnProperty("committee_member_account")) {
+              myVotesIds.push(myVotes[i].committee_member_account);
+              _this.myVotesCommittee[myVotes[i].committee_member_account] = "";
             }
-            if (_this.myVotesWitnesses.hasOwnProperty(res.data[i].id)) {
-              // _this.myVotesWitnesses[res.data[i].id] = res.data[i].name;
-              myVotesWitnesses[res.data[i].id] = {
+          }
+          let duplicateRemovalMyVotesIds = myVotesIds.filter(
+            (item, index, self) => self.indexOf(item) === index
+          );
+          queryDataByIds(duplicateRemovalMyVotesIds).then(res => {
+            let myVotesWitnesses = {}
+            let myVotesCommittee = {}
+            for (let i = 0; i < res.data.length; i++) {
+              let myVotesObj = {
                 name: res.data[i].name,
                 logo: res.data[i].logo
-              };
+              }
+              if (_this.myVotesWitnesses.hasOwnProperty(res.data[i].id)) {
+                // _this.myVotesWitnesses[res.data[i].id] = res.data[i].name;
+                myVotesWitnesses[res.data[i].id] = {
+                  name: res.data[i].name,
+                  logo: res.data[i].logo
+                };
 
+              }
+              if (_this.myVotesCommittee.hasOwnProperty(res.data[i].id)) {
+                // _this.myVotesCommittee[res.data[i].id] = res.data[i].name;
+                myVotesCommittee[res.data[i].id] = {
+                  name: res.data[i].name,
+                  logo: res.data[i].logo
+                };
+              }
             }
-            if (_this.myVotesCommittee.hasOwnProperty(res.data[i].id)) {
-              // _this.myVotesCommittee[res.data[i].id] = res.data[i].name;
-              myVotesCommittee[res.data[i].id] = {
-                name: res.data[i].name,
-                logo: res.data[i].logo
-              };
-            }
-          }
-          _this.myVotesWitnesses = myVotesWitnesses
-          _this.myVotesCommittee = myVotesCommittee
-        });
+            _this.myVotesWitnesses = myVotesWitnesses
+            _this.myVotesCommittee = myVotesCommittee
+          });
+        } else {
+          _this.codeErr(res)
+        }
+        
       });
     },
 
@@ -555,49 +589,54 @@ export default {
         type: queryType
       };
       queryVotes(params).then(res => {
-        function sortId(a, b) {
-          return b.votes - a.votes;
-        }
-        res.data.sort(sortId);
-        _this.count = res.data.length;
-        _this.queryVotesList = [];
-        _this.votesTotal = 0;
-        for (let i = 0; i < res.data.length; i++) {
-          _this.votesTotal += Number(res.data[i].votes);
-          res.data[i].supporters
-            ? (res.data[i].supporters_count = res.data[i].supporters.length)
-            : (res.data[i].supporters_count = 0);
-          res.data[i].ranking = i + 1;
-        }
-        _this.queryVotesList = res.data;
-        // let requestQueryVotesList = res.data.slice(
-        //   Number(_this.currentPage - 1) * Number(_this.pageSize),
-        //   Number(_this.currentPage) * Number(_this.pageSize)
-        // );
-        
-
-        let currentPageSize = _this.currentPage * _this.pageSize
-        if (currentPageSize > res.data.length) {
-          currentPageSize = res.data.length
-          if (_this.currentPage > 0) {
-            _this.currentPage--
+        if (res.code == 1) {
+          function sortId(a, b) {
+            return b.votes - a.votes;
           }
-        }
-        let requestQueryVotesList = res.data.slice(0, Number(currentPageSize));
-        let formData = {};
-        if (this.isWitnesses) {
-          formData = {
-            witnesses: requestQueryVotesList,
-            votes_total: _this.votesTotal
-          };
+          res.data.sort(sortId);
+          _this.count = res.data.length;
+          _this.queryVotesList = [];
+          _this.votesTotal = 0;
+          for (let i = 0; i < res.data.length; i++) {
+            _this.votesTotal += Number(res.data[i].votes);
+            res.data[i].supporters
+              ? (res.data[i].supporters_count = res.data[i].supporters.length)
+              : (res.data[i].supporters_count = 0);
+            res.data[i].ranking = i + 1;
+          }
+          _this.queryVotesList = res.data;
+          // let requestQueryVotesList = res.data.slice(
+          //   Number(_this.currentPage - 1) * Number(_this.pageSize),
+          //   Number(_this.currentPage) * Number(_this.pageSize)
+          // );
+          
+
+          let currentPageSize = _this.currentPage * _this.pageSize
+          if (currentPageSize > res.data.length) {
+            currentPageSize = res.data.length
+            if (_this.currentPage > 0) {
+              _this.currentPage--
+            }
+          }
+          let requestQueryVotesList = res.data.slice(0, Number(currentPageSize));
+          let formData = {};
+          if (this.isWitnesses) {
+            formData = {
+              witnesses: requestQueryVotesList,
+              votes_total: _this.votesTotal
+            };
+          } else {
+            formData = {
+              committee: requestQueryVotesList,
+              
+            };
+          }
+          
+          _this.witnessesAjax(formData);
         } else {
-          formData = {
-            committee: requestQueryVotesList,
-            
-          };
+          _this.codeErr(res)
         }
         
-        _this.witnessesAjax(formData);
       });
     },
     lookupBlockRewardsByIdAjax(account_id, index) {
@@ -689,7 +728,6 @@ export default {
         _this.isMask = false;
       }, 500);
     },
-
     
     loadTop() {
       this.currentPage = 1
@@ -703,7 +741,81 @@ export default {
       this.myVotesCommittee = {}
       this.currentPage++
       this.queryVotesAjax();
-    }
+    },
+
+    codeErr(res){
+      let _this = this;
+          if (res.code == 402) {
+            return false
+          } else {
+            if (res.message.indexOf('Parameter is missing') > -1) {
+              
+              Toast({
+                duration: 2000,
+                message: _this.$t('interFaceMessage.common[101]'),
+                className: 'toast-style',
+              })
+            } else if (res.message.indexOf("world view name can't start whith a digit")>-1) {
+              Toast({
+                duration: 2000,
+                message: _this.$t('interFaceMessage.creatWorldView[3]'),
+                className: 'toast-style',
+              })
+            } else if (res.message.indexOf("Please login first")>-1) {
+              Toast({
+                duration: 2000,
+                message: _this.$t('interFaceMessage.common[114]'),
+                className: 'toast-style',
+              })
+            } else if (res.message.indexOf('Insufficient Balance') > -1) {
+              Toast({
+                duration: 2000,
+                message: _this.$t('interFaceMessage.common.InsufficientBalance'),
+                className: 'toast-style',
+              })
+            } else if (res.message.indexOf('You\'re not a nh asset creator')>-1) {
+              Toast({
+                duration: 2000,
+                message: _this.$t('interFaceMessage.creatWorldView[2]'),
+                className: 'toast-style',
+              })
+            } else if (res.message.indexOf("world view name can't start whith a digit")>-1) {
+              Toast({
+                duration: 2000,
+                message: _this.$t('interFaceMessage.creatWorldView[3]'),
+                className: 'toast-style',
+              })
+            } else if (res.message.indexOf("Most likely a uniqueness constraint is violated")>-1) {
+              
+              Toast({
+                duration: 2000,
+                message: _this.$t('interFaceMessage.creatWorldView[0]'),
+                className: 'toast-style',
+              })
+            } else if (res.message.indexOf("missing required owner authority")>-1) {
+              
+              Toast({
+                duration: 2000,
+                message: _this.$t('interFaceMessage.creatWorldView[0]'),
+                className: 'toast-style',
+              })
+            } else if (res.message.indexOf("Wrong password")>-1) {
+              Toast({
+                duration: 2000,
+                message: _this.$t('interFaceMessage.common[6]'),
+                className: 'toast-style',
+              })
+            } else {
+                Toast({
+                duration: 2000,
+                message: _this.$t('interFaceMessage.common[4]'),
+                className: 'toast-style',
+              })
+            }
+          }
+          
+          return false
+    },
   }
 };
 </script>
