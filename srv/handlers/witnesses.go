@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Cocos-BCX/VoteCocosBCX/srv/config"
+	"github.com/Cocos-BCX/VoteCocosBCX/srv/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -55,13 +56,21 @@ func Witnesses(c *gin.Context) {
 		})
 		return
 	}
+	witnessNums, _ := models.FindWitnessesGeneratedBlockNumber()
+
 	for k, v := range req.Witnesses {
 		if witness, ok := witnessesConfig[v.WitnessID]; ok {
 			req.Witnesses[k].Country = witness.Country[lang]
 			req.Witnesses[k].Logo = witness.Logo
 		}
+		if nums, ok := witnessNums[v.AccountName]; ok {
+			req.Witnesses[k].GeneratedBlockNum = nums.Num
+		} else {
+			req.Witnesses[k].GeneratedBlockNum = 0
+		}
 
 	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"result": req.Witnesses,
 		"error":  "ok",

@@ -38,12 +38,19 @@ type LangsConfig struct {
 	Default string   `json:"default"`
 }
 
+type MongoConfig struct {
+	Uri        string `json:"uri"`
+	Database   string `json:"database"`
+	Collection string `json:"collection"`
+}
+
 type (
 	Configuration struct {
 		Server    ServerConfig               `json:"server"`
 		Witnesses map[string]WitnessConfig   `json:"witnesses"`
 		Committee map[string]CommitteeConfig `json:"committee"`
 		Langs     LangsConfig                `json:"langs"`
+		Mongo     MongoConfig                `json:"mongo"`
 	}
 )
 

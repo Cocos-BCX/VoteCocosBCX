@@ -11,6 +11,7 @@ import (
 	"github.com/Cocos-BCX/VoteCocosBCX/srv/config"
 	"github.com/Cocos-BCX/VoteCocosBCX/srv/handlers"
 	"github.com/Cocos-BCX/VoteCocosBCX/srv/middleware"
+	"github.com/Cocos-BCX/VoteCocosBCX/srv/models"
 	limit "github.com/aviddiviner/gin-limit"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
@@ -28,7 +29,13 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(cfg)
+	fmt.Printf("config:%#v\n", cfg)
+
+	// init mongo
+
+	if err := models.Init(cfg.Mongo); err != nil {
+		panic(err)
+	}
 
 	r := InitRouter(cfg)
 
@@ -40,7 +47,9 @@ func main() {
 		v1.POST("/committee", handlers.Committee)
 	}
 
-	r.Run(cfg.Server.ListenAddr)
+	if err := r.Run(cfg.Server.ListenAddr); err != nil {
+		panic(err)
+	}
 	quit := make(chan os.Signal)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
