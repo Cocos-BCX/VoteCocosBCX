@@ -46,9 +46,9 @@
         "allows":["zh-CN","en"]
     },
     "mongo":{
-        "uri":"mongodb://182.92.163.55:27017",
-        "database":"testnet_monitor",
-        "collection":"block"
+        "uri":"",
+        "database":"",
+        "collection":""
     }
 
 }
