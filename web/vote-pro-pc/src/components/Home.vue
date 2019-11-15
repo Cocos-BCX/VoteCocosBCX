@@ -949,7 +949,7 @@ export default {
               
               Message({
                 duration: 2000,
-                message: _this.$t('interFaceMessage.publishVotes[1]'),
+                message: _this.$t('tipsMessage.business.pleaseImportAccountPrivateKey'),
                 type: 'error',
               })
             } else if (res.message.indexOf("locked->value >= 0")>-1) {
