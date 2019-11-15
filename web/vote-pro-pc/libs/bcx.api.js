@@ -150,6 +150,8 @@ export let publishVotes = function (params) {
     // witnesses committee
     let browserConnectResult = await browserConnect()
     if (!browserConnectResult) return false
+    console.log('-------------------------------------')
+    console.log(params)
     bcx.publishVotes({
       // witnessesIds: params.witnessesIds || null,
       // committee_ids: params.committee_ids || null,
@@ -245,6 +247,8 @@ export let queryAccountBalances = function () {
   let loadingInstance = Loading.service();
   return new Promise( function (resolve, reject) {
     getAccountInfo().then( (getAccountInfoResult) => {
+      console.log('==========queryAccountBalances==============')
+      console.log(getAccountInfoResult)
       if (!getAccountInfoResult) return false
       bcx.queryAccountBalances({
         account: getAccountInfoResult[cacheKey.accountName] || ''
@@ -272,11 +276,10 @@ export let queryVotes = function (params) {
       type: params.type || ''
     }
     bcx.queryVotes(param).then(res => {
-      console.log('---------------------')
-      console.log(res)
       loadingInstance.close();
       resolve(res)
     }).then( err => {
+      console.log('err')
       console.log(err)
     })
   })

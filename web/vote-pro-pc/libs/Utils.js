@@ -23,3 +23,7 @@ export let cacheSession = {
 }
 
 
+export let handleCOCOS = function (COCOS) {
+  return COCOS/Math.pow(10,5)
+}
+

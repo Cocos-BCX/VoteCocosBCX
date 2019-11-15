@@ -1,4 +1,59 @@
 export const langZh = {
+    common: {
+        vote: '投票',
+        withdrawalVotes: '撤票',
+        candidateNode: '候选节点',
+        numberVotes: '投票数',
+        withdrawalVotesNum: '撤回票数',
+        balance: '余额',
+        numberVotesCast: '已投票数',
+        cancel: '取消',
+        votedNode: '已投节点',
+
+        votesAvailableNum: '可投票数',
+        
+        sellOut: '卖 出',
+        discard: '丢 弃',
+        registerCreator: '注册开发者',
+        createViewWorld: '创建世界观',
+        createAsset: '创建新资产',
+        goback: '返 回',
+        confirm: '确认',
+        removebtn: '删 除',
+        addbtn: '添 加',
+        immediatePurchaseBtn: '立即购买',
+        cancellationOfOrderBtn: '取消订单',
+
+
+        total: '总计',
+        choice: '选择',
+
+        ShowMore: '显示更多',
+
+        remainingAvailableVotes: '剩余可用票数',
+
+        max: '最大',
+        
+    },
+    installTips: {
+        installed: '请确认您已安装'
+    },
+    nodeContainer: {
+        voteForNode: '投票给节点',
+        selectedNode: '已选节点',
+    },
+    tabTableContainer: {
+        superNode: '超级节点',
+        council: '理事会',
+        ranking: '排名',
+        country: '国家/地区',
+        voteRate: '得票率',
+        numberVotingAccounts: '投票账户数',
+        awardsClaimed: '待申领奖励(COCOS)',
+
+        name: '名称',
+        blockNum: '已生产区块数'
+    },
     interFaceMessage: {
         common: {
             'success': '成功',
@@ -10,7 +65,12 @@ export const langZh = {
             '2': '你不是资产拥有者',
             'InsufficientBalance': '余额不足',
             '3': '账号不匹配',
-            '4': '网络繁忙或账号不匹配'
+            '4': '网络繁忙或账号不匹配',
+            '5': '网络繁忙',
+            '6': '密码错误'
+        },
+        publishVotes:{
+            '1': '请导入账户私钥（owner）'
         },
         creatNHAssetOrder: {
             '1': '挂单成功',
@@ -46,100 +106,35 @@ export const langZh = {
         }
     },
     
-    // 10-10 
-    myAssets: {
-        title: '我的资产',
-        createAssetsBtn: '创建新资产',
-        myAssetsTable: {
-            tableHead: ['缩略图', 'NH资产ID', '通行资产', '世界观', '基础数据', '操作']
-        },
-        createFirstAsset: {
-            title: '试试创建你的第一笔资产吧'
-        },
-        step: [
-            {
-                key: '步骤1. ',
-                value: '注册成为开发者'
-            },
-            {
-                key: '步骤2. ',
-                value: '创建一个世界观'
-            },
-            {
-                key: '步骤3. ',
-                value: '开始创建你的资产吧'
-            }
-        ]
-    },
-    common: {
-        sellOut: '卖 出',
-        discard: '丢 弃',
-        registerCreator: '注册开发者',
-        createViewWorld: '创建世界观',
-        createAsset: '创建新资产',
-        goback: '返 回',
-        confirm: '确 认',
-        removebtn: '删 除',
-        addbtn: '添 加',
-        immediatePurchaseBtn: '立即购买',
-        cancellationOfOrderBtn: '取消订单'
-    },
-    sellOutAssets: {
-        title: '填写交易信息',
-        price: '价格',
-        expiration: '过期时间',
-        expirationUnit: '秒',
-        memo: '备注',
-        // 10-15
-        expirationPlaceholder: '最大1209500',
-    },
-
-    creatWorldView: {
-        title: '填写交易信息',
-        worldViewName: '世界观名'
-    },
-    
-    createassets: [
-        {
-            key: '类别名称',
-            placeholder: '如“炸弹”'
-        },
-        {
-            key: '生产数量',
-            placeholder: '如“1”'
-        },
-        {
-            key: '通行资产',
-            placeholder: '如“COCOS”'
-        },
-        {
-            key: '世界观',
-            placeholder: '请选择'
-        },
-        {
-            key: '缩略图',
-            placeholder: '选择文件'
-        },
-        {
-            key: '基础数据'
-        }
-    ],
-    tradingMarket: {
-        title: '交易市场',
-        price: '价格',
-        seller: '卖家',
-        memo: '备注',
-    },
     
     tipsMessage: {
         common: {
             notInputRepeat: '请勿重复输入',
             firstCreateWorldView: '需要创建世界观',
-
-            // 10-16
             notEmpty: '不能为空',
             accountLocked: '请先解锁账户',
-            linkFailure: '链接失败，请检查浏览器钱包是否正常打开'
+            linkFailure: '链接失败，请检查浏览器钱包是否正常打开',
+
+            pleaseEnter: '请输入'
+        },
+        business: {
+            pleaseEnterNode: '请输入节点名称',
+            noData: '暂无数据',
+
+            votesExceededAvailableBalance: '投票数超过可使用余额',
+            votesWithdrawnExceedsNumber: '撤票数超过已投票数',
+            votedSuccessfully: '投票成功',
+            votedFailed: '投票失败',
+            maximumNumberVotesReached: '已到达票数上限',
+            votesCannotZero: '票数不能为零',
+            pleaseSelectNode: '请选择节点',
+            pleaseImportAccountPrivateKey: '请导入账户私钥（owner）',
+            pleaseImportAssetPrivateKey: '请导入资产私钥（active）',
+            lockedGreaterThanValue: '资源不足以支撑本次操作，请抵押GAS或预留COCOS',
+
+            moreVotesThanAvailable: '投票数超过可用票数',
+            cannotExceedNumberVotes: '不能超过已投票数',
+            successfulWithdrawalTickets: '撤票成功'
         }
     }
 
