@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -25,16 +24,18 @@ func FindWitnessesGeneratedBlockNumber() (map[string]WitnessGeneratedBlockNumber
 			}},
 		}},
 	}
+
 	opts := options.Aggregate().SetMaxTime(2 * time.Second)
 	cursor, err := Collection.Aggregate(context.TODO(), mongo.Pipeline{query}, opts)
 	if err != nil {
 		return results, err
 	}
+
 	var res []WitnessGeneratedBlockNumber
 	if err = cursor.All(context.TODO(), &res); err != nil {
 		return results, err
 	}
-	fmt.Println(res)
+
 	for _, result := range res {
 		results[result.Id] = result
 	}

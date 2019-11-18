@@ -45,6 +45,7 @@ func main() {
 	{
 		v1.POST("/witnesses", handlers.Witnesses)
 		v1.POST("/committee", handlers.Committee)
+		v1.POST("/mortgage", handlers.Mortgage)
 	}
 
 	if err := r.Run(cfg.Server.ListenAddr); err != nil {

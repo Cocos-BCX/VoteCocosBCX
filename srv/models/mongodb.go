@@ -10,12 +10,12 @@ import (
 )
 
 var (
-	DB         *mongo.Client
-	Collection *mongo.Collection
+	mongoClient *mongo.Client
+	Collection  *mongo.Collection
 )
 
 func Init(cfg config.MongoConfig) error {
-	if DB != nil {
+	if mongoClient != nil {
 		return nil
 	}
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
@@ -28,12 +28,12 @@ func Init(cfg config.MongoConfig) error {
 	if err != nil {
 		return err
 	}
-	DB = client
-	Collection = client.Database(cfg.Database).Collection(cfg.Collection)
+	mongoClient = client
+	Collection = mongoClient.Database(cfg.Database).Collection(cfg.Collection)
 	return nil
 }
 func Close() {
-	if DB != nil {
-		_ = DB.Disconnect(context.TODO())
+	if mongoClient != nil {
+		_ = mongoClient.Disconnect(context.TODO())
 	}
 }
