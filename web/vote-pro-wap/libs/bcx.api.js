@@ -120,6 +120,20 @@ export let passwordLogin = function (params) {
 
 }
 
+// 获取语言
+export let walletLanguage = function () {
+  
+  return new Promise( function (resolve, reject) {
+    console.log('****************************')
+    bcx.walletLanguage().then( res => {
+      console.log('****************************')
+      console.log(res)
+      resolve(res)
+    }).catch( err => {
+      console.log(err)
+    })
+  })
+}
 // 投票
 export let publishVotes = function (params) {
   

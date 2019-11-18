@@ -10,12 +10,12 @@ export default new Router({
   mode: 'history',
   routes: [
     {
-      path: '/',
+      path: '/LookForwardTo',
       name: 'LookForwardTo',
       component: LookForwardTo
     },
     {
-      path: '/Home',
+      path: '/',
       name: 'Home',
       component: Home
     },

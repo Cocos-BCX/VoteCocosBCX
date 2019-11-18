@@ -1,4 +1,51 @@
 export const langZh = {
+    common: {
+        vote: '投票',
+        withdrawalVotes: '撤票',
+        candidateNode: '候选节点',
+        numberVotes: '投票数',
+        withdrawalVotesNum: '撤回票数',
+        balance: '余额',
+        numberVotesCast: '已投票数',
+        cancel: '取消',
+        votedNode: '已投节点',
+
+        votesAvailableNum: '可投票数',
+        
+        sellOut: '卖 出',
+        discard: '丢 弃',
+        registerCreator: '注册开发者',
+        createViewWorld: '创建世界观',
+        createAsset: '创建新资产',
+        goback: '返 回',
+        confirm: '确认',
+        removebtn: '删 除',
+        addbtn: '添 加',
+        immediatePurchaseBtn: '立即购买',
+        cancellationOfOrderBtn: '取消订单',
+
+
+        total: '总计',
+        choice: '选择',
+
+        ShowMore: '显示更多'
+    },
+    installTips: {
+        installed: '请确认您已安装'
+    },
+    nodeContainer: {
+        voteForNode: '投票给节点',
+        selectedNode: '已选节点',
+    },
+    tabTableContainer: {
+        superNode: '超级节点',
+        council: '理事会',
+        ranking: '排名',
+        country: '国家/地区',
+        voteRate: '得票率',
+        numberVotingAccounts: '投票账户数',
+        awardsClaimed: '待申领奖励(COCOS)'
+    },
     interFaceMessage: {
         common: {
             'success': '成功',
@@ -13,6 +60,9 @@ export const langZh = {
             '4': '网络繁忙或账号不匹配',
             '5': '网络繁忙',
             '6': '密码错误'
+        },
+        publishVotes:{
+            '1': '请导入账户私钥（owner）'
         },
         creatNHAssetOrder: {
             '1': '挂单成功',
@@ -48,29 +98,35 @@ export const langZh = {
         }
     },
     
-    common: {
-        sellOut: '卖 出',
-        discard: '丢 弃',
-        registerCreator: '注册开发者',
-        createViewWorld: '创建世界观',
-        createAsset: '创建新资产',
-        goback: '返 回',
-        confirm: '确 认',
-        removebtn: '删 除',
-        addbtn: '添 加',
-        immediatePurchaseBtn: '立即购买',
-        cancellationOfOrderBtn: '取消订单'
-    },
     
     tipsMessage: {
         common: {
             notInputRepeat: '请勿重复输入',
             firstCreateWorldView: '需要创建世界观',
-
-            // 10-16
             notEmpty: '不能为空',
             accountLocked: '请先解锁账户',
-            linkFailure: '链接失败，请检查浏览器钱包是否正常打开'
+            linkFailure: '链接失败，请检查浏览器钱包是否正常打开',
+
+            pleaseEnter: '请输入'
+        },
+        business: {
+            pleaseEnterNode: '总计请输入节点名称',
+            noData: '暂无数据',
+
+            votesExceededAvailableBalance: '投票数超过可使用余额',
+            votesWithdrawnExceedsNumber: '撤票数超过已投票数',
+            votedSuccessfully: '投票成功',
+            votedFailed: '投票失败',
+            maximumNumberVotesReached: '已到达票数上限',
+            votesCannotZero: '票数不能为零',
+            pleaseSelectNode: '请选择节点',
+            importAccountPrivateKey: '请导入账户私钥（owner）',
+            importAssetPrivateKey: '请导入资产私钥（active）',
+            lockedGreaterThanValue: '资源不足以支撑本次操作，请抵押GAS或预留COCOS',
+
+            moreVotesThanAvailable: '投票数超过可用票数',
+            cannotExceedNumberVotes: '不能超过已投票数',
+            successfulWithdrawalTickets: '撤票成功'
         }
     }
 
