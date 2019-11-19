@@ -611,11 +611,11 @@ export default {
       //   var formData = new FormData();
       //   formData.append("picture", files);
       // lang=en/zh-CN
-      let resUrl = "http://vote.test.cjfan.net/api/api/v1/witnesses";
+      let resUrl = "http://vote.test.cocosbcx.net/api/api/v1/witnesses";
       if (this.isWitnesses) {
-        resUrl = "http://vote.test.cjfan.net/api/api/v1/witnesses";
+        resUrl = "http://vote.test.cocosbcx.net/api/api/v1/witnesses";
       } else {
-        resUrl = "http://vote.test.cjfan.net/api/api/v1/committee";
+        resUrl = "http://vote.test.cocosbcx.net/api/api/v1/committee";
       }
       this.$axios
         .post(resUrl, formData)
