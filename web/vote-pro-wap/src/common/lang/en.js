@@ -1,4 +1,53 @@
 export const langEn = {
+    common: {
+        vote: 'Vote',
+        withdrawalVotes: 'Withdrawal',
+        // withdrawalVotes: 'Withdrawal of votes',
+        candidateNode: 'Candidate node',
+        numberVotes: 'Number of votes',
+        withdrawalVotesNum: 'Number of votes withdrawn',
+        balance: 'Balance',
+        numberVotesCast: 'Number of votes cast',
+        cancel: 'Cancel',
+        votedNode: 'Voted node',
+
+        
+        sellOut: 'Sell',
+        discard: 'Discard',
+        registerCreator: 'Register a developer account',
+        createViewWorld: 'Create a Multiverse',
+        createAsset: 'Create A New Asset',
+        goback: 'Back',
+        confirm: 'Confirm',
+        removebtn: 'Delete',
+        addbtn: 'Add',
+        immediatePurchaseBtn: 'Buy Now',
+        cancellationOfOrderBtn: 'Cancel the order',
+
+
+        total: 'Total',
+        choice: 'Choice',
+
+        ShowMore: 'Show more',
+
+        votesAvailableNum: 'Number of votes available',
+    },
+    installTips: {
+        installed: 'Please confirm that you have installed'
+    },
+    nodeContainer: {
+        voteForNode: 'Vote for node',
+        selectedNode: 'Selected node',
+    },
+    tabTableContainer: {
+        superNode: 'Super node',
+        council: 'Council',
+        ranking: 'Ranking',
+        country: 'Country/Region',
+        voteRate: 'Vote rate',
+        numberVotingAccounts: 'Number of voting accounts',
+        awardsClaimed: 'Awards to be claimed (COCOS)'
+    },
     interFaceMessage: {
         common: {
             'success': 'Success',
@@ -11,7 +60,9 @@ export const langEn = {
             '2': 'You are not the owner of the asset',
             'InsufficientBalance': 'Insufficient balance',
             '3': 'The account do not match',
-            '4': 'Network is busy or the account do not match'
+            '4': 'Network is busy or the account do not match',
+            '5': 'Network is busy',
+            '6': 'Password error'
         },
         creatNHAssetOrder: {
             '1': 'Order submitted',
@@ -24,7 +75,6 @@ export const langEn = {
             '3': 'You are not the owner of the asset, so you cannot delete the asset.'
         },
         fillNHAssetOrder: {
-            '1': '购买成功',
             'orderhasexpired': 'Order expired',
             'InsufficientBalance': 'Insufficient balance',
             'selforder': 'You cannot fill the order created by yourself',
@@ -46,104 +96,36 @@ export const langEn = {
             '2': 'Registration failed'
         }
     },
-    
-    // 10-10 
-    myAssets: {
-        title: 'My assets',
-        createAssetsBtn: 'Create A New Asset',
-        myAssetsTable: {
-            tableHead: ['Thumbnail', 'NH Asset ID', 'Coin', 'Multiverse', 'Basic data', 'Operation']
-        },
-        createFirstAsset: {
-            title: ' Try to create your first asset.'
-        },
-        step: [
-            {
-                key: 'Step 1. ',
-                value: 'Register a developer account'
-            },
-            {
-                key: 'Step 2. ',
-                value: 'Create a Multiverse'
-            },
-            {
-                key: 'Step 3. ',
-                value: 'Start creating your asset.'
-            }
-        ]
-    },
-    common: {
-        sellOut: 'Sell',
-        discard: 'Discard',
-        registerCreator: 'Register a developer account',
-        createViewWorld: 'Create a Multiverse',
-        createAsset: 'Create A New Asset',
-        goback: 'Back',
-        confirm: 'Confirm',
-        removebtn: 'Delete',
-        addbtn: 'Add',
-        immediatePurchaseBtn: 'Buy Now',
-        cancellationOfOrderBtn: 'Cancel the order'
-    },
 
-    sellOutAssets: {
-        title: 'Fill in the trading info',
-        price: 'Price',
-        expiration: 'Expire in',
-        expirationUnit: 'seconds',
-        memo: 'Memo',
-        // 10-15
-        expirationPlaceholder: 'Up to 1209500',
-    },
-
-    creatWorldView: {
-        title: 'Fill in the trading info',
-        // worldViewName: 'Multiverse Name'
-        worldViewName: 'Multiverse'
-    },
-
-    createassets: [
-        {
-            key: 'Category',
-            placeholder: 'e.g. "bomb"'
-        },
-        {
-            // key: 'Quantity to be produced',
-            key: 'Quantity',
-            placeholder: 'e.g. "1"'
-        },
-        {
-            key: 'Coin',
-            placeholder: 'e.g. "COCOS"'
-        },
-        {
-            key: 'Multiverse',
-            placeholder: 'Please select one'
-        },
-        {
-            key: 'Thumbnail',
-            placeholder: 'Select a file'
-        },
-        {
-            key: 'Basic data'
-        }
-    ],
-    tradingMarket: {
-        title: 'Market',
-        price: 'Price',
-        seller: 'Seller',
-        memo: 'Memo',
-    },
     
     tipsMessage: {
         common: {
             notInputRepeat: 'Do not input repeatedly',
             firstCreateWorldView: 'Please create a Multiverse first',
-
-            // 10-16
             notEmpty: ' cannot be empty',
             accountLocked: 'Please unlock your account first',
-            linkFailure: 'Failed to connect. Please check if the plug-in wallet is open normally'
+            linkFailure: 'Failed to connect. Please check if the plug-in wallet is open normally',
+
+            pleaseEnter: 'Please input'
+        },
+        business: {
+            pleaseEnterNode: 'Please enter node name',
+            noData: 'No data',
+
+            votesExceededAvailableBalance: 'Votes exceeded available balance',
+            votesWithdrawnExceedsNumber: 'The number of votes withdrawn exceeds the number of votes cast',
+            votedSuccessfully: 'Voted successfully',
+            votedFailed: 'Voted failed',
+            maximumNumberVotesReached: 'The maximum number of votes has been reached',
+            votesCannotZero: 'Votes cannot be zero',
+            pleaseSelectNode: 'Please select a node',
+            importAccountPrivateKey: 'Please import account private key (owner)',
+            importAssetPrivateKey: 'Please import the asset private key (active)',
+            lockedGreaterThanValue: 'Resources are not enough to support this operation, please mortgage gas or reserve COCOS',
+
+            moreVotesThanAvailable: 'Can\'t exceed the number of available votes',
+            cannotExceedNumberVotes: 'Can\'t exceed the number of votes cast',
+            successfulWithdrawalTickets: 'Withdrew the vote successfully'
         }
     }
 }

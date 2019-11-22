@@ -1,9 +1,10 @@
 // 网页缓存  当前项目使用session
 
 export const cacheKey = {
-  accountName: 'account_name',
-  myWorldView: 'world_view',
-  lang: 'lang'
+  accountName: "account_name",
+  accountId: "account_id",
+  myWorldView: "world_view",
+  lang: "lang"
 }
 
 export let cacheSession = {
@@ -41,3 +42,9 @@ export const initRootFontSize = function(doc_01 = document, win_01 = window) {
   if (!doc_01.addEventListener) return;
   win_01.addEventListener(resizeEvt_01, recalc_01, false);
 };
+
+
+
+export let handleCOCOS = function (COCOS) {
+  return COCOS/Math.pow(10,5)
+}

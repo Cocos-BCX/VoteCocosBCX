@@ -34,6 +34,19 @@ input  {
 
   }
 
+  input::-webkit-input-placeholder{
+      color:rgba(165,169,177,1);
+  }
+  input::-moz-placeholder{   /* Mozilla Firefox 19+ */
+      color:rgba(165,169,177,1);
+  }
+  input:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */
+      color:rgba(165,169,177,1);
+  }
+  input:-ms-input-placeholder{  /* Internet Explorer 10-11 */ 
+      color:rgba(165,169,177,1);
+  }
+
 
 /*功能样式*/
 .bgf5f9fc{
@@ -332,44 +345,23 @@ input  {
   }
 
 
-  
-.el-pager li{
-    background: none!important;
-}
-.el-pager li:hover{
-    background:rgba(90,103,128,1)!important;
-    border-radius: 50%!important;
-    color: #fff;
-}
-.el-pager li.active{
-    background:rgba(90,103,128,1)!important;
-    border-radius: 50%!important;
-}
-.el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev{
-    background: none!important;
-}
 
 
-.jv-container .jv-code.boxed{
-    text-align: left!important;
-}
-.el-input--suffix .el-input__inner{
-    height: 48px!important;
-    border:1px solid rgba(207,207,207,1);
-}
-.el-pagination.is-background .btn-prev:disabled{
-    color: #606266!important;
-}
-.el-pagination.is-background .btn-next{
-    color: #C0C4CC!important;
-}
-.required{
-    color: #ff0000!important;
-}
 .mint-indicator-wrapper{
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+}
+.page-loadmore-wrapper {
+    overflow: scroll!important;
+    z-index: 100!important;
+}
+.toast-style span{
+  color: #fff!important;
+}
+
+.mint-msgbox .mint-msgbox-content .mint-msgbox-message{
+  color: #333333 !important;
 }
