@@ -58,5 +58,5 @@
         "password": "",
         "db_name": ""
     },
-    "api_url":"https://test.cocosbcx.net/api/v1"
+    "api_url":""
 }
