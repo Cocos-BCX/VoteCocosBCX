@@ -45,12 +45,23 @@ type MongoConfig struct {
 }
 
 type (
+	MysqlConfig struct {
+		Driver   string `json:"driver"`
+		Host     string `json:"host"`
+		Port     string `json:"port"`
+		User     string `json:"user"`
+		Password string `json:"password"`
+		DbName   string `json:"db_name"`
+	}
+
 	Configuration struct {
 		Server    ServerConfig               `json:"server"`
 		Witnesses map[string]WitnessConfig   `json:"witnesses"`
 		Committee map[string]CommitteeConfig `json:"committee"`
 		Langs     LangsConfig                `json:"langs"`
 		Mongo     MongoConfig                `json:"mongo"`
+		Mysql     MysqlConfig                `json:"mysql"`
+		ApiUrl    string                     `json:"api_url"`
 	}
 )
 
