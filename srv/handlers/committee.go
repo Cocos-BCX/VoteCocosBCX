@@ -37,6 +37,7 @@ type CommitteeRequest struct {
 
 func Committee(c *gin.Context) {
 	var req CommitteeRequest
+	lang := c.MustGet("lang").(string)
 	committeeConfig := config.GetConfig().Committee
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -47,7 +48,7 @@ func Committee(c *gin.Context) {
 	}
 	for k, v := range req.Committee {
 		if commit, ok := committeeConfig[v.CommitteeID]; ok {
-			req.Committee[k].Country = commit.Country
+			req.Committee[k].Country = commit.Country[lang]
 			req.Committee[k].Logo = commit.Logo
 		}
 
