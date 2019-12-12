@@ -17,6 +17,8 @@ import {
 //   Loading
 // } from 'element-ui'
 import { Loading,Indicator } from 'mint-ui';
+import axios from 'axios'
+
 
 let bcx = null
 
@@ -33,23 +35,49 @@ let promiseObjArr = []
 
 // bcx对象初始化
 export let initBcx = function () {
-
-  var _configParams={ 
-      ws_node_list:[
-          {url:"ws://test.cocosbcx.net",name:"Cocos - China - Beijing"},   
-      ],
-      networks:[
-          {
-              core_asset:"COCOS",
-              chain_id:"c1ac4bb7bd7d94874a1cb98b39a8a582421d03d022dfa4be8c70567076e03ad0" 
-          }
-      ], 
-      faucet_url: "http://test-faucet.cocosbcx.net",
-      auto_reconnect:true,
-      real_sub:true,
-      check_cached_nodes_data:false
-  };
-  bcx = new BCX(_configParams);
+  axios
+  .get("https://api-cocosbcx.cocosbcx.net/backend/getParams")
+  .then(response => {
+    // nodes = response.data.data;
+    let nodes = response.data.data.filter(( item )=>{
+      return item.name == 'Main'
+    })
+    console.log(nodes);
+      var _configParams={ 
+        ws_node_list:[
+            {url:nodes[0].ws,name:nodes[0].name},   
+        ],
+        networks:[
+            {
+                core_asset:"COCOS",
+                chain_id: nodes[0].chainId 
+            }
+        ], 
+        faucet_url: nodes[0].faucetUrl,
+        auto_reconnect:true,
+        real_sub:true,
+        check_cached_nodes_data:false
+    };
+  //   var _configParams={ 
+  //     ws_node_list:[
+  //         {url:"ws://192.168.90.46:8049",name:"personnaliser"},   
+  //     ],
+  //     networks:[
+  //         {
+  //             core_asset:"COCOS",
+  //             chain_id: "bc741ab76f35c22fb3e3b51cd70dcdf38db63e283229534ee2e5cf1e7a6c994b" 
+  //         }
+  //     ], 
+  //     faucet_url: nodes[0].faucetUrl,
+  //     auto_reconnect:true,
+  //     real_sub:true,
+  //     check_cached_nodes_data:false
+  // };
+    bcx = new BCX(_configParams);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
 }
 
 
