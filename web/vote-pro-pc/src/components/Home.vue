@@ -2,8 +2,8 @@
   <div class="center-container">
     <div class="login-bar" v-if="isBrowserConnect">
       <div class="install-tips" v-if="!isBrowserConnect">
-
-        请确认您已安装
+{{$t('installTips.installed')}}
+        <!-- 请确认您已安装 -->
         <a 
           href="https://chrome.google.com/webstore/detail/cocospay/ffbhaeoepdfapfjhcihbbhlaigejfack?utm_source=chrome-ntp-icon"
           target="_blank"
