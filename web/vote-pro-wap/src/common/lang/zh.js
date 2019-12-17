@@ -28,7 +28,8 @@ export const langZh = {
         total: '总计',
         choice: '选择',
 
-        ShowMore: '显示更多'
+        ShowMore: '显示更多',
+        Received: '领取'
     },
     installTips: {
         installed: '请确认您已安装'
@@ -59,7 +60,8 @@ export const langZh = {
             '3': '账号不匹配',
             '4': '网络繁忙或账号不匹配',
             '5': '网络繁忙',
-            '6': '密码错误'
+            '6': '密码错误',
+            '7': '没有奖励'
         },
         publishVotes:{
             '1': '请导入账户私钥（owner）'

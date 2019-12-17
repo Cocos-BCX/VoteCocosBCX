@@ -1,5 +1,5 @@
 // 邮箱
-export const MailReg = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/;
+export const MailReg = /^([a-zA-Z0-9_.-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/;
 // 包含0 正整数
 export const IntReg = /^([1-9]\d*|[0]{1,1})$/;
 // 不包含0 正整数
@@ -23,3 +23,6 @@ export const IntegerOrDecimalReg2 = /^[0-9]*\.{0,1}\d{0,5}$/
 
 
 export const GithubAddrReg = /^https:\/\/github.com/;
+
+// 手机正则
+export const MobilePhoneReg = /^[1][3,4,5,6,7,8,9][0-9]{9}$/

@@ -13,12 +13,11 @@ import {
 import {
   langZh
 } from '../src/common/lang/zh.js'
+import axios from 'axios'
 // import {
 //   Loading
 // } from 'element-ui'
 import { Loading,Indicator } from 'mint-ui';
-import axios from 'axios'
-
 
 let bcx = null
 
@@ -391,14 +390,25 @@ export let queryVotes = function (params) {
 
 
 // 查询账户
-export let queryVestingBalance = function (account) {
+export let queryVestingBalance = function (param) {
   Indicator.open({
     spinnerType: 'fading-circle'
   });
+  let params = {}
+  if(typeof param === 'string') {
+    params = {
+      account: param,
+      type: ""
+    }
+    
+  } else {
+    params = {
+      account: param.account,
+      type: param.type
+    }
+  }
   return new Promise(function (resolve, reject) {
-    bcx.queryVestingBalance({
-      account: account
-    }).then(res => {
+    bcx.queryVestingBalance(params).then(res => {
       Indicator.close();
       resolve(res)
     }).catch(err=>{
@@ -407,4 +417,26 @@ export let queryVestingBalance = function (account) {
       console.log(err)
     })
   })
+}
+
+
+// 立即领取
+export let claimVestingBalance = function (id) {
+  Indicator.open({
+    spinnerType: 'fading-circle'
+  });
+  return new Promise(function (resolve, reject) {
+    
+      bcx.claimVestingBalance({
+        id: id
+      }).then(res=>{
+        Indicator.close();
+        resolve(res)
+      }).catch(err=>{
+        Indicator.close();
+        console.log('--------err-------')
+        console.log(err)
+      })
+    })
+      
 }

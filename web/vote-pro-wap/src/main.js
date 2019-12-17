@@ -21,8 +21,9 @@ Vue.component(Loadmore.name, Loadmore);
 initBcx()
 initRootFontSize();
 browserConnect().then( res => {
-  setTimeout( function (params) {
-    
+  setTimeout( function () {
+    // let language = 'cn'
+    // res.data == 'cn' language == 'cn'
   walletLanguage().then(res=>{
     let lang = 'zh'
     if (res.data == 'cn') {

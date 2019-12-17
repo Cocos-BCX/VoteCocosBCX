@@ -365,3 +365,7 @@ input  {
 .mint-msgbox .mint-msgbox-content .mint-msgbox-message{
   color: #333333 !important;
 }
+
+.required{
+    color: #ff0000!important;
+}
