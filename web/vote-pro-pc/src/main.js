@@ -78,6 +78,7 @@ Vue.config.productionTip = false
 
 
 browserConnect().then( res=>{
+  console.log("2019-12-17 18:00 update")
   // lookupWSNodeList().then( lookupWSNodeListRes => {
   //   console.log(">>>>>>>>>>>>lookupWSNodeListRes<<<<<<<<<<<<<<<<")
   //   console.log(lookupWSNodeListRes)
