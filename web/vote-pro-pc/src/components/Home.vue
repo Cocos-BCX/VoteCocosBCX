@@ -2,8 +2,8 @@
   <div class="center-container">
     <div class="login-bar" v-if="isBrowserConnect">
       <div class="install-tips" v-if="!isBrowserConnect">
-
-        请确认您已安装
+{{$t('installTips.installed')}}
+        <!-- 请确认您已安装 -->
         <a 
           href="https://chrome.google.com/webstore/detail/cocospay/ffbhaeoepdfapfjhcihbbhlaigejfack?utm_source=chrome-ntp-icon"
           target="_blank"
@@ -680,11 +680,13 @@ export default {
         lang = 'en'
       }
       let localhost = "http://192.168.15.60:8010/api/v1/witnesses"
-      let resUrl = "http://vote.test.cocosbcx.net/api/api/v1/witnesses?lang=" + lang;
+      // let localResUrl = "http://vote.test.cocosbcx.net/api/api/v1/"
+      let localResUrl = "https://vote.cocosbcx.net/api/api/v1/"
+      let resUrl = localResUrl + "witnesses?lang=" + lang;
       if (this.isWitnesses) {
-        resUrl = "http://vote.test.cocosbcx.net/api/api/v1/witnesses?lang=" + lang;
+        resUrl = localResUrl + "witnesses?lang=" + lang;
       } else {
-        resUrl = "http://vote.test.cocosbcx.net/api/api/v1/committee?lang=" + lang;
+        resUrl = localResUrl + "committee?lang=" + lang;
       }
       this.$axios
         .post(resUrl, formData)
