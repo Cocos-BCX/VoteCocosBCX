@@ -1,9 +1,9 @@
 import {
   Message
 } from 'element-ui';
-
+// import axios from 'axios'
 // import BCX from 'bcx-api'
-import './bcx.min'
+// import './bcx.min'
 import {
   cacheSession,
   cacheKey
@@ -34,31 +34,47 @@ let promiseObjArr = []
 
 
 // bcx对象初始化
-export let initBcx = function () {
-    var _configParams={ 
-      ws_node_list:[
-          {url:"ws://test.cocosbcx.net",name:"Cocos - China - Beijing"},   
-      ],
-      networks:[
-          {
-              core_asset:"COCOS",
-              chain_id:"c1ac4bb7bd7d94874a1cb98b39a8a582421d03d022dfa4be8c70567076e03ad0" 
-          }
-      ], 
-      faucet_url: "http://test-faucet.cocosbcx.net",
-      auto_reconnect:true,
-      real_sub:true,
-      check_cached_nodes_data:false
-  };
-  bcx = new BCX(_configParams);
-}
+// export let initBcx = function () {
+  
+//   axios
+//   .get("http://backend.test.cocosbcx.net/getParams")
+//   .then(response => {
+//     // nodes = response.data.data;
+//     // nodes = response.data.data;
+//     let nodes = response.data.data.filter(( item )=>{
+//       return item.name == 'Main'
+//     })
+//     console.log(nodes);
+//       var _configParams={ 
+//         ws_node_list:[
+//             {url:nodes[0].ws,name:"Cocos - China - Beijing"},   
+//         ],
+//         networks:[
+//             {
+//                 core_asset:"COCOS",
+//                 chain_id: nodes[0].chainId 
+//             }
+//         ], 
+//         faucet_url: nodes[0].faucetUrl,
+//         auto_reconnect:true,
+//         real_sub:true,
+//         check_cached_nodes_data:false
+//     };
+//     bcx = new BCX(_configParams);
+    
+//   })
+//   .catch(function (error) {
+//     console.log(error);
+//   });
+// }
 
 
 // 浏览器插件链接
-export let browserConnect = function () {
+export let browserConnect = function (fnName) {
   let currentTimer = null
   let loadingInstance = Loading.service();
   return new Promise(async function (resolve, reject) {
+    console.log("2019-12-17 18:00 update")
     if (window.BcxWeb) {
       bcx = window.BcxWeb
       resolve(true)
@@ -109,8 +125,13 @@ export let browserConnect = function () {
 export let getAccountInfo = function () {
   let loadingInstance = Loading.service();
   return new Promise(async function (resolve, reject) {
-    let browserConnectResult = await browserConnect()
-    if (!browserConnectResult) return false
+    let browserConnectResult = {}
+    if (window.BcxWeb) {
+      bcx = window.BcxWeb
+    } else {
+      browserConnectResult = await browserConnect('getAccountInfo')
+      if (!browserConnectResult) return false
+    }
     bcx.getAccountInfo().then(res => {
       loadingInstance.close();
       if (res.locked) {
@@ -146,12 +167,8 @@ export let getAccountInfo = function () {
 export let publishVotes = function (params) {
   
   let loadingInstance = Loading.service();
-  return new Promise(async function (resolve, reject) {
+  return new Promise(function (resolve, reject) {
     // witnesses committee
-    let browserConnectResult = await browserConnect()
-    if (!browserConnectResult) return false
-    console.log('-------------------------------------')
-    console.log(params)
     bcx.publishVotes({
       // witnessesIds: params.witnessesIds || null,
       // committee_ids: params.committee_ids || null,
@@ -178,15 +195,13 @@ export let publishVotes = function (params) {
 
 
 // 查询账户信息
-export let queryAccountInfo = function () {
+export let queryAccountInfo = function (account) {
   let loadingInstance = Loading.service();
   return new Promise(async function (resolve, reject) {
     
-    let browserConnectResult = await browserConnect()
-    if (!browserConnectResult) return false
     // account: 'syling'
     bcx.queryAccountInfo({
-      account: cacheSession.get(cacheKey.accountName)
+      account: account
     }).then(res=>{
       loadingInstance.close();
       resolve(res)
@@ -202,8 +217,12 @@ export let queryAccountInfo = function () {
 export let queryDataByIds = function (ids) {
   let loadingInstance = Loading.service();
   return new Promise(async function (resolve, reject) {
-    let browserConnectResult = await browserConnect()
-    if (!browserConnectResult) return false
+    if (window.BcxWeb) {
+      bcx = window.BcxWeb
+    } else {
+      browserConnectResult = await browserConnect('queryDataByIds')
+      if (!browserConnectResult) return false
+    }
     bcx.queryDataByIds({
         ids: ids
     }).then(res=>{
@@ -224,8 +243,7 @@ export let queryDataByIds = function (ids) {
 export let queryVestingBalance = function (account) {
   let loadingInstance = Loading.service();
   return new Promise(async function (resolve, reject) {
-    let browserConnectResult = await browserConnect()
-    if (!browserConnectResult) return false
+    
     bcx.queryVestingBalance({
       account: account
     }).then(res => {
@@ -247,8 +265,6 @@ export let queryAccountBalances = function () {
   let loadingInstance = Loading.service();
   return new Promise( function (resolve, reject) {
     getAccountInfo().then( (getAccountInfoResult) => {
-      console.log('==========queryAccountBalances==============')
-      console.log(getAccountInfoResult)
       if (!getAccountInfoResult) return false
       bcx.queryAccountBalances({
         account: getAccountInfoResult[cacheKey.accountName] || ''
@@ -268,8 +284,8 @@ export let queryAccountBalances = function () {
 // 投票列表
 export let queryVotes = function (params) {
   let loadingInstance = Loading.service();
-  return new Promise(async function (resolve, reject) {
-    await queryAccountInfo()
+  return new Promise(function (resolve, reject) {
+    
     let param = {
       // type: witnesses 见证人    committee 理事会
       queryAccount: params.queryAccount,
@@ -296,4 +312,28 @@ export let logout = function (params) {
     })
   })
 
+}
+
+
+export let lookupWSNodeList = function () {
+  let loadingInstance = Loading.service();
+  return new Promise(function (resolve, reject) {
+    bcx.lookupWSNodeList({
+      refresh:true
+    }).then(res=>{
+      loadingInstance.close();
+      resolve(res)
+    })
+  })
+}
+
+
+export let getExtensionNode = function () {
+  let loadingInstance = Loading.service();
+  return new Promise(function (resolve, reject) {
+    bcx.getExtensionNode().then(res=>{
+      loadingInstance.close();
+      resolve(res)
+    })
+  })
 }

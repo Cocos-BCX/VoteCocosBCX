@@ -31,6 +31,7 @@ export const langEn = {
         ShowMore: 'Show more',
 
         votesAvailableNum: 'Number of votes available',
+        Received: 'Received',
     },
     installTips: {
         installed: 'Please confirm that you have installed'
@@ -62,7 +63,8 @@ export const langEn = {
             '3': 'The account do not match',
             '4': 'Network is busy or the account do not match',
             '5': 'Network is busy',
-            '6': 'Password error'
+            '6': 'Password error',
+            '7': 'No reward available'
         },
         creatNHAssetOrder: {
             '1': 'Order submitted',

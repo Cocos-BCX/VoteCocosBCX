@@ -2,8 +2,8 @@
   <div class="center-container">
     <div class="login-bar" v-if="isBrowserConnect">
       <div class="install-tips" v-if="!isBrowserConnect">
-
-        请确认您已安装
+        {{$t('installTips.installed')}}
+        <!-- 请确认您已安装 -->
         <a 
           href="https://chrome.google.com/webstore/detail/cocospay/ffbhaeoepdfapfjhcihbbhlaigejfack?utm_source=chrome-ntp-icon"
           target="_blank"
@@ -18,6 +18,8 @@
       <div class="title">
         <img src="../assets/images/node-title-icon.png" alt />
         <span>{{$t('nodeContainer.voteForNode')}}</span>
+
+        <!-- <router-link class="routerQuestionnaire" to="/questionnaire">成为候选节点/理事会</router-link> -->
       </div>
 
       <div class="tag-container">
@@ -178,68 +180,6 @@
       </div>
     </div>
 
-    <!-- <div class="mask" v-if="isMask" @click.stop="hideLogin()">
-      
-    </div> -->
-      <!-- <div class="vote-Popup" v-if="isShowVotePopup">
-        <div class="title" v-if="!isWithdrawalTickets">投票</div>
-        <div class="vote-Popup-option">
-          <ul class="head">候选节点</ul>
-          <ul class="content">
-            <div class="node-container-tag" v-show="isWitnesses">
-              <el-tag
-                class="tag"
-                :key="key"
-                closable
-                v-for="(tag, key) in myVotesWitnesses"
-                :disable-transitions="false"
-                type="info"
-                size="small"
-                @close="handleClose(key, 'witnesses')"
-              >{{tag}}</el-tag>
-            </div>
-            <div class="node-container-tag" v-show="!isWitnesses">
-              <el-tag
-                class="tag"
-                :key="key"
-                closable
-                v-for="(tag, key) in myVotesCommittee"
-                :disable-transitions="false"
-                type="info"
-                size="small"
-                @close="handleClose(key, 'committee')"
-              >{{tag}}</el-tag>
-            </div>
-          </ul>
-        </div>
-        <div class="vote-Popup-option">
-          <ul class="head" v-if="!isWithdrawalTickets">可投票数</ul>
-          <ul class="head" v-if="isWithdrawalTickets">撤回票数</ul>
-          <input type="text" class="content vote-Popup-option-input" v-model="votesNum">
-        </div>
-        <div class="vote-Popup-option" v-if="!isWithdrawalTickets">
-          <ul class="head">余额</ul>
-          <ul class="content">
-            <p class="vote-Popup-option-blance">
-              <a href="javascript:void(0);" @click="fullBlance()">{{myCOCOS || 0}} COCOS </a>
-            </p>
-          </ul>
-        </div>
-        <div class="vote-Popup-option" v-if="isWithdrawalTickets">
-          <ul class="head">已投票数</ul>
-          <ul class="content">
-            <p class="vote-Popup-option-blance">
-              <a href="javascript:void(0);" @click="fullBlance()">{{numberVotesCast || 0}} COCOS </a>
-            </p>
-          </ul>
-        </div>
-        <div class="btn-bar">
-          <a href="javascript:void(0);" @click="hideLogin()">取消</a>
-          <a href="javascript:void(0);" v-if="!isWithdrawalTickets" @click="vote()">投票</a>
-          <a href="javascript:void(0);" v-if="isWithdrawalTickets" @click="vote()">撤票</a>
-          
-        </div>
-      </div> -->
   </div>
 </template>
 
@@ -254,7 +194,8 @@ import {
   queryDataByIds,
   publishVotes,
   logout,
-  queryAccountBalances
+  queryAccountBalances,
+  getExtensionNode
 } from "../../libs/bcx.api";
 import { cacheSession, cacheKey, handleCOCOS } from '../../libs/Utils'
 import { IntReg } from '../../libs/regular'
@@ -319,15 +260,16 @@ export default {
   },
   mounted() {
       let _this = this;
-    // if (cacheSession.get(cacheKey.accountName)) {
-    //   // this.isLogin = true
-    //   this.currentLoginAccount = cacheSession.get(cacheKey.accountName)
-    // }
-    _this.browserConnectAjax()
+      // getExtensionNode().then( res =>{
+      //   console.log('==')
+      //   console.log(res.GetNewBCX)
+      //   res.GetNewBCX.lookupBlock().then( res =>{
+      //     console.log("=======lookupBlock========")
+      //     console.log(res)
+      //   })
+      // })
     _this.getAccountInfoAjax()
 
-    _this.queryVotesAjax();
-    _this.queryAccountInfoAjax();
   },
   methods: {
     browserConnectAjax(){
@@ -340,14 +282,6 @@ export default {
         }
       })
     },
-    // fullBlance(){
-    //   let _this = this;
-      // if (!this.isWithdrawalTickets) {
-      //   this.votesNum = this.myCOCOS
-      // } else {
-      //   this.votesNum = this.numberVotesCast
-      // }
-    // },
     addBlance(){
       let _this = this
       if (this.isAddAvailableVotes) return false
@@ -357,7 +291,11 @@ export default {
     getAccountInfoAjax(){
       let _this = this;
       getAccountInfo().then(res=>{
+        console.log("=*getAccountInfoAjax***")
+        console.log(res)
         _this.myAccount = res.account_name
+        _this.queryAccountInfoAjax(res.account_name)
+        _this.queryVotesAjax(res.account_name);
         
       })
     },
@@ -380,8 +318,7 @@ export default {
       this.currentPage = 1;
       this.lookupBlock = [];
       this.tableList = [];
-      this.queryVotesAjax();
-      this.queryAccountInfoAjax();
+      this.getAccountInfoAjax();
     },
     changeTpye(val) {
       if (this.isWitnesses == val) return false
@@ -408,56 +345,8 @@ export default {
       }
       _this.witnessesAjax(formData);
     },
-    // showVoteBtn(val){
-    //   let _this = this
-    //   this.isMask = true
-    //   this.isShowVotePopup = true
-    //   this.isWithdrawalTickets = val
-      
-    //   queryAccountInfo().then(res => {
-    //     console.log('-------queryAccountInfo---then--res--------')
-    //     console.log(res)
-    //     if (res.code == 1) {
-    //       // if (_this.isWitnesses) {
-    //       //   if (res.data.account.asset_locked.vote_for_witness) {
-    //       //     _this.numberVotesCast = Number(res.data.account.asset_locked.vote_for_witness.amount)/Math.pow(10,5)
-    //       //   }
-            
-    //       // } else {
-    //       //   if (res.data.account.asset_locked.vote_for_committee) {
-    //       //     _this.numberVotesCast = Number(res.data.account.asset_locked.vote_for_committee.amount)/Math.pow(10,5)
-    //       //   }
-    //       // }
-    //       _this.votesNum = 
-    //       _this.numberVotesCast
-    //     } else {
-    //       _this.codeErr(res)
-    //     }
-        
-    //   })
-    // },
     vote() {
       let _this = this;
-      
-      // if (this.isWithdrawalTickets) {
-      //   if (this.votesNum > this.numberVotesCast) {
-      //     Message({
-      //         duration: 2000,
-      //         message: '投票数超过可使用余额',
-      //         type: 'error',
-      //       })
-      //     return false
-      //   }
-      // } else {
-      //   if (this.votesNum > this.myCOCOS) {
-      //     Message({
-      //         duration: 2000,
-      //         message: '撤票数超过已投票数',
-      //         type: 'error',
-      //       })
-      //     return false
-      //   }
-      // }
       if (Number(this.votesNum) > Number(this.haveVotedNum) + Number(_this.availableVotes)) {
         Message({
             duration: 2000,
@@ -493,13 +382,6 @@ export default {
           params.vote_ids.push(key);
         }
       }
-      // let votesNum = 0
-      // if (this.isWithdrawalTickets) {
-      //   votesNum = this.numberVotesCast - this.votesNum
-      // } else {
-      //   votesNum = this.votesNum
-      // }
-      // votesNum = this.votesNum
       if (params.vote_ids.length != 0) {
         params.votes = Number(this.votesNum)
         if (!params.votes || params.votes == 0) {
@@ -527,68 +409,17 @@ export default {
               message: _this.$t('tipsMessage.business.votedSuccessfully'),
               type: 'success',
             })
-            // _this.hideLogin()
-            // _this.queryVotesAjax();
-            // _this.queryAccountInfoAjax();
             
             _this.initDate(_this.isWitnesses)
         } else {
           _this.codeErr(res)
         }
-        // if (res.code == 1) {
-          
-             
-        //     Message({
-        //       duration: 2000,
-        //       message: '投票成功',
-        //       type: 'success',
-        //     })
-        //     _this.hideLogin()
-        //     _this.queryVotesAjax();
-        //     _this.queryAccountInfoAjax();
-        // } else if(res.code == 402){
-        //     _this.hideLogin()
-        //   return false
-        // } else {
-          
-        //   if (res.message.indexOf('Account is locked or not logged in') > -1) {
-            
-        //     Message({
-        //       duration: 2000,
-        //       message: _this.$t('interFaceMessage.common[114]'),
-        //       type: 'error',
-        //     })
-        //   } else {
-             
-        //     Message({
-        //       duration: 2000,
-        //       message: '投票失败',
-        //       type: 'error',
-        //     })
-        //   }
-        //     _this.hideLogin()
-        // }
-        
-            _this.hideLogin()
+        _this.hideLogin()
       });
     },
-    // queryAccountBalancesAjax(){
-    //   let _this = this;
-    //   queryAccountBalances().then( res => {
-    //     console.log('-------------------')
-    //     console.log(res)
-    //     if (res.code == 1) {
-    //       _this.myCOCOS = res.data.COCOS
-    //     } else {
-    //       _this.codeErr(res)
-    //     }
-        
-    //   })
-    // },
-    queryAccountInfoAjax() {
-          console.log('**********************queryAccountInfoAjax-------res--------')
+    queryAccountInfoAjax(account) {
       let _this = this;
-      queryAccountInfo().then(res => {
+      queryAccountInfo(account).then(res => {
         if (res.code == 1) {
           console.log('-------queryAccountInfoAjax-------res--------')
           console.log(res)
@@ -711,10 +542,6 @@ export default {
     queryVestingBalanceAjax(account_name, index) {
       let _this = this;
       queryVestingBalance(account_name).then(res => {
-        if (account_name == "syling") {
-          console.log('===========queryVestingBalance===========')
-          console.log(res)
-        }
         if (res.code == 1) {
           if (res.data.length > 0) {
             for (let i = 0; i < res.data.length; i++) {
@@ -736,7 +563,7 @@ export default {
         }
       });
     },
-    queryVotesAjax() {
+    queryVotesAjax(accountName) {
       let _this = this;
       // witnesses 见证人    committee 理事会
       let queryType = "witnesses";
@@ -746,7 +573,7 @@ export default {
         queryType = "committee";
       }
       let params = {
-        queryAccount: cacheSession.get(cacheKey.accountName) || '',
+        queryAccount:accountName || '',
         type: queryType
       };
       queryVotes(params).then(res => {
@@ -817,8 +644,7 @@ export default {
       let _this = this;
       console.log(`当前页: ${val}`);
       this.currentPage = val;
-      this.queryVotesAjax();
-      this.queryAccountInfoAjax();
+      this.getAccountInfoAjax();
     },
 
     checkboxChangeEvents(li, index) {
@@ -1057,6 +883,7 @@ export default {
   padding-left: 30px;
   padding-bottom: 14px;
   border-bottom: 1px solid rgba(232, 232, 232, 1);
+  position: relative;
 }
 .node-container .title span {
   font-size: 18px;
@@ -1493,6 +1320,14 @@ table.table-main tr td div.name span {
   padding-top: 60px;
   padding-bottom: 60px;
   color: rgba(140, 148, 176, 1);
+}
+.routerQuestionnaire{
+  float: right;
+  margin-right: 20px;
+  font-size: 16px;
+  color: #70b1e7;
+  position: absolute;
+  right: 0;
 }
 </style>
 

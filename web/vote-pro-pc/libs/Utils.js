@@ -8,17 +8,17 @@ export const cacheKey = {
 
 export let cacheSession = {
   set: function (key, value) {
-    localStorage.setItem(key, value);
+    sessionStorage.setItem(key, value);
   },
   get: function (key) {
-    var data = localStorage.getItem(key);
+    var data = sessionStorage.getItem(key);
     return data
   },
   remove: function (key) {
-    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
   },
   clear: function () {
-    localStorage.clear();
+    sessionStorage.clear();
   }
 }
 

@@ -1,5 +1,10 @@
 <template>
   <div class="home">
+    <!-- <div class="routerQuestionnaire" v-if="isShowRouterQuestionnaire">
+      <router-link to="/questionnaireintro">成为候选节点/理事会</router-link>
+      <img src="../assets/images/close.png" @click="closeIsShowRouterQuestionnaire()" class="close" alt="">
+    </div> -->
+    
     <div class="search-bar">
       <div class="search-main">
         <a href="javascript:void(0);" class="search-btn" @click="searchBtn()"></a>
@@ -45,11 +50,12 @@
     </div>
 
     <div class="bottom-btn-bar">
-      <div @click="showDropDom()">{{$t('common.votedNode')}}：{{isWitnesses?Object.keys(myVotesWitnesses).length:Object.keys(myVotesCommittee).length}}</div>
-      <div @click="showVoteBtn()">{{$t('common.vote')}}</div>
+      <div @click="showDropDom()">{{isWitnesses?'已选节点':'已选理事会'}}：{{isWitnesses?Object.keys(myVotesWitnesses).length:Object.keys(myVotesCommittee).length}}</div>
+      <!-- <div @click="showVoteBtn()">{{$t('common.vote')}}</div> -->
+      <div :class="receiveNum < 1?'disable':''" @click="claimVestingBalanceAjax()">{{$t('common.Received')}}({{receiveNum}})</div>
     </div>
     <div class="mask" v-if="isMask">
-      <div class="already-voted-list-container" ref="hideDropDom">
+      <div class="voted-list-container" ref="hideDropDom">
         <p class="drop-btn" @click="hidedrop()" :style="{bottom: dropbtnbottom}">
           <img src="../assets/images/drop.png" alt />
         </p>
@@ -65,7 +71,7 @@
                     </p>
 
                     <a href="javascript:void(0);" @click="handleClose(key, 'witnesses')" class="node-choice-btn">
-                    <img src="../assets/images/choice.png" alt />
+                    <img src="../assets/images/remove.png" alt />
                     </a>
                 </li>
             </ul>
@@ -84,6 +90,10 @@
                 </li>
             </ul>
                 
+        </div>
+        <div class="vote-btn-bar">
+          <!-- <a href="javascript:void(0);" class="vote-btn" @click="vote()">投票</a> -->
+          <a href="javascript:void(0);" class="vote-btn" @click="showVoteBtn()">投票</a>
         </div>
       </div>
     </div>
@@ -120,7 +130,8 @@ import {
   publishVotes,
   passwordLogin,
   logout,
-  queryAccountBalances
+  queryAccountBalances,
+  claimVestingBalance
 } from "../../libs/bcx.api";
 import { cacheSession, cacheKey, handleCOCOS } from '../../libs/Utils'
 import { Indicator, Toast } from 'mint-ui';
@@ -128,6 +139,8 @@ import { IntReg } from '../../libs/regular'
 export default {
   data() {
     return {
+      isShowRouterQuestionnaire: true,
+
       dropbtnbottom: "0",
       isMask: false,
       
@@ -139,7 +152,7 @@ export default {
       isWitnesses: true,
 
       // page: 1,
-      pageSize: 10,
+      pageSize: 15,
       queryVotesList: [],
 
       votesTotal: 0,
@@ -174,7 +187,11 @@ export default {
 
       isWithdrawalTickets: false,
 
-      stopLoading: true
+      stopLoading: true,
+
+      // 领取数量  右下角
+      receiveNum: 0,
+      voteId: ''
     };
   },
   watch: {
@@ -183,7 +200,7 @@ export default {
     },
     // 'numberVotesCast': function (params) {
     //   if (IntegerOrDecimalReg1.test(val)) {
-    //     this.numberVotesCastRegular = this.numberVotesCast
+    //     this.numberVotesCastRegular = this.numberVotesCast 
     //   } else {
     //     this.numberVotesCast = this.numberVotesCastRegular
     //   }
@@ -209,6 +226,59 @@ export default {
     this.queryVotesAjax();
   },
   methods: {
+    closeIsShowRouterQuestionnaire(){
+      this.isShowRouterQuestionnaire = false
+    },
+
+    // 领取方法
+    claimVestingBalanceAjax(){
+      let _this = this;
+      // if (this.receiveNum < 1) return false
+      claimVestingBalance(_this.voteId).then( res => {
+        console.log('===========claimVestingBalance============')
+        console.log(res)
+        if (res.code == 1) {
+          Toast({
+              duration: 2000,
+              message: '领取成功',
+              className: 'toast-style',
+            })
+            setTimeout(() => {
+              _this.queryVotesAjax();
+            }, 1500);
+          
+        } else {
+          _this.codeErr(res)
+          // Toast({
+          //     duration: 2000,
+          //     message: '领取失败',
+          //     className: 'toast-style',
+          //   })
+          // return false
+
+        }
+      })
+    },
+    // 获取当前可领取cocos
+    getReceiveNumAjax(){
+      let _this = this;
+      getAccountInfo().then( res => {
+        console.log('--------getAccountInfo-----------')
+        console.log(res.account_name)
+        let params = {
+          account: res.account_name,
+          type: 'cashback_vote'
+        }
+        queryVestingBalance(params).then(res=>{
+          console.log('----------queryVestingBalance------------')
+          console.log(res)
+          if (res.data.length > 0) {
+            _this.receiveNum = Number(res.data[0].available_balance.amount).toFixed(0) || 0
+            _this.voteId = res.data[0].id
+          }
+        })
+      })
+    },
     scrollTop(){
       window.scroll(0, 0);
     },
@@ -283,7 +353,6 @@ export default {
     
     tabWithdrawalTickets(val){
       this.isWithdrawalTickets = val
-      // this.queryAccountInfoAjax()
     },
     showVoteBtn(){
       let _this = this
@@ -293,6 +362,9 @@ export default {
       } else {
         _this.haveVotedNum = _this.haveVotedNumCommittee
       }
+      // this.queryAccountInfoAjax()
+
+      
       // queryAccountInfo().then(res => {
       //   if (res.code == 1) {
           
@@ -388,6 +460,20 @@ export default {
           params.vote_ids.push(key);
         }
       }
+      if (String(_this.votesNum) == "") {
+          let messageToast = ''
+          if (!this.isWithdrawalTickets) {
+            messageToast = _this.$t('tipsMessage.common.pleaseEnter') + _this.$t('common.numberVotes')
+          } else {
+            messageToast = _this.$t('tipsMessage.common.pleaseEnter') + _this.$t('common.withdrawalVotesNum')
+          }
+          Toast({
+            duration: 2000,
+            message: messageToast,
+            className: 'toast-style',
+          })
+        return false
+      }
       let votesNum = 0
       if (this.isWithdrawalTickets) {
         votesNum = Number(this.haveVotedNum) - Number(this.votesNum)
@@ -439,38 +525,38 @@ export default {
       console.log('=========publishVotes======params******************')
       console.log(params)
       // return false
-      publishVotes(params).then(res => {
-        console.log('=========publishVotes======res==================')
-        console.log(res)
-        if (res.code == 1) {
+      // publishVotes(params).then(res => {
+      //   console.log('=========publishVotes======res==================')
+      //   console.log(res)
+      //   if (res.code == 1) {
           
-          if (this.isWithdrawalTickets) {
-            Toast({
-                // message: "撤票成功",
-                message: _this.$t('tipsMessage.business.successfulWithdrawalTickets'),
-                className: 'toast-style',
-                duration: 2000
-              });
-          } else {
-            Toast({
-                message: _this.$t('tipsMessage.business.votedSuccessfully'),
-                className: 'toast-style',
-                duration: 2000
-              });
-          }
+      //     if (this.isWithdrawalTickets) {
+      //       Toast({
+      //           // message: "撤票成功",
+      //           message: _this.$t('tipsMessage.business.successfulWithdrawalTickets'),
+      //           className: 'toast-style',
+      //           duration: 2000
+      //         });
+      //     } else {
+      //       Toast({
+      //           message: _this.$t('tipsMessage.business.votedSuccessfully'),
+      //           className: 'toast-style',
+      //           duration: 2000
+      //         });
+      //     }
         
-        // _this.isWitnesses = true;
-        // _this.currentPage = 1;
-        // _this.lookupBlock = [];
-        // _this.tableList = [];
-        _this.hideLogin()
-        // _this.queryVotesAjax();this.isWitnesses
-        _this.initDate()
-        } else {
+      //   // _this.isWitnesses = true;
+      //   // _this.currentPage = 1;
+      //   // _this.lookupBlock = [];
+      //   // _this.tableList = [];
+      //   _this.hideLogin()
+      //   // _this.queryVotesAjax();this.isWitnesses
+      //   _this.initDate()
+      //   } else {
           
-          _this.codeErr(res)
-        }
-      });
+      //     _this.codeErr(res)
+      //   }
+      // });
     },
     // queryAccountBalancesAjax(){
     //   let _this = this;
@@ -510,9 +596,9 @@ export default {
     queryAccountInfoAjax() {
       let _this = this;
       queryAccountInfo().then(res => {
-        if (res.code == 1) {
           console.log('-------queryAccountInfoAjax-------res--------')
           console.log(res)
+        if (res.code == 1) {
           // 可用票数 计算
           // 总余额
           let balances = res.data.balances.filter((blance) => {
@@ -573,6 +659,7 @@ export default {
             (item, index, self) => self.indexOf(item) === index
           );
           queryDataByIds(duplicateRemovalMyVotesIds).then(res => {
+            _this.getReceiveNumAjax()
             let myVotesWitnesses = {}
             let myVotesCommittee = {}
             for (let i = 0; i < res.data.length; i++) {
@@ -598,6 +685,7 @@ export default {
             }
             _this.myVotesWitnesses = myVotesWitnesses
             _this.myVotesCommittee = myVotesCommittee
+            
           });
         } else {
           _this.codeErr(res)
@@ -608,8 +696,6 @@ export default {
 
     witnessesAjax: function(formData) {
       let _this = this;
-      //   var formData = new FormData();
-      //   formData.append("picture", files);
       // lang=en/zh-CN
       let resUrl = "http://vote.test.cocosbcx.net/api/api/v1/witnesses";
       if (this.isWitnesses) {
@@ -620,7 +706,7 @@ export default {
       this.$axios
         .post(resUrl, formData)
         .then(function(response) {
-            _this.queryAccountInfoAjax();
+          _this.queryAccountInfoAjax();
           _this.tableList = [];
           _this.tableList = response.data.result;
           
@@ -631,7 +717,7 @@ export default {
               _this.tableList[i].voteRate = "0%"
               // _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
               
-              _this.queryVestingBalanceAjax(_this.tableList[i].account_name, i);
+              // _this.queryVestingBalanceAjax(_this.tableList[i].account_name, i);
             }
           } else {
             for (let i = 0; i < _this.tableList.length; i++) {
@@ -643,7 +729,7 @@ export default {
                 "%";
               // _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
               
-            _this.queryVestingBalanceAjax(_this.tableList[i].account_name, i);
+            // _this.queryVestingBalanceAjax(_this.tableList[i].account_name, i);
             }
             
             // _this.$nextTick(function () {
@@ -933,6 +1019,12 @@ export default {
             message: _this.$t('tipsMessage.business.lockedGreaterThanValue'),
             className: 'toast-style',
           })
+        } else if (res.message.indexOf("No reward available")>-1) {
+          Toast({
+            duration: 2000,
+            message: _this.$t('interFaceMessage.common[7]'),
+            className: 'toast-style',
+          })
         } else if (res.message.indexOf("Wrong password")>-1) {
           Toast({
             duration: 2000,
@@ -1156,17 +1248,40 @@ export default {
   background: rgba(0, 0, 0, 0.4);
   z-index: 500;
 }
-.already-voted-list-container {
+.voted-list-container {
   position: absolute;
   left: 0;
   bottom: 0;
   width: 100%;
-  height: 2.6rem;
+  height: 3.3rem;
   background: #fff;
   border-radius: 0.15rem 0.15rem 0 0;
   transition: all 0.5s;
 }
-.already-voted-list-container .drop-btn {
+.voted-list-container .vote-btn-bar{
+  width: 100%;
+  height: 0.7rem;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid rgba(232, 235, 241, 1);
+}
+.voted-list-container .vote-btn-bar .vote-btn{
+  width: 1.4rem;
+  height: 0.4rem;
+  line-height: 0.4rem;
+  display: block;
+  background: #5D84F5;
+  color: #fff;
+  font-size: 0.14rem;
+  text-align: center;
+  border-radius: 0.04rem;
+
+}
+.voted-list-container .drop-btn {
   width: 100%;
   height: 0.42rem;
   line-height: 0.42rem;
@@ -1174,20 +1289,20 @@ export default {
   align-items: center;
   justify-content: center;
 }
-.already-voted-list-container .drop-btn img {
+.voted-list-container .drop-btn img {
   width: 0.3rem;
   height: 0.12rem;
 }
-.already-voted-list-container .already-voted-list-container {
+.voted-list-container .already-voted-list-container {
     width: 100%;
     height: 2.18rem;
     overflow-y: auto;
 }
-.already-voted-list-container .already-voted-list-container .already-voted-list {
+.voted-list-container .already-voted-list-container .already-voted-list {
   width: 3.45rem;
   margin: 0 auto;
 }
-.already-voted-list-container .already-voted-list-container .already-voted-list li {
+.voted-list-container .already-voted-list-container .already-voted-list li {
   width: 100%;
   height: 0.6rem;
   display: flex;
@@ -1195,29 +1310,29 @@ export default {
   justify-content: space-between;
   border-bottom: 1px solid #ccc;
 }
-.already-voted-list-container .already-voted-list li .info {
+.voted-list-container .already-voted-list li .info {
   display: flex;
   align-items: center;
   justify-content: flex-start;
 }
-.already-voted-list-container .already-voted-list li .info img {
+.voted-list-container .already-voted-list li .info img {
   width: 0.36rem;
   height: 0.36rem;
   /* border: 1px solid rgba(210, 214, 222, 1); */
 }
-.already-voted-list-container .already-voted-list li .info span {
+.voted-list-container .already-voted-list li .info span {
   font-size: 0.16rem;
   font-weight: 500;
   color: rgba(38, 42, 51, 1);
   margin-left: 0.08rem;
 }
-.already-voted-list-container .already-voted-list li .node-choice-btn {
+.voted-list-container .already-voted-list li .node-choice-btn {
   width: 0.22rem;
   height: 0.22rem;
   border: 1px solid #d5d5d5;
   border-radius: 50%;
 }
-.already-voted-list-container .already-voted-list li .node-choice-btn img {
+.voted-list-container .already-voted-list li .node-choice-btn img {
   width: 100%;
   height: 100%;
 }
@@ -1332,6 +1447,34 @@ export default {
   font-size: 0.18rem;
   text-align: center;
   color: #333;
+}
+.bottom-btn-bar div.disable{
+  background: rgba(165,169,177,1);
+}
+.routerQuestionnaire{
+  display: block;
+  width: 100%;
+  height: 0.38rem;
+  line-height: 0.38rem;
+  text-align: center;
+  position: relative;
+  background:rgba(255,154,0,0.2);
+}
+.routerQuestionnaire a{
+  font-size: 0.14rem;
+color:rgba(255,152,0,1);
+  
+}
+.routerQuestionnaire .close{
+  height: 0.15rem;
+  width: 0.15rem;
+  line-height: 0.15rem;
+  color: #333;
+  position: absolute;
+  right: 0.2rem;
+  top: 50%;
+  margin-top: -0.07rem;
+  display: block;
 }
 </style>
 
