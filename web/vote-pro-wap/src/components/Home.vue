@@ -697,11 +697,20 @@ export default {
     witnessesAjax: function(formData) {
       let _this = this;
       // lang=en/zh-CN
-      let resUrl = "http://vote.test.cocosbcx.net/api/api/v1/witnesses";
-      if (this.isWitnesses) {
-        resUrl = "http://vote.test.cocosbcx.net/api/api/v1/witnesses";
+      let lang = 'zh-CN'
+      if (this.$i18n.locale == 'zh') {
+        lang = 'zh-CN'
       } else {
-        resUrl = "http://vote.test.cocosbcx.net/api/api/v1/committee";
+        lang = 'en'
+      }
+      let localhost = "http://192.168.15.60:8010/api/v1/witnesses"
+      // let localResUrl = "http://vote.test.cocosbcx.net/api/api/v1/"
+      let localResUrl = "https://vote.cocosbcx.net/api/api/v1/"
+      let resUrl = localResUrl + "witnesses?lang=" + lang;
+      if (this.isWitnesses) {
+        resUrl = localResUrl + "witnesses?lang=" + lang;
+      } else {
+        resUrl = localResUrl + "committee?lang=" + lang;
       }
       this.$axios
         .post(resUrl, formData)

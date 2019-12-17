@@ -24,20 +24,44 @@ type ServerConfig struct {
 }
 
 type WitnessConfig struct {
-	Country string `json:"country"`
-	Logo    string `json:"logo"`
+	Country map[string]string `json:"country"`
+	Logo    string            `json:"logo"`
 }
 
 type CommitteeConfig struct {
-	Country string `json:"country"`
-	Logo    string `json:"logo"`
+	Country map[string]string `json:"country"`
+	Logo    string            `json:"logo"`
+}
+
+type LangsConfig struct {
+	Allows  []string `json:"allows"`
+	Default string   `json:"default"`
+}
+
+type MongoConfig struct {
+	Uri        string `json:"uri"`
+	Database   string `json:"database"`
+	Collection string `json:"collection"`
 }
 
 type (
+	MysqlConfig struct {
+		Driver   string `json:"driver"`
+		Host     string `json:"host"`
+		Port     string `json:"port"`
+		User     string `json:"user"`
+		Password string `json:"password"`
+		DbName   string `json:"db_name"`
+	}
+
 	Configuration struct {
 		Server    ServerConfig               `json:"server"`
 		Witnesses map[string]WitnessConfig   `json:"witnesses"`
 		Committee map[string]CommitteeConfig `json:"committee"`
+		Langs     LangsConfig                `json:"langs"`
+		Mongo     MongoConfig                `json:"mongo"`
+		Mysql     MysqlConfig                `json:"mysql"`
+		ApiUrl    string                     `json:"api_url"`
 	}
 )
 

@@ -18,6 +18,8 @@ import axios from 'axios'
 //   Loading
 // } from 'element-ui'
 import { Loading,Indicator } from 'mint-ui';
+import axios from 'axios'
+
 
 let bcx = null
 
