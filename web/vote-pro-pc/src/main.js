@@ -10,11 +10,9 @@ import VueAxios from 'vue-axios'
 // import 'bcx-api'
 import '../libs/bcx.min'
 import { cacheSession, cacheKey } from '../libs/Utils'
-import { initBcx } from '../libs/bcx.api'
+import { browserConnect, lookupWSNodeList } from '../libs/bcx.api'
 import vueSmoothScroll from 'vue-smooth-scroll'
 import 'element-ui/lib/theme-chalk/index.css';
-
-initBcx()
 
 
 import {
@@ -32,7 +30,9 @@ import {
   MenuItem,
   MenuItemGroup,
   Pagination,
-  Loading
+  Loading,
+  Radio,
+  RadioGroup
 } from 'element-ui'
 
 Vue.prototype.$axios = axios;
@@ -54,6 +54,8 @@ Vue.use(Input)
 Vue.use(Loading)
 Vue.use(Row)
 Vue.use(Col)
+Vue.use(Radio)
+Vue.use(RadioGroup)
 
 
 
@@ -74,11 +76,21 @@ const i18n = new VueI18n({
 
 Vue.config.productionTip = false
 
-/* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  i18n,
-  router,
-  components: { App },
-  template: '<App/>'
+
+browserConnect().then( res=>{
+  console.log("2019-12-17 18:00 update")
+  // lookupWSNodeList().then( lookupWSNodeListRes => {
+  //   console.log(">>>>>>>>>>>>lookupWSNodeListRes<<<<<<<<<<<<<<<<")
+  //   console.log(lookupWSNodeListRes)
+  // })
+  if (res) {
+      /* eslint-disable no-new */
+      new Vue({
+        el: '#app',
+        i18n,
+        router,
+        components: { App },
+        template: '<App/>'
+      })
+  }
 })
