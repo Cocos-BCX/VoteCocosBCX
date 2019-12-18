@@ -509,7 +509,7 @@ export default {
             
           }
         } else {
-          if (params.votes > this.availableVotes) {
+          if (params.votes > Number(_this.haveVotedNum)) {
               Toast({
                 message: _this.$t('tipsMessage.business.cannotExceedNumberVotes'),
                 className: 'toast-style',
@@ -697,20 +697,11 @@ export default {
     witnessesAjax: function(formData) {
       let _this = this;
       // lang=en/zh-CN
-      let lang = 'zh-CN'
-      if (this.$i18n.locale == 'zh') {
-        lang = 'zh-CN'
-      } else {
-        lang = 'en'
-      }
-      let localhost = "http://192.168.15.60:8010/api/v1/witnesses"
-      // let localResUrl = "http://vote.test.cocosbcx.net/api/api/v1/"
-      let localResUrl = "https://vote.cocosbcx.net/api/api/v1/"
-      let resUrl = localResUrl + "witnesses?lang=" + lang;
+      let resUrl = "http://vote.test.cocosbcx.net/api/api/v1/witnesses";
       if (this.isWitnesses) {
-        resUrl = localResUrl + "witnesses?lang=" + lang;
+        resUrl = "http://vote.test.cocosbcx.net/api/api/v1/witnesses";
       } else {
-        resUrl = localResUrl + "committee?lang=" + lang;
+        resUrl = "http://vote.test.cocosbcx.net/api/api/v1/committee";
       }
       this.$axios
         .post(resUrl, formData)
