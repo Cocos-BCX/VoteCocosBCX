@@ -17,7 +17,6 @@ import {
 import {
   Loading
 } from 'element-ui'
-import axios from 'axios'
 
 
 let bcx = null

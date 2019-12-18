@@ -39,6 +39,7 @@ export const langEn = {
     nodeContainer: {
         voteForNode: 'Vote for node',
         selectedNode: 'Selected node',
+        electedCouncil: 'Elected Council'
     },
     tabTableContainer: {
         superNode: 'Super node',
@@ -54,7 +55,7 @@ export const langEn = {
             'success': 'Success',
             '1': 'Created successfully',
             // '0': 'The network is busy, please check your network connection',
-            '0': 'The network is busy',
+            '0': 'The system is busy. Please try again later',
             '-11': 'The account is locked or not logged in',
             '114': 'The account is locked or not logged in',
             '101': 'Parameter is missing',
@@ -64,7 +65,7 @@ export const langEn = {
             '4': 'Network is busy or the account do not match',
             '5': 'Network is busy',
             '6': 'Password error',
-            '7': 'No reward available'
+            '7': 'There is no COCOS available'
         },
         creatNHAssetOrder: {
             '1': 'Order submitted',
@@ -127,7 +128,9 @@ export const langEn = {
 
             moreVotesThanAvailable: 'Can\'t exceed the number of available votes',
             cannotExceedNumberVotes: 'Can\'t exceed the number of votes cast',
-            successfulWithdrawalTickets: 'Withdrew the vote successfully'
+            successfulWithdrawalTickets: 'Withdrew the vote successfully',
+            successfulReception: 'Successful reception',
+            failToReceive: 'Fail to receive'
         }
     }
 }

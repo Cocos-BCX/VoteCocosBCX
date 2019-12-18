@@ -511,13 +511,11 @@ export default {
         lang = 'en'
       }
       let localhost = "http://192.168.15.60:8010/api/v1/witnesses"
-      // let localResUrl = "http://vote.test.cocosbcx.net/api/api/v1/"
-      let localResUrl = "https://vote.cocosbcx.net/api/api/v1/"
-      let resUrl = localResUrl + "witnesses?lang=" + lang;
+      let resUrl = "http://vote.test.cocosbcx.net/api/api/v1/witnesses?lang=" + lang;
       if (this.isWitnesses) {
-        resUrl = localResUrl + "witnesses?lang=" + lang;
+        resUrl = "http://vote.test.cocosbcx.net/api/api/v1/witnesses?lang=" + lang;
       } else {
-        resUrl = localResUrl + "committee?lang=" + lang;
+        resUrl = "http://vote.test.cocosbcx.net/api/api/v1/committee?lang=" + lang;
       }
       this.$axios
         .post(resUrl, formData)
