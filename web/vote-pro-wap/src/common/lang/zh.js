@@ -28,7 +28,8 @@ export const langZh = {
         total: '总计',
         choice: '选择',
 
-        ShowMore: '显示更多'
+        ShowMore: '显示更多',
+        Received: '领取'
     },
     installTips: {
         installed: '请确认您已安装'
@@ -36,6 +37,7 @@ export const langZh = {
     nodeContainer: {
         voteForNode: '投票给节点',
         selectedNode: '已选节点',
+        electedCouncil: '已选理事会'
     },
     tabTableContainer: {
         superNode: '超级节点',
@@ -50,7 +52,7 @@ export const langZh = {
         common: {
             'success': '成功',
             '1': '创建成功',
-            '0': '网络繁忙，请检查你的网络连接',
+            '0': '忙不过来了，请稍后再试',
             '-11': '账户锁定或未登录',
             '114': '账户锁定或未登录',
             '101': '缺少参数',
@@ -59,7 +61,8 @@ export const langZh = {
             '3': '账号不匹配',
             '4': '网络繁忙或账号不匹配',
             '5': '网络繁忙',
-            '6': '密码错误'
+            '6': '密码错误',
+            '7': '暂时没有可领取COCOS'
         },
         publishVotes:{
             '1': '请导入账户私钥（owner）'
@@ -110,7 +113,7 @@ export const langZh = {
             pleaseEnter: '请输入'
         },
         business: {
-            pleaseEnterNode: '总计请输入节点名称',
+            pleaseEnterNode: '请输入节点名称',
             noData: '暂无数据',
 
             votesExceededAvailableBalance: '投票数超过可使用余额',
@@ -126,7 +129,9 @@ export const langZh = {
 
             moreVotesThanAvailable: '投票数超过可用票数',
             cannotExceedNumberVotes: '不能超过已投票数',
-            successfulWithdrawalTickets: '撤票成功'
+            successfulWithdrawalTickets: '撤票成功',
+            successfulReception: '领取成功',
+            failToReceive: '领取失败'
         }
     }
 

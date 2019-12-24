@@ -8,7 +8,7 @@ import './assets/css/public.css'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import vueSmoothScroll from 'vue-smooth-scroll'
-import { initBcx, browserConnect, walletLanguage } from '../libs/bcx.api'
+import { initBcx, browserConnect, walletLanguage, initConnect } from '../libs/bcx.api'
 import { initRootFontSize } from '../libs/Utils'
 import { Popup, Indicator, Loadmore } from 'mint-ui'
 import 'mint-ui/lib/style.css'
@@ -18,13 +18,31 @@ Vue.use(Indicator);
 Vue.component(Popup.name, Popup);
 Vue.component(Loadmore.name, Loadmore);
 
-initBcx()
+// initBcx()
 initRootFontSize();
+
 browserConnect().then( res => {
-  setTimeout( function (params) {
-    
+  return new Promise((resolve,reject)=>{
+    initConnect().then( initConnectRes => {
+      resolve(initConnectRes)
+    })
+  })
+}).then( result => {
+  console.log("==============result=================result")
+  console.log("2019-12-18 19:21 update")
+  console.log(result)
+  return new Promise((resolve,reject)=>{
+    browserConnect().then( res => {
+      resolve(res)
+    })
+  })
+  
+}).then( result => {
+  setTimeout( function () {
+    // let language = 'cn'
+    // res.data == 'cn' language == 'cn'
   walletLanguage().then(res=>{
-    let lang = 'zh'
+    let lang = ''
     if (res.data == 'cn') {
       lang = 'zh'
       document.title = '投票'

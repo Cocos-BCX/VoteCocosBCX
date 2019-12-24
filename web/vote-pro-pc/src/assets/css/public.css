@@ -402,3 +402,9 @@ input:-ms-input-placeholder{  /* Internet Explorer 10-11 */
 .required{
     color: #ff0000!important;
 }
+.el-message-box__message p{
+    font-size: 16px;
+}
+.el-button--primary span{
+    color: #fff;
+}
