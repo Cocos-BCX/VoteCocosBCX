@@ -456,9 +456,8 @@ export let claimVestingBalance = function (id) {
     spinnerType: 'fading-circle'
   });
   return new Promise(function (resolve, reject) {
-    
       bcx.claimVestingBalance({
-        id: id
+        id: [id]
       }).then(res=>{
         Indicator.close();
         resolve(res)

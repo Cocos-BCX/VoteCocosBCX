@@ -70,7 +70,7 @@ let promiseObjArr = []
 
 
 // 浏览器插件链接
-export let browserConnect = function (fnName) {
+export let browserConnect = function () {
   let currentTimer = null
   let loadingInstance = Loading.service();
   return new Promise(async function (resolve, reject) {
