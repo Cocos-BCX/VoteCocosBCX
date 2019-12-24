@@ -50,7 +50,7 @@
     </div>
 
     <div class="bottom-btn-bar">
-      <div @click="showDropDom()">{{isWitnesses?'已选节点':'已选理事会'}}：{{isWitnesses?Object.keys(myVotesWitnesses).length:Object.keys(myVotesCommittee).length}}</div>
+      <div @click="showDropDom()">{{isWitnesses?$t('nodeContainer.selectedNode'):$t('nodeContainer.electedCouncil')}}：{{isWitnesses?Object.keys(myVotesWitnesses).length:Object.keys(myVotesCommittee).length}}</div>
       <!-- <div @click="showVoteBtn()">{{$t('common.vote')}}</div> -->
       <div :class="receiveNum < 1?'disable':''" @click="claimVestingBalanceAjax()">{{$t('common.Received')}}({{receiveNum}})</div>
     </div>
@@ -92,8 +92,8 @@
                 
         </div>
         <div class="vote-btn-bar">
-          <!-- <a href="javascript:void(0);" class="vote-btn" @click="vote()">投票</a> -->
-          <a href="javascript:void(0);" class="vote-btn" @click="showVoteBtn()">投票</a>
+          <!-- <a href="javascript:void(0);" class="vote-btn" @click="vote()">投票</a>   -->
+          <a href="javascript:void(0);" class="vote-btn" @click="showVoteBtn()">{{$t('common.vote')}}</a>
         </div>
       </div>
     </div>
@@ -217,6 +217,8 @@ export default {
       }
     }
   },
+  created () {
+  },
   mounted() {
     
     if (cacheSession.get(cacheKey.accountName)) {
@@ -233,14 +235,14 @@ export default {
     // 领取方法
     claimVestingBalanceAjax(){
       let _this = this;
-      // if (this.receiveNum < 1) return false
+      if (this.receiveNum < 1) return false
       claimVestingBalance(_this.voteId).then( res => {
         console.log('===========claimVestingBalance============')
         console.log(res)
         if (res.code == 1) {
           Toast({
               duration: 2000,
-              message: '领取成功',
+              message: _this.$t('tipsMessage.business.successfulReception'),
               className: 'toast-style',
             })
             setTimeout(() => {
@@ -273,7 +275,6 @@ export default {
           console.log('----------queryVestingBalance------------')
           console.log(res)
           if (res.data.length > 0) {
-            
             _this.receiveNum = Number(res.data[0].available_balance.amount).toFixed(0) || 0
             _this.voteId = res.data[0].id
           }
@@ -485,7 +486,7 @@ export default {
       if (params.vote_ids.length == 0) {
           Toast({
             duration: 2000,
-            message: _this.$t('interFaceMessage.common[114]'),
+            message: _this.$t('tipsMessage.business.pleaseEnterNode'),
             className: 'toast-style',
           })
           return false
@@ -510,7 +511,7 @@ export default {
             
           }
         } else {
-          if (params.votes > this.availableVotes) {
+          if (params.votes > Number(_this.haveVotedNum)) {
               Toast({
                 message: _this.$t('tipsMessage.business.cannotExceedNumberVotes'),
                 className: 'toast-style',

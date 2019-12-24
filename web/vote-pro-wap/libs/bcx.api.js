@@ -39,7 +39,7 @@ export let initBcx = function () {
   .then(response => {
     // nodes = response.data.data;
     let nodes = response.data.data.filter(( item )=>{
-      return item.name == 'Main'
+      return item.name == 'Test'
     })
     console.log(nodes);
       var _configParams={ 
@@ -78,6 +78,9 @@ export let initBcx = function () {
     console.log(error);
   });
 }
+
+
+
 
 
 // 浏览器插件链接
@@ -122,6 +125,33 @@ export let browserConnect = function () {
   })
 }
 
+
+export let initConnect = function () {
+  
+  return new Promise(async function (resolve, reject) {
+    
+    bcx.initConnect().then( res => {
+        bcx = {}
+        var _configParams={
+          ws_node_list:[
+              {url:res.ws,name:res.name},   
+          ],
+          networks:[
+              {
+                  core_asset:"COCOS",
+                  chain_id: res.chainId 
+              }
+          ], 
+          faucet_url: res.faucetUrl,
+          auto_reconnect:true,
+          real_sub:true,
+          check_cached_nodes_data:false
+      }
+      bcx = new BCX(_configParams);
+      resolve(true)
+    })
+  })
+}
 
 // 登录
 export let passwordLogin = function (params) {

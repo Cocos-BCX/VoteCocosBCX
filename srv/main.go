@@ -10,6 +10,8 @@ import (
 
 	"github.com/Cocos-BCX/VoteCocosBCX/srv/config"
 	"github.com/Cocos-BCX/VoteCocosBCX/srv/handlers"
+	"github.com/Cocos-BCX/VoteCocosBCX/srv/middleware"
+	"github.com/Cocos-BCX/VoteCocosBCX/srv/models"
 	limit "github.com/aviddiviner/gin-limit"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
@@ -27,17 +29,35 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(cfg)
+	fmt.Printf("config:%#v\n", cfg)
+
+	// init mongo
+
+	if err := models.Init(cfg.Mongo); err != nil {
+		panic(err)
+	}
+	if err := models.InitMySQL(&cfg.Mysql); err != nil {
+		panic(err)
+	}
 	r := InitRouter(cfg)
+
+	r.Use(middleware.LanguageMiddleware())
+
 	v1 := r.Group("/api/v1")
 	{
 		v1.POST("/witnesses", handlers.Witnesses)
 		v1.POST("/committee", handlers.Committee)
+		v1.POST("/mortgage", handlers.Mortgage)
+		v1.POST("/application", handlers.Application)
 	}
-	r.Run(cfg.Server.ListenAddr)
+
+	if err := r.Run(cfg.Server.ListenAddr); err != nil {
+		panic(err)
+	}
 	quit := make(chan os.Signal)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
+	models.CloseMySQL()
 }
 
 func InitRouter(cfg config.Configuration) *gin.Engine {
