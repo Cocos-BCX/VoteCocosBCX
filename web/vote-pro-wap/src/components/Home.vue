@@ -527,38 +527,38 @@ export default {
       console.log('=========publishVotes======params******************')
       console.log(params)
       // return false
-      // publishVotes(params).then(res => {
-      //   console.log('=========publishVotes======res==================')
-      //   console.log(res)
-      //   if (res.code == 1) {
+      publishVotes(params).then(res => {
+        console.log('=========publishVotes======res==================')
+        console.log(res)
+        if (res.code == 1) {
           
-      //     if (this.isWithdrawalTickets) {
-      //       Toast({
-      //           // message: "撤票成功",
-      //           message: _this.$t('tipsMessage.business.successfulWithdrawalTickets'),
-      //           className: 'toast-style',
-      //           duration: 2000
-      //         });
-      //     } else {
-      //       Toast({
-      //           message: _this.$t('tipsMessage.business.votedSuccessfully'),
-      //           className: 'toast-style',
-      //           duration: 2000
-      //         });
-      //     }
+          if (this.isWithdrawalTickets) {
+            Toast({
+                // message: "撤票成功",
+                message: _this.$t('tipsMessage.business.successfulWithdrawalTickets'),
+                className: 'toast-style',
+                duration: 2000
+              });
+          } else {
+            Toast({
+                message: _this.$t('tipsMessage.business.votedSuccessfully'),
+                className: 'toast-style',
+                duration: 2000
+              });
+          }
         
-      //   // _this.isWitnesses = true;
-      //   // _this.currentPage = 1;
-      //   // _this.lookupBlock = [];
-      //   // _this.tableList = [];
-      //   _this.hideLogin()
-      //   // _this.queryVotesAjax();this.isWitnesses
-      //   _this.initDate()
-      //   } else {
+        // _this.isWitnesses = true;
+        // _this.currentPage = 1;
+        // _this.lookupBlock = [];
+        // _this.tableList = [];
+        _this.hideLogin()
+        // _this.queryVotesAjax();this.isWitnesses
+        _this.initDate()
+        } else {
           
-      //     _this.codeErr(res)
-      //   }
-      // });
+          _this.codeErr(res)
+        }
+      });
     },
     // queryAccountBalancesAjax(){
     //   let _this = this;
@@ -699,11 +699,11 @@ export default {
     witnessesAjax: function(formData) {
       let _this = this;
       // lang=en/zh-CN
-      let resUrl = "http://vote.test.cocosbcx.net/api/api/v1/witnesses";
+      let resUrl = "https://vote.cocosbcx.net/api/api/v1/witnesses";
       if (this.isWitnesses) {
-        resUrl = "http://vote.test.cocosbcx.net/api/api/v1/witnesses";
+        resUrl = "https://vote.cocosbcx.net/api/api/v1/witnesses";
       } else {
-        resUrl = "http://vote.test.cocosbcx.net/api/api/v1/committee";
+        resUrl = "https://vote.cocosbcx.net/api/api/v1/committee";
       }
       this.$axios
         .post(resUrl, formData)

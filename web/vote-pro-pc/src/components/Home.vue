@@ -111,7 +111,7 @@
           {{$t('tipsMessage.business.noData')}}
         </div>
         <table class="table-main" border="0" cellpadding="0" cellspacing="0" v-if="tableList.length != 0">
-          <tr>
+          <tr :class="this.$i18n.locale == 'zh'? '':'fontsize14'">
             <td>{{$t('common.vote')}}</td>
             <td>{{$t('tabTableContainer.ranking')}}</td>
             <td>{{$t('tabTableContainer.name')}}</td>
@@ -1119,6 +1119,9 @@ table.table-main {
 }
 table.table-main tr:nth-child(1) td {
   background: rgba(250, 250, 250, 1);
+}
+table.table-main tr.fontsize14 td{
+  font-size: 14px;
 }
 table.table-main tr td {
   height: 56px;
