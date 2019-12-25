@@ -134,7 +134,7 @@ export default {
     nextStep(){
       let _this = this
     //   let resUrl = 'http://192.168.15.60:8010/api/v1/application'
-      let resUrl = 'http://vote.test.cocosbcx.net/api/api/v1/application'
+      let resUrl = 'https://vote.cocosbcx.net/api/api/v1/application'
       
       this.$axios
         .post(resUrl, _this.showData)
