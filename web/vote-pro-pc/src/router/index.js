@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from '@/components/Home'
-import Questionnaire from '@/components/Questionnaire'
-import Introduction from '@/components/questionnaire/Introduction'
-import Form from '@/components/questionnaire/Form'
-import Confirmform from '@/components/questionnaire/Confirmform'
-import Success from '@/components/questionnaire/Success'
+import Home from '@/views/Home'
+import Questionnaire from '@/views/Questionnaire'
+import Introduction from '@/views/questionnaire/Introduction'
+import Form from '@/views/questionnaire/Form'
+import Confirmform from '@/views/questionnaire/Confirmform'
+import Success from '@/views/questionnaire/Success'
 
 Vue.use(Router)
 
