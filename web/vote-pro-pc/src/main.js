@@ -1,5 +1,7 @@
+// The Vue build version to load with the `import` command
+// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
-import App from './App.vue'
+import App from './App'
 import router from './router'
 import VueI18n from 'vue-i18n'
 import './assets/css/public.css'
@@ -8,8 +10,8 @@ import VueAxios from 'vue-axios'
 // import 'bcx-api'
 import '../libs/bcx.min'
 import { cacheSession, cacheKey } from '../libs/Utils'
-import { browserConnect } from '../libs/bcx.api'
-import vueSmoothScroll from 'vue-smooth-scroll'
+import { browserConnect, lookupWSNodeList } from '../libs/bcx.api'
+// import vueSmoothScroll from 'vue-smooth-scroll'
 import 'element-ui/lib/theme-chalk/index.css';
 
 
@@ -39,7 +41,7 @@ Vue.use(VueAxios, axios)
 Vue.use(Checkbox)
 Vue.use(Select)
 Vue.use(Option)
-Vue.use(vueSmoothScroll)
+// Vue.use(vueSmoothScroll)
 Vue.use(Menu)
 Vue.use(Submenu)
 Vue.use(MenuItem)
@@ -56,6 +58,7 @@ Vue.use(Radio)
 Vue.use(RadioGroup)
 
 
+
 let currentLang = cacheSession.get(cacheKey.lang)
 if (!currentLang) {
   cacheSession.set(cacheKey.lang, 'zh')
@@ -69,18 +72,17 @@ const i18n = new VueI18n({
 })
 
 
-Vue.config.productionTip = false
 
 
-browserConnect().then( () =>{
+// Vue.config.productionTip = false
+
+
+browserConnect().then( ()=>{
   console.log("2019-12-17 18:00 update")
-  // lookupWSNodeList().then( lookupWSNodeListRes => {
-  //   console.log(">>>>>>>>>>>>lookupWSNodeListRes<<<<<<<<<<<<<<<<")
-  //   console.log(lookupWSNodeListRes)
-  // })
+
   new Vue({
-    router,
     i18n,
+    router,
     render: h => h(App)
   }).$mount('#app')
 })

@@ -202,8 +202,6 @@ export default {
       let _this = this;
       browserConnect().then( res => {
         if (res.code == 1) {
-          console.log('------------browserConnect---------')
-          console.log(res)
           _this.isBrowserConnect = res
         }
       })
@@ -277,56 +275,9 @@ export default {
       }
       _this.witnessesAjax(formData);
     },
-    // showVoteBtn(val){
-    //   let _this = this
-    //   this.isMask = true
-    //   this.isShowVotePopup = true
-    //   this.isWithdrawalTickets = val
-      
-    //   queryAccountInfo().then(res => {
-    //     console.log('-------queryAccountInfo---then--res--------')
-    //     console.log(res)
-    //     if (res.code == 1) {
-    //       // if (_this.isWitnesses) {
-    //       //   if (res.data.account.asset_locked.vote_for_witness) {
-    //       //     _this.numberVotesCast = Number(res.data.account.asset_locked.vote_for_witness.amount)/Math.pow(10,5)
-    //       //   }
-            
-    //       // } else {
-    //       //   if (res.data.account.asset_locked.vote_for_committee) {
-    //       //     _this.numberVotesCast = Number(res.data.account.asset_locked.vote_for_committee.amount)/Math.pow(10,5)
-    //       //   }
-    //       // }
-    //       _this.votesNum = 
-    //       _this.numberVotesCast
-    //     } else {
-    //       _this.codeErr(res)
-    //     }
-        
-    //   })
-    // },
     vote() {
       let _this = this;
       
-      // if (this.isWithdrawalTickets) {
-      //   if (this.votesNum > this.numberVotesCast) {
-      //     Message({
-      //         duration: 2000,
-      //         message: '投票数超过可使用余额',
-      //         type: 'error',
-      //       })
-      //     return false
-      //   }
-      // } else {
-      //   if (this.votesNum > this.myCOCOS) {
-      //     Message({
-      //         duration: 2000,
-      //         message: '撤票数超过已投票数',
-      //         type: 'error',
-      //       })
-      //     return false
-      //   }
-      // }
       if (Number(this.votesNum) > Number(this.haveVotedNum) + Number(_this.availableVotes)) {
         Message({
             duration: 2000,
@@ -386,81 +337,23 @@ export default {
       }
       
       publishVotes(params).then(res => {
-        console.log('---------------publishVotes----------')
-        console.log(res)
         if (res.code == 1) {
-          
-             
             Message({
               duration: 2000,
               message: _this.$t('tipsMessage.business.votedSuccessfully'),
               type: 'success',
             })
-            // _this.hideLogin()
-            // _this.queryVotesAjax();
-            // _this.queryAccountInfoAjax();
-            
             _this.initDate(_this.isWitnesses)
         } else {
           _this.codeErr(res)
         }
-        // if (res.code == 1) {
-          
-             
-        //     Message({
-        //       duration: 2000,
-        //       message: '投票成功',
-        //       type: 'success',
-        //     })
-        //     _this.hideLogin()
-        //     _this.queryVotesAjax();
-        //     _this.queryAccountInfoAjax();
-        // } else if(res.code == 402){
-        //     _this.hideLogin()
-        //   return false
-        // } else {
-          
-        //   if (res.message.indexOf('Account is locked or not logged in') > -1) {
-            
-        //     Message({
-        //       duration: 2000,
-        //       message: _this.$t('interFaceMessage.common[114]'),
-        //       type: 'error',
-        //     })
-        //   } else {
-             
-        //     Message({
-        //       duration: 2000,
-        //       message: '投票失败',
-        //       type: 'error',
-        //     })
-        //   }
-        //     _this.hideLogin()
-        // }
-        
-            _this.hideLogin()
+        _this.hideLogin()
       });
     },
-    // queryAccountBalancesAjax(){
-    //   let _this = this;
-    //   queryAccountBalances().then( res => {
-    //     console.log('-------------------')
-    //     console.log(res)
-    //     if (res.code == 1) {
-    //       _this.myCOCOS = res.data.COCOS
-    //     } else {
-    //       _this.codeErr(res)
-    //     }
-        
-    //   })
-    // },
     queryAccountInfoAjax(account) {
-          console.log('**********************queryAccountInfoAjax-------res--------')
       let _this = this;
       queryAccountInfo(account).then(res => {
         if (res.code == 1) {
-          console.log('-------queryAccountInfoAjax-------res--------')
-          console.log(res)
           // 可用票数 计算
           // 总余额
           let balances = res.data.balances.filter((blance) => {
@@ -500,8 +393,6 @@ export default {
             }
             
           }
-          console.log('----------_this.votesNum------------')
-          console.log(_this.votesNum)
           // 投票的数
           let myVotes = res.data.votes;
           // myVotesWitnesses myVotesCommittee
@@ -558,8 +449,6 @@ export default {
       this.$axios
         .post(resUrl, formData)
         .then(function(response) {
-          console.log('response')
-          console.log(response)
           _this.tableList= ''
           _this.tableList = response.data.result;
           _this.lookupBlock = new Array(response.data.result.length);
@@ -580,10 +469,6 @@ export default {
     queryVestingBalanceAjax(account_name, index) {
       let _this = this;
       queryVestingBalance(account_name).then(res => {
-        if (account_name == "syling") {
-          console.log('===========queryVestingBalance===========')
-          console.log(res)
-        }
         if (res.code == 1) {
           if (res.data.length > 0) {
             for (let i = 0; i < res.data.length; i++) {
@@ -619,8 +504,6 @@ export default {
         type: queryType
       };
       queryVotes(params).then(res => {
-        console.log('--------queryVotes-------------')
-        console.log(res)
         if (res.code == 1) {
           
           function sortId(a, b) {
@@ -629,14 +512,10 @@ export default {
           let activeVotesList = res.data.filter( (activeVotesLi) => {
             return activeVotesLi.active == true
           })
-          console.log('------------activeVotesList-------------------')
-          console.log(activeVotesList)
           let noActiveVotesList = res.data.filter( (noActiveVotesLi) => {
             return noActiveVotesLi.active == false
           })
           noActiveVotesList.sort(sortId)
-          console.log('------------noActiveVotesList-------------------')
-          console.log(noActiveVotesList)
           noActiveVotesList.sort(sortId)
           let voteList = activeVotesList.concat(noActiveVotesList)
           // res.data.sort(sortId);

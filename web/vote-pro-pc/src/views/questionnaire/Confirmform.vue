@@ -139,15 +139,11 @@ export default {
       this.$axios
         .post(resUrl, _this.showData)
         .then(function(response) {
-          console.log('*****')
-          console.log(response)
           if (response.data.error == "ok") {
             
             MessageBox({
               message: '提交成功'
             }).then(action=>{
-              console.log("****************")
-              console.log(action)
               _this.$router.push('/questionnaire/success')
             })
           } else {

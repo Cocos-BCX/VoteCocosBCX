@@ -7,7 +7,7 @@ import VueI18n from 'vue-i18n'
 import './assets/css/public.css'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
-import vueSmoothScroll from 'vue-smooth-scroll'
+// import vueSmoothScroll from 'vue-smooth-scroll'
 import { initBcx, browserConnect, walletLanguage, initConnect } from '../libs/bcx.api'
 import { initRootFontSize } from '../libs/Utils'
 import { Popup, Indicator, Loadmore } from 'mint-ui'
@@ -69,14 +69,14 @@ browserConnect().then( res => {
 
   /* eslint-disable no-new */
   new Vue({
-    el: '#app',
     i18n,
     router,
-    components: { App },
-    template: '<App/>'
-  })
+    render: h => h(App)
+  }).$mount('#app')
   })
   }, 1000)
 
 })
+
+
 
