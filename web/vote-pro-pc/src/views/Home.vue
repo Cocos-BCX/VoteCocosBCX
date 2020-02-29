@@ -260,14 +260,6 @@ export default {
   },
   mounted() {
       let _this = this;
-      // getExtensionNode().then( res =>{
-      //   console.log('==')
-      //   console.log(res.GetNewBCX)
-      //   res.GetNewBCX.lookupBlock().then( res =>{
-      //     console.log("=======lookupBlock========")
-      //     console.log(res)
-      //   })
-      // })
     _this.getAccountInfoAjax()
 
   },
@@ -276,8 +268,6 @@ export default {
       let _this = this;
       browserConnect().then( res => {
         if (res.code == 1) {
-          console.log('------------browserConnect---------')
-          console.log(res)
           _this.isBrowserConnect = res
         }
       })
@@ -291,8 +281,6 @@ export default {
     getAccountInfoAjax(){
       let _this = this;
       getAccountInfo().then(res=>{
-        console.log("=*getAccountInfoAjax***")
-        console.log(res)
         _this.myAccount = res.account_name
         _this.queryAccountInfoAjax(res.account_name)
         _this.queryVotesAjax(res.account_name);
@@ -397,13 +385,9 @@ export default {
         this.votesNum = 0
         params.votes = Number(this.votesNum)
       }
-      
       publishVotes(params).then(res => {
-        console.log('---------------publishVotes----------')
-        console.log(res)
+        console.log('publishVotes:',res)
         if (res.code == 1) {
-          
-             
             Message({
               duration: 2000,
               message: _this.$t('tipsMessage.business.votedSuccessfully'),
@@ -412,6 +396,7 @@ export default {
             
             _this.initDate(_this.isWitnesses)
         } else {
+          _this.getAccountInfoAjax()
           _this.codeErr(res)
         }
         _this.hideLogin()
@@ -421,8 +406,6 @@ export default {
       let _this = this;
       queryAccountInfo(account).then(res => {
         if (res.code == 1) {
-          console.log('-------queryAccountInfoAjax-------res--------')
-          console.log(res)
           // 可用票数 计算
           // 总余额
           let balances = res.data.balances.filter((blance) => {
@@ -462,8 +445,6 @@ export default {
             }
             
           }
-          console.log('----------_this.votesNum------------')
-          console.log(_this.votesNum)
           // 投票的数
           let myVotes = res.data.votes;
           // myVotesWitnesses myVotesCommittee
@@ -521,8 +502,6 @@ export default {
       this.$axios
         .post(resUrl, formData)
         .then(function(response) {
-          console.log('response')
-          console.log(response)
           _this.tableList= ''
           _this.tableList = response.data.result;
           _this.lookupBlock = new Array(response.data.result.length);
@@ -578,8 +557,6 @@ export default {
         type: queryType
       };
       queryVotes(params).then(res => {
-        console.log('--------queryVotes-------------')
-        console.log(res)
         if (res.code == 1) {
           
           function sortId(a, b) {
@@ -588,14 +565,10 @@ export default {
           let activeVotesList = res.data.filter( (activeVotesLi) => {
             return activeVotesLi.active == true
           })
-          console.log('------------activeVotesList-------------------')
-          console.log(activeVotesList)
           let noActiveVotesList = res.data.filter( (noActiveVotesLi) => {
             return noActiveVotesLi.active == false
           })
           noActiveVotesList.sort(sortId)
-          console.log('------------noActiveVotesList-------------------')
-          console.log(noActiveVotesList)
           noActiveVotesList.sort(sortId)
           let voteList = activeVotesList.concat(noActiveVotesList)
           // res.data.sort(sortId);

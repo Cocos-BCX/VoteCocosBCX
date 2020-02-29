@@ -176,12 +176,9 @@ export default {
     getAccountInfoAjax(){
       let _this = this
       getAccountInfo().then( res => {
-        console.log('-----getAccountInfo------')
-        console.log(res)
         _this.formData.cocos_address.value = res.account_name
         if (cacheSession.get('formData')) {
           let formDataJson = JSON.parse(cacheSession.get('formData'))
-          console.log(formDataJson)
           _this.formData = formDataJson
         }
         
@@ -238,12 +235,6 @@ export default {
       }
           cacheSession.set('formData', JSON.stringify(_this.formData))
           this.$router.push('/questionnaire/confirmform')
-      // this.$axios
-      //   .post(resUrl, formData)
-      //   .then(function(response) {
-      //     console.log('------------response-------------')
-      //     console.log(response)
-      //   })
     }
   }
 };
