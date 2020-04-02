@@ -44,7 +44,7 @@ export const langZh = {
     },
     tabTableContainer: {
         // superNode: '超级节点',
-        superNode: 'BP',
+        superNode: '活跃 BP',
         council: '理事会',
         ranking: '排名',
         country: '国家/地区',
