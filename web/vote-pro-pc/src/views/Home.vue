@@ -99,7 +99,8 @@
         <div class="search-bar">
           <ul class="screen">
             <p>Top 11</p>
-            <p>Standby</p>
+            <!-- <p>Standby</p> -->
+            <p>不活跃BP</p>
             <p>{{$t('common.total')}}：{{count}}个</p>
           </ul>
           <div class="search-input">

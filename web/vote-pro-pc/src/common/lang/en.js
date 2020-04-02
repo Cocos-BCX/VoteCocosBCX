@@ -43,7 +43,8 @@ export const langEn = {
         selectedNode: 'Selected node',
     },
     tabTableContainer: {
-        superNode: 'Super node',
+        // superNode: 'Super node',
+        superNode: 'Active BP',
         council: 'Council',
         ranking: 'Ranking',
         country: 'Country/Region',
