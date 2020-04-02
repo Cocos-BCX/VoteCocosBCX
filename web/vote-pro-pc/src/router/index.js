@@ -1,44 +1,49 @@
 import Vue from 'vue'
-import Router from 'vue-router'
-import Home from '@/components/Home'
-import Questionnaire from '@/components/Questionnaire'
-import Introduction from '@/components/questionnaire/Introduction'
-import Form from '@/components/questionnaire/Form'
-import Confirmform from '@/components/questionnaire/Confirmform'
-import Success from '@/components/questionnaire/Success'
+import VueRouter from 'vue-router'
+import Home from '@/views/Home'
+import Questionnaire from '@/views/Questionnaire'
+import Introduction from '@/views/questionnaire/Introduction'
+import Form from '@/views/questionnaire/Form'
+import Confirmform from '@/views/questionnaire/Confirmform'
+import Success from '@/views/questionnaire/Success'
 
-Vue.use(Router)
+Vue.use(VueRouter)
 
-export default new Router({
+const routes = [
+  {
+    path: '/',
+    name: 'Home',
+    component: Home
+  },
+  {
+    path: '/questionnaire',
+    name: 'questionnaire',
+    component: Questionnaire,
+    children:[
+      {
+        path: '/',
+        component: Introduction 
+      },
+      {
+        path: '/questionnaire/form',
+        component: Form 
+      },
+      {
+        path: '/questionnaire/confirmform',
+        component: Confirmform 
+      },
+      {
+        path: '/questionnaire/success',
+        component: Success 
+      }
+    ]
+  }
+]
+
+const router = new VueRouter({
   mode: 'history',
-  routes: [
-    {
-      path: '/',
-      name: 'Home',
-      component: Home
-    },
-    {
-      path: '/questionnaire',
-      name: 'questionnaire',
-      component: Questionnaire,
-      children:[
-        {
-          path: '/',
-          component: Introduction 
-        },
-        {
-          path: '/questionnaire/form',
-          component: Form 
-        },
-        {
-          path: '/questionnaire/confirmform',
-          component: Confirmform 
-        },
-        {
-          path: '/questionnaire/success',
-          component: Success 
-        }
-      ]
-    }
-  ]
+  base: process.env.BASE_URL,
+  routes
 })
+
+export default router

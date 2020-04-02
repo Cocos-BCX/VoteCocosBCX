@@ -7,8 +7,8 @@ import VueI18n from 'vue-i18n'
 import './assets/css/public.css'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
-import vueSmoothScroll from 'vue-smooth-scroll'
-import { initBcx, browserConnect, walletLanguage, initConnect } from '../libs/bcx.api'
+// import vueSmoothScroll from 'vue-smooth-scroll'
+import { browserConnect, walletLanguage, initConnect } from '../libs/bcx.api'
 import { initRootFontSize } from '../libs/Utils'
 import { Popup, Indicator, Loadmore } from 'mint-ui'
 import 'mint-ui/lib/style.css'
@@ -29,7 +29,7 @@ browserConnect().then( res => {
   })
 }).then( result => {
   console.log("==============result=================result")
-  console.log("2019-12-18 19:21 update")
+  console.log("2019-12-24 17:46 cache update")
   console.log(result)
   return new Promise((resolve,reject)=>{
     browserConnect().then( res => {
@@ -69,14 +69,14 @@ browserConnect().then( res => {
 
   /* eslint-disable no-new */
   new Vue({
-    el: '#app',
     i18n,
     router,
-    components: { App },
-    template: '<App/>'
-  })
+    render: h => h(App)
+  }).$mount('#app')
   })
   }, 1000)
 
 })
+
+
 

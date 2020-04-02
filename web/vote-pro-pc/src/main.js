@@ -11,7 +11,7 @@ import VueAxios from 'vue-axios'
 import '../libs/bcx.min'
 import { cacheSession, cacheKey } from '../libs/Utils'
 import { browserConnect, lookupWSNodeList } from '../libs/bcx.api'
-import vueSmoothScroll from 'vue-smooth-scroll'
+// import vueSmoothScroll from 'vue-smooth-scroll'
 import 'element-ui/lib/theme-chalk/index.css';
 
 
@@ -41,7 +41,7 @@ Vue.use(VueAxios, axios)
 Vue.use(Checkbox)
 Vue.use(Select)
 Vue.use(Option)
-Vue.use(vueSmoothScroll)
+// Vue.use(vueSmoothScroll)
 Vue.use(Menu)
 Vue.use(Submenu)
 Vue.use(MenuItem)
@@ -74,23 +74,15 @@ const i18n = new VueI18n({
 
 
 
-Vue.config.productionTip = false
+// Vue.config.productionTip = false
 
 
-browserConnect().then( res=>{
+browserConnect().then( ()=>{
   console.log("2019-12-17 18:00 update")
-  // lookupWSNodeList().then( lookupWSNodeListRes => {
-  //   console.log(">>>>>>>>>>>>lookupWSNodeListRes<<<<<<<<<<<<<<<<")
-  //   console.log(lookupWSNodeListRes)
-  // })
-  if (res) {
-      /* eslint-disable no-new */
-      new Vue({
-        el: '#app',
-        i18n,
-        router,
-        components: { App },
-        template: '<App/>'
-      })
-  }
+
+  new Vue({
+    i18n,
+    router,
+    render: h => h(App)
+  }).$mount('#app')
 })
