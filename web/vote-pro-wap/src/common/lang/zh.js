@@ -40,7 +40,8 @@ export const langZh = {
         electedCouncil: '已选理事会'
     },
     tabTableContainer: {
-        superNode: '超级节点',
+        // superNode: '超级节点',
+        superNode: 'BP',
         council: '理事会',
         ranking: '排名',
         country: '国家/地区',
