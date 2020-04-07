@@ -33,9 +33,9 @@ func main() {
 
 	// init mongo
 
-	if err := models.Init(cfg.Mongo); err != nil {
-		panic(err)
-	}
+	// if err := models.Init(cfg.Mongo); err != nil {
+	// 	panic(err)
+	// }
 	if err := models.InitMySQL(&cfg.Mysql); err != nil {
 		panic(err)
 	}

@@ -15,7 +15,7 @@ type MortgageData struct {
 	Mortgager      string             `json:"mortgager" bson:"mortgager"`
 	Beneficiary    string             `json:"beneficiary" bson:"beneficiary"`
 	TransactionsID string             `json:"transactions_id" bson:"transactions_id"`
-	Collateral     int32              `json:"collateral" bson:"collateral"`
+	Collateral     string             `json:"collateral" bson:"collateral"`
 	Time           string             `json:"time" bson:"time"`
 }
 
