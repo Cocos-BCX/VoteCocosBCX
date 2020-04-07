@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Cocos-BCX/VoteCocosBCX/srv/models"
@@ -21,6 +22,7 @@ var (
 )
 
 func Mortgage(c *gin.Context) {
+	fmt.Println("Mortgage")
 	var req MortgageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusOK, gin.H{

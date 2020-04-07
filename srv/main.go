@@ -33,10 +33,12 @@ func main() {
 
 	// init mongo
 
-	if err := models.Init(cfg.Mongo); err != nil {
+	// if err := models.Init(cfg.Mongo); err != nil {
+	// 	panic(err)
+	// }
+	if err := models.InitMySQL(&cfg.Mysql); err != nil {
 		panic(err)
 	}
-
 	r := InitRouter(cfg)
 
 	r.Use(middleware.LanguageMiddleware())
@@ -46,6 +48,7 @@ func main() {
 		v1.POST("/witnesses", handlers.Witnesses)
 		v1.POST("/committee", handlers.Committee)
 		v1.POST("/mortgage", handlers.Mortgage)
+		v1.POST("/application", handlers.Application)
 	}
 
 	if err := r.Run(cfg.Server.ListenAddr); err != nil {
@@ -54,6 +57,7 @@ func main() {
 	quit := make(chan os.Signal)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
+	models.CloseMySQL()
 }
 
 func InitRouter(cfg config.Configuration) *gin.Engine {

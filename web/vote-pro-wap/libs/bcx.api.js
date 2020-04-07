@@ -13,6 +13,7 @@ import {
 import {
   langZh
 } from '../src/common/lang/zh.js'
+import axios from 'axios'
 // import {
 //   Loading
 // } from 'element-ui'
@@ -33,24 +34,53 @@ let promiseObjArr = []
 
 // bcx对象初始化
 export let initBcx = function () {
-
-  var _configParams={ 
-      ws_node_list:[
-          {url:"ws://test.cocosbcx.net",name:"Cocos - China - Beijing"},   
-      ],
-      networks:[
-          {
-              core_asset:"COCOS",
-              chain_id:"c1ac4bb7bd7d94874a1cb98b39a8a582421d03d022dfa4be8c70567076e03ad0" 
-          }
-      ], 
-      faucet_url: "http://test-faucet.cocosbcx.net",
-      auto_reconnect:true,
-      real_sub:true,
-      check_cached_nodes_data:false
-  };
-  bcx = new BCX(_configParams);
+  axios
+  .get("https://api-cocosbcx.cocosbcx.net/backend/getParams")
+  .then(response => {
+    // nodes = response.data.data;
+    let nodes = response.data.data.filter(( item )=>{
+      return item.name == 'Test'
+    })
+    console.log(nodes);
+      var _configParams={ 
+        ws_node_list:[
+            {url:nodes[0].ws,name:nodes[0].name},   
+        ],
+        networks:[
+            {
+                core_asset:"COCOS",
+                chain_id: nodes[0].chainId 
+            }
+        ], 
+        faucet_url: nodes[0].faucetUrl,
+        auto_reconnect:true,
+        real_sub:true,
+        check_cached_nodes_data:false
+    };
+  //   var _configParams={ 
+  //     ws_node_list:[
+  //         {url:"ws://192.168.90.46:8049",name:"personnaliser"},   
+  //     ],
+  //     networks:[
+  //         {
+  //             core_asset:"COCOS",
+  //             chain_id: "bc741ab76f35c22fb3e3b51cd70dcdf38db63e283229534ee2e5cf1e7a6c994b" 
+  //         }
+  //     ], 
+  //     faucet_url: nodes[0].faucetUrl,
+  //     auto_reconnect:true,
+  //     real_sub:true,
+  //     check_cached_nodes_data:false
+  // };
+    bcx = new BCX(_configParams);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
 }
+
+
+
 
 
 // 浏览器插件链接
@@ -95,6 +125,33 @@ export let browserConnect = function () {
   })
 }
 
+
+export let initConnect = function () {
+  
+  return new Promise(async function (resolve, reject) {
+    
+    bcx.initConnect().then( res => {
+        bcx = {}
+        var _configParams={
+          ws_node_list:[
+              {url:res.ws,name:res.name},   
+          ],
+          networks:[
+              {
+                  core_asset:"COCOS",
+                  chain_id: res.chainId 
+              }
+          ], 
+          faucet_url: res.faucetUrl,
+          auto_reconnect:true,
+          real_sub:true,
+          check_cached_nodes_data:false
+      }
+      bcx = new BCX(_configParams);
+      resolve(true)
+    })
+  })
+}
 
 // 登录
 export let passwordLogin = function (params) {
@@ -363,14 +420,25 @@ export let queryVotes = function (params) {
 
 
 // 查询账户
-export let queryVestingBalance = function (account) {
+export let queryVestingBalance = function (param) {
   Indicator.open({
     spinnerType: 'fading-circle'
   });
+  let params = {}
+  if(typeof param === 'string') {
+    params = {
+      account: param,
+      type: ""
+    }
+    
+  } else {
+    params = {
+      account: param.account,
+      type: param.type
+    }
+  }
   return new Promise(function (resolve, reject) {
-    bcx.queryVestingBalance({
-      account: account
-    }).then(res => {
+    bcx.queryVestingBalance(params).then(res => {
       Indicator.close();
       resolve(res)
     }).catch(err=>{
@@ -379,4 +447,26 @@ export let queryVestingBalance = function (account) {
       console.log(err)
     })
   })
+}
+
+
+// 立即领取
+export let claimVestingBalance = function (id) {
+  Indicator.open({
+    spinnerType: 'fading-circle'
+  });
+  return new Promise(function (resolve, reject) {
+    
+      bcx.claimVestingBalance({
+        id: id
+      }).then(res=>{
+        Indicator.close();
+        resolve(res)
+      }).catch(err=>{
+        Indicator.close();
+        console.log('--------err-------')
+        console.log(err)
+      })
+    })
+      
 }

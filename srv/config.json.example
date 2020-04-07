@@ -49,6 +49,14 @@
         "uri":"",
         "database":"",
         "collection":""
-    }
-
+    },
+    "mysql":{
+        "driver": "mysql",
+        "host": "",
+        "port": "",
+        "user": "",
+        "password": "",
+        "db_name": ""
+    },
+    "api_url":""
 }

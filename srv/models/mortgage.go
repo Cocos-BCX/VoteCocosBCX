@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/Cocos-BCX/VoteCocosBCX/srv/config"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -14,12 +15,13 @@ type MortgageData struct {
 	Mortgager      string             `json:"mortgager" bson:"mortgager"`
 	Beneficiary    string             `json:"beneficiary" bson:"beneficiary"`
 	TransactionsID string             `json:"transactions_id" bson:"transactions_id"`
-	Collateral     int32              `json:"collateral" bson:"collateral"`
+	Collateral     string             `json:"collateral" bson:"collateral"`
 	Time           string             `json:"time" bson:"time"`
 }
 
 func QueryMortgage(accountID, mold string) ([]MortgageData, error) {
-	col := mongoClient.Database("testnet_monitor").Collection("account_collateral")
+	cfg := config.GetConfig().Mongo
+	col := mongoClient.Database(cfg.Database).Collection(cfg.Collection)
 	var query bson.M
 	var res []MortgageData
 	switch mold {
