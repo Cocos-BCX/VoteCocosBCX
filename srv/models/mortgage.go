@@ -22,6 +22,7 @@ type MortgageData struct {
 func QueryMortgage(accountID, mold string) ([]MortgageData, error) {
 	cfg := config.GetConfig().Mongo
 	col := mongoClient.Database(cfg.Database).Collection(cfg.Collection)
+
 	var query bson.M
 	var res []MortgageData
 	switch mold {
