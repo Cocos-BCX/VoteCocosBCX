@@ -373,15 +373,15 @@ export default {
       }
       if (params.vote_ids.length != 0) {
         params.votes = Number(this.votesNum)
-        if (!params.votes || params.votes == 0) {
-            Message({
-              duration: 2000,
-              message: _this.$t('tipsMessage.business.votesCannotZero'),
-              type: 'error',
-            })
-            return false
+        // if (!params.votes || params.votes == 0) {
+        //     Message({
+        //       duration: 2000,
+        //       message: _this.$t('tipsMessage.business.votesCannotZero'),
+        //       type: 'error',
+        //     })
+        //     return false
           
-        }
+        // }
       } else {
         this.votesNum = 0
         params.votes = Number(this.votesNum)
