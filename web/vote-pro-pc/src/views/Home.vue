@@ -387,7 +387,6 @@ export default {
         params.votes = Number(this.votesNum)
       }
       publishVotes(params).then(res => {
-        console.log('publishVotes:',res)
         if (res.code == 1) {
             Message({
               duration: 2000,
