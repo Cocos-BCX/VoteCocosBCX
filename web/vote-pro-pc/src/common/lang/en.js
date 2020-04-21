@@ -2,7 +2,6 @@ export const langEn = {
     common: {
         vote: 'Vote',
         withdrawalVotes: 'Withdrawal',
-        // withdrawalVotes: 'Withdrawal of votes',
         candidateNode: 'Candidate node',
         numberVotes: 'Number of votes',
         withdrawalVotesNum: 'Number of votes withdrawn',
@@ -33,7 +32,10 @@ export const langEn = {
         // remainingAvailableVotes: '剩余可用票数',
         remainingAvailableVotes: 'Remaining available votes',
 
-        max: 'Max'
+        max: 'Max',
+        '7': 'Inactive BP',
+        yes: 'yes',
+        no: 'no'
     },
     installTips: {
         installed: 'Please confirm that you have installed'
@@ -49,8 +51,11 @@ export const langEn = {
         ranking: 'Ranking',
         country: 'Country/Region',
         voteRate: 'Vote rate',
+        getVoteNum: 'Votes',
         numberVotingAccounts: 'Number of voting accounts',
         awardsClaimed: 'Awards to be claimed (COCOS)',
+        isActive: 'State',
+        voteNum: 'My vote',
 
         // name: '名称',
         name: 'Name',
