@@ -12,6 +12,7 @@ import (
 var (
 	mongoClient *mongo.Client
 	Collection  *mongo.Collection
+	BlockCollection  *mongo.Collection
 )
 
 func Init(cfg config.MongoConfig) error {
@@ -30,6 +31,7 @@ func Init(cfg config.MongoConfig) error {
 	}
 	mongoClient = client
 	Collection = mongoClient.Database(cfg.Database).Collection(cfg.Collection)
+	BlockCollection = mongoClient.Database(cfg.Database).Collection(cfg.BlockCollection)
 	return nil
 }
 func Close() {

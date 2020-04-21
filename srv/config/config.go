@@ -42,6 +42,7 @@ type MongoConfig struct {
 	Uri        string `json:"uri"`
 	Database   string `json:"database"`
 	Collection string `json:"collection"`
+	BlockCollection string `json:"block_collection"`
 }
 
 type (

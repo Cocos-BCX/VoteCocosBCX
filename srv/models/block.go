@@ -26,7 +26,7 @@ func FindWitnessesGeneratedBlockNumber() (map[string]WitnessGeneratedBlockNumber
 	}
 
 	opts := options.Aggregate().SetMaxTime(2 * time.Second)
-	cursor, err := Collection.Aggregate(context.TODO(), mongo.Pipeline{query}, opts)
+	cursor, err := BlockCollection.Aggregate(context.TODO(), mongo.Pipeline{query}, opts)
 	if err != nil {
 		return results, err
 	}
