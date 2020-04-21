@@ -237,8 +237,6 @@ export default {
       let _this = this;
       if (this.receiveNum < 1) return false
       claimVestingBalance(_this.voteId).then( res => {
-        console.log('===========claimVestingBalance============')
-        console.log(res)
         if (res.code == 1) {
           Toast({
               duration: 2000,
@@ -265,15 +263,11 @@ export default {
     getReceiveNumAjax(){
       let _this = this;
       getAccountInfo().then( res => {
-        console.log('--------getAccountInfo-----------')
-        console.log(res.account_name)
         let params = {
           account: res.account_name,
           type: 'cashback_vote'
         }
         queryVestingBalance(params).then(res=>{
-          console.log('----------queryVestingBalance------------')
-          console.log(res)
           if (res.data.length > 0) {
             _this.receiveNum = Number(res.data[0].available_balance.amount).toFixed(0) || 0
             _this.voteId = res.data[0].id
@@ -501,15 +495,15 @@ export default {
       if (params.vote_ids.length != 0) {
           
         if (!this.isWithdrawalTickets) {
-          if (!params.votes || params.votes == 0) {
-              Toast({
-                message: _this.$t('tipsMessage.business.votesCannotZero'),
-                className: 'toast-style',
-                duration: 2000
-              });
-              return false
+          // if (!params.votes || params.votes == 0) {
+          //     Toast({
+          //       message: _this.$t('tipsMessage.business.votesCannotZero'),
+          //       className: 'toast-style',
+          //       duration: 2000
+          //     });
+          //     return false
             
-          }
+          // }
         } else {
           if (params.votes > Number(_this.haveVotedNum)) {
               Toast({
@@ -524,12 +518,8 @@ export default {
       } else {
         params.votes = 0
       }
-      console.log('=========publishVotes======params******************')
-      console.log(params)
       // return false
       publishVotes(params).then(res => {
-        console.log('=========publishVotes======res==================')
-        console.log(res)
         if (res.code == 1) {
           
           if (this.isWithdrawalTickets) {
@@ -598,8 +588,6 @@ export default {
     queryAccountInfoAjax() {
       let _this = this;
       queryAccountInfo().then(res => {
-          console.log('-------queryAccountInfoAjax-------res--------')
-          console.log(res)
         if (res.code == 1) {
           // 可用票数 计算
           // 总余额
@@ -611,14 +599,13 @@ export default {
           if (res.data.account.asset_locked.locked_total.length == 0) {
             
             _this.availableVotes = parseInt((Number(balances.balance) - 0)/Math.pow(10,5))
-            console.log(balances.balance)
-          console.log('======'+_this.availableVotes)
+          
           } else {
             let lockedAsset = res.data.account.asset_locked.locked_total.filter((lockedblance) => {
               if (lockedblance[0] == "1.3.0") return lockedblance 
             })[0];
             _this.availableVotes = parseInt((Number(balances.balance) - Number(lockedAsset[1]))/Math.pow(10,5))
-          console.log(_this.availableVotes)
+          
           }
           
           // 已投票数 
@@ -642,8 +629,6 @@ export default {
             }
             
           }
-          console.log('----------_this.votesNum------------')
-          console.log(_this.votesNum)
           // 投票的数
           let myVotes = res.data.votes;
           // myVotesWitnesses myVotesCommittee
@@ -750,7 +735,6 @@ export default {
     queryVestingBalanceAjax(account_name, index) {
       let _this = this;
       queryVestingBalance(account_name).then(res => {
-        console.log('=======queryVestingBalance=======')
         if (res.code == 1) {
           if (res.data.length > 0) {
             for (let i = 0; i < res.data.length; i++) {
@@ -785,8 +769,6 @@ export default {
         type: queryType
       };
       queryVotes(params).then(res => {
-        console.log('===========queryVotes===========')
-        console.log(res)
         _this.stopLoading = false
         if (res.code == 1) {
           function sortId(a, b) {
@@ -899,7 +881,6 @@ export default {
     },
     
     handleClose(key, typeName) {
-      console.log(key);
       // witnesses 见证人    committee 理事会
       let dynamicTags = {};
       if (typeName == "witnesses") {
