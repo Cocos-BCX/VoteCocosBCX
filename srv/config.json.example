@@ -48,7 +48,8 @@
     "mongo":{
         "uri":"",
         "database":"",
-        "collection":""
+        "collection":"",
+        "block_collection":""
     },
     "mysql":{
         "driver": "mysql",

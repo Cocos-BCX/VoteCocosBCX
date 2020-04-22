@@ -36,7 +36,7 @@ type Witness struct {
 	WitnessID             string             `json:"witness_id"`
 	Country               string             `json:"country"`
 	Logo                  string             `json:"logo"`
-	GeneratedBlockNum     int64              `json:"generated_block_num"`
+	GeneratedBlockNum     string              `json:"generated_block_num"`
 	Ranking               uint               `json:"ranking"`
 	SupportersCount       uint64             `json:"supporters_count"`
 }
@@ -64,9 +64,9 @@ func Witnesses(c *gin.Context) {
 			req.Witnesses[k].Logo = witness.Logo
 		}
 		if nums, ok := witnessNums[v.AccountName]; ok {
-			req.Witnesses[k].GeneratedBlockNum = nums.Num
+			req.Witnesses[k].GeneratedBlockNum = nums.Total
 		} else {
-			req.Witnesses[k].GeneratedBlockNum = 0
+			req.Witnesses[k].GeneratedBlockNum = "0"
 		}
 
 	}
