@@ -150,7 +150,7 @@
             <!-- <td>522,169</td> -->
             <td v-if="isWitnesses">{{li.generated_block_num}}</td>
             <!-- <td>{{lookupBlock[index]}}</td> -->
-            <td>{{li.supported?votesNum:0}}</td>
+            <td>{{li.supported_display?votesNum:0}}</td>
             <td>
               
               <a href="javascript:void(0);" @click="checkboxChangeEvents(li, index)" class="node-choice-btn">
@@ -167,6 +167,7 @@
             @current-change="handleCurrentChange"
             background
             layout="prev, pager, next"
+            :current-page="currentPage"
             :page-size="pageSize"
             :total="count"
           ></el-pagination>
@@ -263,7 +264,6 @@ export default {
         this.votesNumRegular = this.modifyVotesNum
         return false
       }
-      console.log(IntReg.test(val))
       if (IntReg.test(val)) {
         this.votesNumRegular = this.modifyVotesNum
       } else {
@@ -301,10 +301,12 @@ export default {
     },
     getAccountInfoAjax(){
       let _this = this;
-      getAccountInfo().then(res=>{
-        _this.myAccount = res.account_name
-        _this.queryAccountInfoAjax(res.account_name)
-        _this.queryVotesAjax(res.account_name);
+      getAccountInfo().then(res=>{  
+        if (res) {  
+          _this.myAccount = res.account_name
+          _this.queryAccountInfoAjax(res.account_name)
+          _this.queryVotesAjax(res.account_name);
+        }
         
       })
     },
@@ -331,6 +333,7 @@ export default {
     },
     changeTpye(val) {
       if (this.isWitnesses == val) return false
+      this.currentPage = 1
       this.isWitnesses = val;
       let _this = this;
       this.initDate()
@@ -478,11 +481,22 @@ export default {
       publishVotes(params).then(res => {
         if (res.code == 1) {
             _this.isMaskVote = false
+
+          if (this.isWithdrawalTickets) {
+
+            Message({
+              duration: 2000,
+              message: _this.$t('tipsMessage.business.successfulWithdrawalTickets'),
+              type: 'success',
+            })
+          } else {
             Message({
               duration: 2000,
               message: _this.$t('tipsMessage.business.votedSuccessfully'),
               type: 'success',
             })
+          }
+            
             
             _this.initDate(_this.isWitnesses)
         } else {
@@ -597,6 +611,7 @@ export default {
           _this.tableList = response.data.result;
           _this.lookupBlock = new Array(response.data.result.length);
           for (let i = 0; i < _this.tableList.length; i++) {
+            _this.tableList[i].supported_display = _this.tableList[i].supported
             _this.tableList[i].voteRate = Number(_this.votesTotal) == 0 ? "0%":Number(Number(
                 Number(_this.tableList[i].votes) / Number(_this.votesTotal)
               ).toFixed(4) *
@@ -653,10 +668,10 @@ export default {
           function sortId(a, b) {
             return b.votes - a.votes;
           }
-          let activeVotesList = res.data.filter( (activeVotesLi) => {
+          let activeVotesList = res.data.filter((activeVotesLi) => {
             return activeVotesLi.active == true
           })
-          let noActiveVotesList = res.data.filter( (noActiveVotesLi) => {
+          let noActiveVotesList = res.data.filter((noActiveVotesLi) => {
             return noActiveVotesLi.active == false
           })
           noActiveVotesList.sort(sortId)
