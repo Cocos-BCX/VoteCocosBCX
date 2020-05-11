@@ -302,9 +302,13 @@ export default {
     getAccountInfoAjax(){
       let _this = this;
       getAccountInfo().then(res=>{  
+        console.log('getAccountInfo.......', res)
         if (res) {  
           _this.myAccount = res.account_name
           _this.queryAccountInfoAjax(res.account_name)
+          _this.queryVotesAjax(res.account_name);
+        } else {
+
           _this.queryVotesAjax(res.account_name);
         }
         
