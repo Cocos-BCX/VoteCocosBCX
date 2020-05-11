@@ -33,6 +33,9 @@ export const langZh = {
         remainingAvailableVotes: '剩余可用票数',
 
         max: '最大',
+        '7': '不活跃BP',
+        yes: '是',
+        no: '否'
         
     },
     installTips: {
@@ -49,8 +52,11 @@ export const langZh = {
         ranking: '排名',
         country: '国家/地区',
         voteRate: '得票率',
+        getVoteNum: '得票数',
         numberVotingAccounts: '投票账户数',
         awardsClaimed: '待申领奖励(COCOS)',
+        isActive: '是否活跃',
+        voteNum: '已投票数',
 
         name: '名称',
         blockNum: '已生产区块数'

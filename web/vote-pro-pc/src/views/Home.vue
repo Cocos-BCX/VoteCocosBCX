@@ -59,17 +59,21 @@
       <div class="tag-container">
         <div class="vote-operation-container">
           <p class="head">{{$t('common.numberVotesCast')}}</p>
-          <input type="text" class="input-vote-num" v-model="votesNum">
-          <input type="button" class="btn-vote-num-max" @click="addBlance()" :value="$t('common.max')">
-          <p class="head">{{$t('common.remainingAvailableVotes')}}</p>
+          <!-- <input type="text" class="input-vote-num" v-model="votesNum"> -->
+          <!-- <p class="input-vote-num">{{votesNum}}</p> -->
+          <p class="vote-num">{{votesNum}} COCOS</p>
+          <!-- <input type="button" class="btn-vote-num-max" @click="addBlance()" :value="$t('common.max')"> -->
+          <p class="head marl20">{{$t('common.remainingAvailableVotes')}}</p>
           <p class="vote-num">{{availableVotes}} COCOS</p>
         </div>
       </div>
       <div class="vote-btn-bar">
 
-        <a href="javascript:void(0);"  @click="vote()">{{$t('common.vote')}}</a>
-        <!-- <a href="javascript:void(0);"  @click="showVoteBtn(false)">投票</a> -->
-        <!-- <a href="javascript:void(0);" @click="showVoteBtn(true)">撤票</a> -->
+        <!-- <a href="javascript:void(0);"  @click="vote()">{{$t('common.vote')}}</a>
+        <a href="javascript:void(0);"  @click="vote()">{{$t('common.withdrawalVotes')}}</a> -->
+        
+        <a href="javascript:void(0);"  @click="isWithdrawalTickets = false;isMaskVote = true">{{$t('common.vote')}}</a>
+        <a href="javascript:void(0);" @click="isWithdrawalTickets = true;isMaskVote = true">{{$t('common.withdrawalVotes')}}</a>
       </div>
     </div>
 
@@ -100,7 +104,7 @@
           <ul class="screen">
             <p>Top 11</p>
             <!-- <p>Standby</p> -->
-            <p>不活跃BP</p>
+            <p>{{$t('common[7]')}}</p>
             <p>{{$t('common.total')}}：{{count}}个</p>
           </ul>
           <div class="search-input">
@@ -113,40 +117,19 @@
         </div>
         <table class="table-main" border="0" cellpadding="0" cellspacing="0" v-if="tableList.length != 0">
           <tr :class="this.$i18n.locale == 'zh'? '':'fontsize14'">
-            <td>{{$t('common.vote')}}</td>
             <td>{{$t('tabTableContainer.ranking')}}</td>
             <td>{{$t('tabTableContainer.name')}}</td>
-            <td>{{$t('tabTableContainer.country')}}</td>
+            <!-- <td>{{$t('tabTableContainer.country')}}</td> -->
             <td>{{$t('tabTableContainer.voteRate')}}</td>
-            <td>{{$t('tabTableContainer.numberVotingAccounts')}}</td>
+            <td>{{$t('tabTableContainer.getVoteNum')}}</td>
+            <td>{{$t('tabTableContainer.isActive')}}</td>
+            <!-- <td>{{$t('tabTableContainer.numberVotingAccounts')}}</td> -->
             <td v-if="isWitnesses">{{$t('tabTableContainer.blockNum')}}</td>
-            <td>{{$t('tabTableContainer.awardsClaimed')}}</td>
+            <!-- <td>{{$t('tabTableContainer.awardsClaimed')}}</td> -->
+            <td>{{$t('tabTableContainer.voteNum')}}</td>
+            <td>{{$t('common.vote')}}</td>
           </tr>
-          <!-- <tr>
-            <td>
-              <el-checkbox v-model="checked"></el-checkbox>
-            </td>
-            <td>1</td>
-            <td>
-              <div class="name">
-                <img src="../assets/images/test-table-icon.png" alt />
-                <span>eoshuobipool</span>
-              </div>
-            </td>
-            <td>China</td>
-            <td>2.883%</td>
-            <td>11,119</td>
-            <td>522,169</td>
-            <td>890.8067</td>
-          </tr>-->
           <tr v-for="(li, index) in tableList" :key="index">
-            <td>
-              
-              <a href="javascript:void(0);" @click="checkboxChangeEvents(li, index)" class="node-choice-btn">
-                <img v-if="li.supported" src="../assets/images/choice.png" alt />
-              </a>
-              <!-- <el-checkbox @change="checkboxChangeEvents(li, index)" :checked="li.supported"></el-checkbox> -->
-            </td>
             <td>
               <p class="ranking" :class="li.ranking>11?'standby':'top'">{{li.ranking}}</p>
             </td>
@@ -157,14 +140,24 @@
                 <span>{{li.account_name}}</span>
               </div>
             </td>
-            <td>{{li.country}}</td>
+            <!-- <td>{{li.country}}</td> -->
             <!-- <td>2.883%</td> -->
             <td>{{li.voteRate}}</td>
+            <td>{{li.votes | reservedInteger}}</td>
+            <td>{{li.active? $t('common.yes') : $t('common.no')}}</td>
             <!-- <td>11,119</td> -->
-            <td>{{li.supporters_count}}</td>
+            <!-- <td>{{li.supporters_count}}</td> -->
             <!-- <td>522,169</td> -->
             <td v-if="isWitnesses">{{li.generated_block_num}}</td>
-            <td>{{lookupBlock[index]}}</td>
+            <!-- <td>{{lookupBlock[index]}}</td> -->
+            <td>{{li.supported_display?votesNum:0}}</td>
+            <td>
+              
+              <a href="javascript:void(0);" @click="checkboxChangeEvents(li, index)" class="node-choice-btn">
+                <img v-if="li.supported" src="../assets/images/choice.png" alt />
+              </a>
+              <!-- <el-checkbox @change="checkboxChangeEvents(li, index)" :checked="li.supported"></el-checkbox> -->
+            </td>
           </tr>
         </table>
 
@@ -174,13 +167,27 @@
             @current-change="handleCurrentChange"
             background
             layout="prev, pager, next"
+            :current-page="currentPage"
             :page-size="pageSize"
             :total="count"
           ></el-pagination>
         </div>
       </div>
     </div>
-
+  <div class="mask" v-if="isMaskVote">
+    <div class="vote-main" v-if="isMaskVote">
+      <img src="../assets/images/close-btn-bgw.png" @click="closeVote()" class="close-btn" alt="">
+      <p class="title">{{isWithdrawalTickets==false?$t('common.vote'):$t('common.withdrawalVotes')}}</p>
+      <div class="vote-from-main">
+        <li class="vote-from-head">{{isWithdrawalTickets==false?$t('common.numberVotes'):$t('common.withdrawalVotesNum')}}：</li>
+        <input type="text" v-model="modifyVotesNum" class="vote-num-content">
+      </div>
+      
+      <ul class="vote-btn-bar">
+        <a href="javascript:;" @click="vote()" class="btn">{{$t('common.confirm')}}</a>
+      </ul>
+    </div>
+  </div>
   </div>
 </template>
 
@@ -228,6 +235,7 @@ export default {
       account: '',
       isMask: false,
       isShowVotePopup: false,
+      isMaskVote: false,
 
       isLogin: false,
       currentLoginAccount: '',
@@ -235,6 +243,10 @@ export default {
       myCOCOS: '',
       numberVotesCast: '',
       votesNum: '',
+      // 投票/撤票  票数
+      modifyVotesNum: '',
+
+
       votesNumRegular: '',
       availableVotes: '',
       isAddAvailableVotes: false,
@@ -247,15 +259,15 @@ export default {
   },
   watch: {
     
-    'votesNum': function (val) {
+    'modifyVotesNum': function (val) {
       if (!val) {
-        this.votesNumRegular = this.votesNum
+        this.votesNumRegular = this.modifyVotesNum
         return false
       }
       if (IntReg.test(val)) {
-        this.votesNumRegular = this.votesNum
+        this.votesNumRegular = this.modifyVotesNum
       } else {
-        this.votesNum = this.votesNumRegular
+        this.modifyVotesNum = this.votesNumRegular
       }
     }
   },
@@ -264,7 +276,15 @@ export default {
     _this.getAccountInfoAjax()
 
   },
+  filters: {
+    reservedInteger: function (val) {
+      return Number(val).toFixed(0)
+    }
+  },
   methods: {
+    closeVote(){
+      this.isMaskVote = false
+    },
     browserConnectAjax(){
       let _this = this;
       browserConnect().then( res => {
@@ -281,10 +301,16 @@ export default {
     },
     getAccountInfoAjax(){
       let _this = this;
-      getAccountInfo().then(res=>{
-        _this.myAccount = res.account_name
-        _this.queryAccountInfoAjax(res.account_name)
-        _this.queryVotesAjax(res.account_name);
+      getAccountInfo().then(res=>{  
+        console.log('getAccountInfo.......', res)
+        if (res) {  
+          _this.myAccount = res.account_name
+          _this.queryAccountInfoAjax(res.account_name)
+          _this.queryVotesAjax(res.account_name);
+        } else {
+
+          _this.queryVotesAjax(res.account_name);
+        }
         
       })
     },
@@ -311,6 +337,7 @@ export default {
     },
     changeTpye(val) {
       if (this.isWitnesses == val) return false
+      this.currentPage = 1
       this.isWitnesses = val;
       let _this = this;
       this.initDate()
@@ -336,13 +363,36 @@ export default {
     },
     vote() {
       let _this = this;
-      if (Number(this.votesNum) > Number(this.haveVotedNum) + Number(_this.availableVotes)) {
-        Message({
+      // if (Number(this.votesNum) > Number(this.haveVotedNum) + Number(_this.availableVotes)) {
+      //   Message({
+      //       duration: 2000,
+      //       message: _this.$t('tipsMessage.business.moreVotesThanAvailable'),
+      //       type: 'error',
+      //     })
+      //   return false
+      // }
+
+
+      
+      if (this.isWithdrawalTickets) {
+        if (Number(this.modifyVotesNum) > Number(this.haveVotedNum)) {
+
+          Message({
+            duration: 2000,
+            message: _this.$t('tipsMessage.business.cannotExceedNumberVotes'),
+            type: 'error',
+          })
+          return false
+        }
+      } else {
+        if (Number(this.modifyVotesNum) > Number(_this.availableVotes)) {
+          Message({
             duration: 2000,
             message: _this.$t('tipsMessage.business.moreVotesThanAvailable'),
             type: 'error',
           })
-        return false
+          return false
+        }
       }
 
       let params = {
@@ -371,31 +421,90 @@ export default {
           params.vote_ids.push(key);
         }
       }
-      if (params.vote_ids.length != 0) {
-        params.votes = Number(this.votesNum)
-        // if (!params.votes || params.votes == 0) {
-        //     Message({
-        //       duration: 2000,
-        //       message: _this.$t('tipsMessage.business.votesCannotZero'),
-        //       type: 'error',
-        //     })
-        //     return false
-          
-        // }
-      } else {
-        this.votesNum = 0
-        params.votes = Number(this.votesNum)
+
+      // 修改
+      if (String(_this.modifyVotesNum) == "") {
+          let messageToast = ''
+          if (!this.isWithdrawalTickets) {
+            messageToast = _this.$t('tipsMessage.common.pleaseEnter') + _this.$t('common.numberVotes')
+          } else {
+            messageToast = _this.$t('tipsMessage.common.pleaseEnter') + _this.$t('common.withdrawalVotesNum')
+          }
+          Message({
+            duration: 2000,
+            message: messageToast,
+            type: 'error',
+          })
+        return false
       }
+      let votesNum = 0
+      if (this.isWithdrawalTickets) {
+        votesNum = Number(this.haveVotedNum) - Number(this.modifyVotesNum)
+      } else {
+        votesNum = Number(this.modifyVotesNum) + Number(this.haveVotedNum)
+      }
+      params.votes = Number(votesNum)
+      if (params.vote_ids.length == 0) {
+
+          Message({
+            duration: 2000,
+            message: _this.$t('tipsMessage.business.pleaseEnterNode'),
+            type: 'error',
+          })
+          return false
+        
+      }
+      if (params.vote_ids.length != 0) {
+          
+        if (!this.isWithdrawalTickets) {
+        } else {
+          if (params.votes > Number(_this.haveVotedNum)) {
+              // Toast({
+              //   message: _this.$t('tipsMessage.business.cannotExceedNumberVotes'),
+              //   className: 'toast-style',
+              //   duration: 2000
+              // });
+          Message({
+            duration: 2000,
+            message: _this.$t('tipsMessage.business.cannotExceedNumberVotes'),
+            type: 'error',
+          })
+              return false
+            
+          }
+        }
+      } else {
+        params.votes = 0
+      }
+      // if (params.vote_ids.length != 0) {
+      //   params.votes = Number(this.votesNum)
+      // } else {
+      //   this.votesNum = 0
+      //   params.votes = Number(this.votesNum)
+      // }
       publishVotes(params).then(res => {
         if (res.code == 1) {
+            _this.isMaskVote = false
+
+          if (this.isWithdrawalTickets) {
+
+            Message({
+              duration: 2000,
+              message: _this.$t('tipsMessage.business.successfulWithdrawalTickets'),
+              type: 'success',
+            })
+          } else {
             Message({
               duration: 2000,
               message: _this.$t('tipsMessage.business.votedSuccessfully'),
               type: 'success',
             })
+          }
+            
             
             _this.initDate(_this.isWitnesses)
         } else {
+            _this.isMaskVote = false
           _this.getAccountInfoAjax()
           _this.codeErr(res)
         }
@@ -506,6 +615,7 @@ export default {
           _this.tableList = response.data.result;
           _this.lookupBlock = new Array(response.data.result.length);
           for (let i = 0; i < _this.tableList.length; i++) {
+            _this.tableList[i].supported_display = _this.tableList[i].supported
             _this.tableList[i].voteRate = Number(_this.votesTotal) == 0 ? "0%":Number(Number(
                 Number(_this.tableList[i].votes) / Number(_this.votesTotal)
               ).toFixed(4) *
@@ -562,10 +672,10 @@ export default {
           function sortId(a, b) {
             return b.votes - a.votes;
           }
-          let activeVotesList = res.data.filter( (activeVotesLi) => {
+          let activeVotesList = res.data.filter((activeVotesLi) => {
             return activeVotesLi.active == true
           })
-          let noActiveVotesList = res.data.filter( (noActiveVotesLi) => {
+          let noActiveVotesList = res.data.filter((noActiveVotesLi) => {
             return noActiveVotesLi.active == false
           })
           noActiveVotesList.sort(sortId)
@@ -782,6 +892,88 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.mask{
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: 300;
+}
+.mask .vote-main {
+  width: 600px;
+  height: 270px;
+  background: #fff;
+  margin-left: -225px;
+  margin-top: -135px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 8px;
+  position: relative;
+}
+/* close-btn-bgw.png */
+.mask .vote-main .close-btn{
+  width: 15px;
+  height: 15px;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+.mask .vote-main .title{
+  width: 100%;
+  height: 80px;
+  line-height: 80px;
+  text-align: center;
+  font-size: 24px;
+  color: #000;
+}
+
+.mask .vote-main .vote-from-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top:25px;
+}
+.mask .vote-main .vote-from-main .vote-from-head{
+  /* width: 80px; */
+  height: 40px;
+  line-height: 40px;
+  font-size: 16px;
+  color: #666;
+}
+.mask .vote-main .vote-from-main .vote-num-content{
+  width: 300px;
+  height: 40px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  /* margin: 20px auto; */
+  display: block;
+  text-align: left;
+  text-indent: 1em;
+  font-size: 16px;
+  color: #666;
+}
+.mask .vote-main .vote-from-main .vote-num-content:focus { 
+  outline: none;
+}
+.mask .vote-main .vote-btn-bar{
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mask .vote-main .vote-btn-bar .btn{
+  width: 130px;
+  height: 44px;
+  line-height: 44px;
+  display: inline-block;
+  font-size: 14px;
+  background: #3E9AFF;
+  color: #fff;
+}
+
 .login-bar {
   width: 100%;
   height: 64px;
@@ -894,7 +1086,7 @@ export default {
   line-height: 26px;
   background:rgba(255,255,255,1);
   border-radius:4px;
-  border:1px solid rgba(225,222,222,1);
+  /* border:1px solid rgba(225,222,222,1); */
   font-size:14px;
   font-weight:400;
   color:rgba(102,102,102,1);
@@ -959,16 +1151,21 @@ export default {
   line-height: 44px;
   display: inline-block;
   font-size: 14px;
+
+  background: #3E9AFF;
+  color: #fff;
+  
 }
 
 .vote-btn-bar a:nth-child(1){
-  margin-left: 68px;
+  /* margin-left: 68px;
   background: #3E9AFF;
-  color: #fff;
+  color: #fff; */
 }
 .vote-btn-bar a:nth-child(2){
-  border: 1px solid #3E9AFF;
-  color: #3E9AFF;
+  /* border: 1px solid #3E9AFF;
+  color: #3E9AFF; */
+  margin-left: 68px;
 }
 
 /* 表格容器 */
@@ -1093,6 +1290,10 @@ table.table-main {
 }
 table.table-main tr:nth-child(1) td {
   background: rgba(250, 250, 250, 1);
+}
+table.table-main tr:nth-child(1) td:nth-child(2){
+  text-align: left;
+  text-indent: 26px;
 }
 table.table-main tr.fontsize14 td{
   font-size: 14px;

@@ -28,7 +28,7 @@ let showBrowserConnectMessage = true
 let requestSeconds = 0
 
 // 浏览器插件链接 请求最大秒数
-let requestSecondsMax = 5
+let requestSecondsMax = 10
 
 let promiseObjArr = []
 
@@ -82,6 +82,7 @@ export let browserConnect = function () {
     } else {
       currentTimer = setInterval(() => {
         requestSeconds++
+        console.log(requestSeconds)
         if (requestSeconds >= requestSecondsMax) {
           loadingInstance.close();
           clearInterval(currentTimer)
@@ -105,6 +106,7 @@ export let browserConnect = function () {
           return false
         }
         if (window.BcxWeb) {
+          console.log("==========window.BcxWeb", window.BcxWeb)
           loadingInstance.close();
           bcx = window.BcxWeb
           clearInterval(currentTimer)
@@ -127,10 +129,11 @@ export let getAccountInfo = function () {
   return new Promise(async function (resolve, reject) {
     let browserConnectResult = {}
     if (window.BcxWeb) {
+      console.log('window.BcxWeb', window.BcxWeb)
       bcx = window.BcxWeb
     } else {
-      browserConnectResult = await browserConnect('getAccountInfo')
-      if (!browserConnectResult) return false
+      browserConnectResult = await browserConnect()
+      // if (!browserConnectResult) return false
     }
     bcx.getAccountInfo().then(res => {
       loadingInstance.close();
