@@ -29,7 +29,7 @@ browserConnect().then( res => {
   })
 }).then( result => {
   console.log("==============result=================result")
-  console.log("2019-12-24 17:46 cache update")
+  console.log("2020-05-11 17:46 cache update")
   console.log(result)
   return new Promise((resolve,reject)=>{
     browserConnect().then( res => {
