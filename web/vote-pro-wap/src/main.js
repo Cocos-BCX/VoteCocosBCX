@@ -42,7 +42,7 @@ browserConnect().then( res => {
     // let language = 'cn'
     // res.data == 'cn' language == 'cn'
   walletLanguage().then(res=>{
-    let lang = ''
+    let lang = 'zh'
     if (res.data == 'cn') {
       lang = 'zh'
       document.title = '投票'

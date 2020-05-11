@@ -298,6 +298,27 @@ export let desktopConnect = function () {
 }
 
 
+// 查询账户信息
+export let queryAccInfo = function (account) {
+  return new Promise(async function (resolve, reject) {
+    // Indicator.open({
+    //   // text: '加载中...',
+    //   spinnerType: 'fading-circle'
+    // });
+    bcx.queryAccountInfo({
+      account: account
+      // account: 'syling'
+    }).then(res=>{
+      // Indicator.close();
+      resolve(res)
+    }).catch(err=>{
+      Indicator.close();
+      console.log('--------err-------')
+      console.log(err)
+    })
+  })
+}
+
 
 // 查询账户信息
 export let queryAccountInfo = function () {
@@ -392,6 +413,28 @@ export let queryAccountBalances = function () {
 // }
 
 
+// 投票账户列表
+export let queryAccountVotes = function (params) {
+
+  Indicator.open({
+    spinnerType: 'fading-circle'
+  });
+  return new Promise(async function (resolve, reject) {
+    let param = {
+      // type: witnesses 见证人    committee 理事会
+      queryAccount: params.queryAccount,
+      type: params.type || ''
+    }
+    console.log('param', param)
+    bcx.queryVotes(param).then(res => {
+      Indicator.close();
+      resolve(res)
+    })
+  })
+}
+
+
+
 
 // 投票列表
 export let queryVotes = function (params) {
@@ -410,7 +453,8 @@ export let queryVotes = function (params) {
     console.log(param)
     bcx.queryVotes(param).then(res => {
       console.log('------queryVotes----------res--------')
-      console.log(res)
+      let testres = res
+      console.log('testres', testres)
       Indicator.close();
       resolve(res)
     })

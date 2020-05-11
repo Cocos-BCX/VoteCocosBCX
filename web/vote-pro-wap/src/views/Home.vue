@@ -23,17 +23,18 @@
         <div class="node" v-for="(li, index) in tableList" :key="index">
           <img v-if="li.logo" :src="li.logo"  class="node-icon" alt />
           <img v-if="!li.logo" src="../assets/images/default-icon.png"  class="node-icon" alt />
-          <ul class="node-message">
+          <ul class="node-message" @click="queryAccountVotesAjax(index)">
             <li class="name">{{li.account_name}}</li>
             <li class="spec">
-              <p>
+              <p >
                 <img src="../assets/images/ranking-mobile.png" alt /> No.{{li.ranking}}
               </p>
               <p>
-                <img src="../assets/images/percentage-mobile.png" alt /> {{li.voteRate}}
+                <img src="../assets/images/percentage-mobile.png" alt /> {{li.votes | reservedInteger}}
               </p>
-              <p>
-                <img src="../assets/images/pos-mobile.png" alt /> {{li.country}}
+              <p :class="li.active?'isActive':'isNoactive'">
+                <!-- <img src="../assets/images/pos-mobile.png" alt />   -->
+                {{li.active?'活跃':'备份'}}
               </p>
             </li>
           </ul>
@@ -97,7 +98,7 @@
         </div>
       </div>
     </div>
-    <div class="mask" v-if="isShowVotePopup" @click.stop="hideLogin()"></div>
+    <div class="mask" v-if="isShowVotePopup || isAccountVotelist" @click.stop="hideLogin()"></div>
     <div class="vote-Popup" v-if="isShowVotePopup">
       <div class="title">
         <ul class="tab-btn"  @click="tabWithdrawalTickets(false)">
@@ -115,12 +116,28 @@
         <div class="btn confirm" @click="vote()">{{$t('common.confirm')}}</div>
       </div>
     </div>
+    <div class="accountVotelist" v-if="isAccountVotelist"> 
+       <img src="../assets/images/close-btn-bgw.png" @click="isAccountVotelist = false" class="close-btn" alt="">
+       <div class="accountVotelist-main">
+
+        <ul class="mySupporter" v-if="mySupporter.cocosAmount">我给 <span class="fc1">{{mySupporter.accountName | accNameFormat}}</span> 投了 <span class="fc1">{{mySupporter.cocosAmount}}</span> 票</ul>
+        <ul class="acc-vote-list-container">
+          <li v-for="(li, index) in chooseAccVoteList" :key="index" class="vote-list-li">
+            <p>{{index + 1}}</p>
+            <p>{{chooseAccVoteListAccName[index]}}</p>
+            <p>{{li.cocosAmount | priceFormat}}</p>
+          </li>
+       </ul>
+       </div>
+    </div>
   </div>
 </template>
 
 
 
 <script>
+import "../assets/images/close-btn-bgw.png"
+
 import {
   getAccountInfo,
   queryVotes,
@@ -131,7 +148,9 @@ import {
   passwordLogin,
   logout,
   queryAccountBalances,
-  claimVestingBalance
+  claimVestingBalance,
+  queryAccountVotes,
+  queryAccInfo
 } from "../../libs/bcx.api";
 import { cacheSession, cacheKey, handleCOCOS } from '../../libs/Utils'
 import { Indicator, Toast } from 'mint-ui';
@@ -191,7 +210,17 @@ export default {
 
       // 领取数量  右下角
       receiveNum: 0,
-      voteId: ''
+      voteId: '',
+
+
+
+      isAccountVotelist: false,
+      chooseAccVoteList: [],
+      chooseAccVoteListAccName: [],
+
+      myAccoutname: '',
+      myAccoutid: '',
+      mySupporter: {}
     };
   },
   watch: {
@@ -214,6 +243,22 @@ export default {
         this.votesNumRegular = this.votesNum
       } else {
         this.votesNum = this.votesNumRegular
+      }
+    }
+  },
+
+  filters: {
+    reservedInteger: function (val) {
+      return Number(Number(val).toFixed(0)).toLocaleString()
+    },
+    priceFormat(val){
+      return val.toLocaleString()
+    },
+    accNameFormat(val){
+      if (String(val).length > 8) {
+        return val.substring(0, 5) + '...' + val.substring(val.length - 5, val.length - 1)
+      } else {
+        return val
       }
     }
   },
@@ -243,9 +288,14 @@ export default {
               message: _this.$t('tipsMessage.business.successfulReception'),
               className: 'toast-style',
             })
-            setTimeout(() => {
-              _this.queryVotesAjax();
-            }, 1500);
+          Indicator.open({
+            // text: '加载中...',
+            spinnerType: 'fading-circle'
+          });
+          setTimeout(() => {
+            Indicator.close();
+            _this.initDate()
+          }, 2000);
           
         } else {
           _this.codeErr(res)
@@ -259,10 +309,72 @@ export default {
         }
       })
     },
+    async queryAccountVotesAjax(index){
+      console.log('account', this.tableList[index])
+      let _this = this
+      this.chooseAccVoteListAccName = []
+      this.isAccountVotelist = true
+      let supporters = {}
+      supporters = this.tableList[index].supporters
+      let mycocosAmount = ''
+      let mysupporter = supporters.filter(item => {
+        return item.account_id == _this.myAccoutid
+      })
+      this.mySupporter ={}
+      if (mysupporter.length != 0) {
+        console.log("=========")
+        this.mySupporter = {
+          accountName: this.tableList[index].account_name,
+          cocosAmount: mysupporter[0].amount_text.replace(' COCOS', '')
+        }
+      }
+      console.log("........", this.mySupporter)
+      for (let i = 0; i < supporters.length; i++) {
+        supporters[i].cocosAmount = Number(supporters[i].amount_text.replace(" COCOS", ""))
+      }
+      supporters = supporters.sort(function (a, b) {
+        return b.cocosAmount - a.cocosAmount
+      })
+      supporters = supporters.slice(0,20)
+      this.chooseAccVoteList = supporters;
+
+      this.chooseAccVoteList.forEach(element => {
+        element.cocosAmount = Number(element.amount_text.replace(" COCOS", ""))
+      });
+
+      function unique(arr,attribute){
+        var new_arr=[];
+        var json_arr=[];
+        for(var i=0; i<arr.length; i++){
+            console.log(new_arr.indexOf(arr[i][attribute]));
+            if(new_arr.indexOf(arr[i][attribute]) ==-1){    //  -1代表没有找到
+                new_arr.push(arr[i][attribute]);   //如果没有找到就把这个name放到arr里面，以便下次循环时用
+                json_arr.push(arr[i]);
+            } else{
+            }
+        }
+        return json_arr;
+    }
+      this.chooseAccVoteList = unique(_this.chooseAccVoteList, 'account_id')
+      for (let i = 0; i < this.chooseAccVoteList.length; i++) {
+        let queryAccInfoResult = await queryAccInfo(this.chooseAccVoteList[i].account_id)
+        let accName = queryAccInfoResult.data.account.name
+        console.log(accName)
+        if (String(accName).length > 12) {
+        accName = accName.substring(0, 6) + '...' + accName.substring(accName.length - 6, accName.length)
+      } else {
+        accName = accName
+      }
+        this.chooseAccVoteListAccName.push(accName)
+      }
+    },
+    
     // 获取当前可领取cocos
     getReceiveNumAjax(){
       let _this = this;
       getAccountInfo().then( res => {
+        this.myAccoutname = res.account_name
+        this.myAccoutid = res.account_id
         let params = {
           account: res.account_name,
           type: 'cashback_vote'
@@ -358,32 +470,6 @@ export default {
       } else {
         _this.haveVotedNum = _this.haveVotedNumCommittee
       }
-      // this.queryAccountInfoAjax()
-
-      
-      // queryAccountInfo().then(res => {
-      //   if (res.code == 1) {
-          
-      //     console.log('--------queryAccountInfo------res-----------')
-      //     console.log(res)
-      //     _this.availableVotes = Number(res.data.account.asset_locked.vote_for_witness.amount)/Math.pow(10,5) || 0
-      //     // if (_this.isWitnesses) {
-            
-      //     // } else {
-      //     //   _this.numberVotesCast = Number(res.data.account.asset_locked.vote_for_committee.amount)/Math.pow(10,5) || 0
-            
-      //     // }
-      //     _this.queryAccountBalancesAjax(cacheSession.get(cacheKey.accountName))
-      //   } else {
-      //     _this.codeErr(res)
-      //   }
-      // })
-      // getAccountInfo().then( res => {
-      //   // res[cacheKey.accountName]
-      //   console.log('-----------------getAccountInfo------------')
-      //   console.log(res)
-      //   _this.queryVestingBalanceAjax('syling')
-      // })
     },
     vote() {
       let _this = this;
@@ -536,14 +622,18 @@ export default {
                 duration: 2000
               });
           }
-        
-        // _this.isWitnesses = true;
-        // _this.currentPage = 1;
-        // _this.lookupBlock = [];
-        // _this.tableList = [];
+
         _this.hideLogin()
-        // _this.queryVotesAjax();this.isWitnesses
-        _this.initDate()
+
+        Indicator.open({
+          // text: '加载中...',
+          spinnerType: 'fading-circle'
+        });
+        setTimeout(() => {
+          Indicator.close();
+          _this.initDate()
+        }, 2000);
+        
         } else {
           
           _this.codeErr(res)
@@ -581,6 +671,7 @@ export default {
       let _this = this;
       if (val == this.isWitnesses) return false
       this.isWitnesses = val;
+      this.tableList = []
       this.initDate()
     },
 
@@ -702,9 +793,6 @@ export default {
             
             for (let i = 0; i < _this.tableList.length; i++) {
               _this.tableList[i].voteRate = "0%"
-              // _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
-              
-              // _this.queryVestingBalanceAjax(_this.tableList[i].account_name, i);
             }
           } else {
             for (let i = 0; i < _this.tableList.length; i++) {
@@ -714,14 +802,8 @@ export default {
                 ).toFixed(4) *
                   100).toFixed(2) +
                 "%";
-              // _this.lookupBlockRewardsByIdAjax(_this.tableList[i].account_id, i);
-              
-            // _this.queryVestingBalanceAjax(_this.tableList[i].account_name, i);
             }
             
-            // _this.$nextTick(function () {
-            //   _this.$refs.loadmore.onBottomLoaded();
-            // })
             
           }
           
@@ -769,6 +851,7 @@ export default {
         type: queryType
       };
       queryVotes(params).then(res => {
+        console.log('queryVotes', res)
         _this.stopLoading = false
         if (res.code == 1) {
           function sortId(a, b) {
@@ -1034,6 +1117,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.fc1{
+  color: rgba(121, 215, 176, 1);
+  font-size: 0.14rem;
+}
 .home{
   width: 100%;
   height: 100%;
@@ -1043,6 +1130,68 @@ export default {
   height: 0.64rem;
   background: #fff;
   padding-top: 0.14rem;
+}
+.accountVotelist{
+  width: 3.2rem;
+  height: 5.3rem;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin-left: -1.6rem;
+  margin-top: -2.65rem;
+  background: #fff;
+  border-radius: 0.18rem;
+  padding-top: 0.4rem;
+  padding-bottom: 0.3rem;
+  z-index: 1000;
+  overflow-y: scroll;
+}
+.accountVotelist .close-btn{
+  position: absolute;
+  top: 0.15rem;
+  right: 0.2rem;
+  width: 0.15rem;
+  height: 0.15rem;
+}
+.accountVotelist .accountVotelist-main{
+  height: 100%;
+  overflow-y: scroll;
+}
+.acc-vote-list-container{
+  width: 3rem;
+  margin: 0.05rem auto 0;
+}
+.mySupporter{
+  width: 100%;
+  height: 0.4rem;
+  line-height: 0.4rem;
+  text-indent: 0.2rem;
+  font-size: 0.14rem;
+}
+.acc-vote-list-container .vote-list-li {
+  width: 100%;
+  height: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.acc-vote-list-container .vote-list-li:nth-child(odd){
+  background: #f8f8f8;
+}
+.acc-vote-list-container .vote-list-li p{
+  font-size: 0.14rem;
+}
+.acc-vote-list-container .vote-list-li p:nth-child(1){
+  width: 10%;
+}
+.acc-vote-list-container .vote-list-li p:nth-child(2){
+  width: 50%;
+  color: #666;
+}
+.acc-vote-list-container .vote-list-li p:nth-child(3){
+  width: 35%;
+  text-align: right;
+  color: #666;
 }
 .search-main {
   width: 3.35rem;
@@ -1102,7 +1251,7 @@ export default {
 }
 .node-lists .node-main {
   height: 100%;
-  margin-left: 0.2rem;
+  /* margin-left: 0.2rem; */
   overflow-y: auto;
 }
 .node-lists .node-main .node {
@@ -1145,6 +1294,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  margin-top: 0.04rem;
 }
 .node-lists .node-main .node .node-message .spec p {
   height: 0.14rem;
@@ -1152,7 +1302,37 @@ export default {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  margin-right: 0.3rem;
+  margin-right: 0.25rem;
+  position: relative;
+}
+.node-lists .node-main .node .node-message .spec p.isActive{
+  color: rgba(121, 215, 176, 1);
+}
+.node-lists .node-main .node .node-message .spec p.isActive::before{
+
+  content: "";
+  width: 6px;
+  height: 6px;
+  display: block;
+  background: rgba(121, 215, 176, 1);
+  border-radius: 50%;
+  position: absolute;
+  top: 25%;
+  left: -0.1rem;
+}
+.node-lists .node-main .node .node-message .spec p.isNoactive{
+  color: rgba(255, 184, 84, 1);
+}
+.node-lists .node-main .node .node-message .spec p.isNoactive::before{
+  content: "";
+  width: 6px;
+  height: 6px;
+  display: block;
+  background: rgba(255, 184, 84, 1);
+  border-radius: 50%;
+  position: absolute;
+  top: 25%;
+  left:  -0.1rem;
 }
 .node-lists .node-main .node .node-message .spec p img {
   width: 0.08rem;
@@ -1229,7 +1409,7 @@ export default {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.4);
-  z-index: 500;
+  z-index: 800;
 }
 .voted-list-container {
   position: absolute;
@@ -1324,7 +1504,7 @@ export default {
     width: 100%;
     height: 0.8rem;
 }
-.mask {
+/* .mask {
   position: fixed;
   top: 0;
   left: 0;
@@ -1332,7 +1512,7 @@ export default {
   width: 100%;
   height: 100%;
   z-index: 200;
-}
+} */
 .vote-Popup {
   position: fixed;
   top: 50%;
@@ -1340,7 +1520,7 @@ export default {
   background:rgba(38,42,51,0.4);
   width: 3.05rem;
   height: 2.1rem;
-  z-index: 300;
+  z-index: 1000;
   background:rgba(255,255,255,1);
   border-radius: 0.12rem;
   margin-left: -1.52rem;
