@@ -784,7 +784,10 @@ export default {
       this.$axios
         .post(resUrl, formData)
         .then(function(response) {
-          _this.queryAccountInfoAjax();
+          if (window.BcxWeb) {
+             _this.queryAccountInfoAjax();
+          }
+         
           _this.tableList = [];
           _this.tableList = response.data.result;
           

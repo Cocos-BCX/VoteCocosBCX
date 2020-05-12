@@ -34,49 +34,55 @@ let promiseObjArr = []
 
 // bcx对象初始化
 export let initBcx = function () {
-  axios
-  .get("https://api-cocosbcx.cocosbcx.net/backend/getParams")
-  .then(response => {
-    // nodes = response.data.data;
-    let nodes = response.data.data.filter(( item )=>{
-      return item.name == 'Test'
+
+  return new Promise(async function (resolve, reject) {
+
+    axios
+    .get("https://api-cocosbcx.cocosbcx.net/backend/getParams")
+    .then(response => {
+      // nodes = response.data.data;
+      let nodes = response.data.data.filter(( item )=>{
+        return item.name == 'Main'
+      })
+      console.log(nodes);
+        var _configParams={ 
+          ws_node_list:[
+              {url:nodes[0].ws,name:nodes[0].name},   
+          ],
+          networks:[
+              {
+                  core_asset:"COCOS",
+                  chain_id: nodes[0].chainId 
+              }
+          ], 
+          faucet_url: nodes[0].faucetUrl,
+          auto_reconnect:true,
+          real_sub:true,
+          check_cached_nodes_data:false
+      };
+    //   var _configParams={ 
+    //     ws_node_list:[
+    //         {url:"ws://192.168.90.46:8049",name:"personnaliser"},   
+    //     ],
+    //     networks:[
+    //         {
+    //             core_asset:"COCOS",
+    //             chain_id: "bc741ab76f35c22fb3e3b51cd70dcdf38db63e283229534ee2e5cf1e7a6c994b" 
+    //         }
+    //     ], 
+    //     faucet_url: nodes[0].faucetUrl,
+    //     auto_reconnect:true,
+    //     real_sub:true,
+    //     check_cached_nodes_data:false
+    // };
+      bcx = new BCX(_configParams);
+      console.log('bcx', bcx)
+      resolve(true)
     })
-    console.log(nodes);
-      var _configParams={ 
-        ws_node_list:[
-            {url:nodes[0].ws,name:nodes[0].name},   
-        ],
-        networks:[
-            {
-                core_asset:"COCOS",
-                chain_id: nodes[0].chainId 
-            }
-        ], 
-        faucet_url: nodes[0].faucetUrl,
-        auto_reconnect:true,
-        real_sub:true,
-        check_cached_nodes_data:false
-    };
-  //   var _configParams={ 
-  //     ws_node_list:[
-  //         {url:"ws://192.168.90.46:8049",name:"personnaliser"},   
-  //     ],
-  //     networks:[
-  //         {
-  //             core_asset:"COCOS",
-  //             chain_id: "bc741ab76f35c22fb3e3b51cd70dcdf38db63e283229534ee2e5cf1e7a6c994b" 
-  //         }
-  //     ], 
-  //     faucet_url: nodes[0].faucetUrl,
-  //     auto_reconnect:true,
-  //     real_sub:true,
-  //     check_cached_nodes_data:false
-  // };
-    bcx = new BCX(_configParams);
+    .catch(function (error) {
+      console.log(error);
+    });
   })
-  .catch(function (error) {
-    console.log(error);
-  });
 }
 
 
@@ -230,11 +236,7 @@ export let getAccountInfo = function () {
     spinnerType: 'fading-circle'
   });
   return new Promise(async function (resolve, reject) {
-    let browserConnectResult = await browserConnect()
-    if (!browserConnectResult) {
-      Indicator.close();
-      return false
-    }
+    
     bcx.getAccountInfo().then(res => {
       Indicator.close();
       if (res.locked) {
@@ -442,13 +444,19 @@ export let queryVotes = function (params) {
     spinnerType: 'fading-circle'
   });
   return new Promise(async function (resolve, reject) {
-    let getAccountInfoResult = await getAccountInfo()
-    if (!getAccountInfoResult) return false
+    console.log('window.BcxWeb', window.BcxWeb)
+    let getAccountInfoResult  = ''
+    if (window.BcxWeb) {
+      getAccountInfoResult = await getAccountInfo()
+      if (!getAccountInfoResult) return false
+    }
+
     let param = {
       // type: witnesses 见证人    committee 理事会
       queryAccount: getAccountInfoResult[cacheKey.accountName] || '',
       type: params.type || ''
     }
+    
     console.log('------queryVotes------param----------------')
     console.log(param)
     bcx.queryVotes(param).then(res => {

@@ -8,7 +8,7 @@ import './assets/css/public.css'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 // import vueSmoothScroll from 'vue-smooth-scroll'
-import { browserConnect, walletLanguage, initConnect } from '../libs/bcx.api'
+import { browserConnect, walletLanguage, initConnect, initBcx } from '../libs/bcx.api'
 import { initRootFontSize } from '../libs/Utils'
 import { Popup, Indicator, Loadmore } from 'mint-ui'
 import 'mint-ui/lib/style.css'
@@ -22,11 +22,45 @@ Vue.component(Loadmore.name, Loadmore);
 initRootFontSize();
 
 browserConnect().then( res => {
+
   return new Promise((resolve,reject)=>{
-    initConnect().then( initConnectRes => {
-      resolve(initConnectRes)
+  console.log('browserConnect     ', res)
+  if (!res) {
+    initBcx().then(res => {
+      let lang = 'zh'
+      const i18n = new VueI18n({
+        locale: lang,    // 语言标识, 通过切换locale的值来实现语言切换,this.$i18n.locale 
+        messages: {
+          'zh': require('./common/lang/zh').langZh,   // 中文语言包
+          'en': require('./common/lang/en').langEn    // 英文语言包
+        }
     })
-  })
+  
+  
+  
+  
+    Vue.prototype.$axios = axios;
+    Vue.use(VueAxios, axios)
+    // Vue.use(vueSmoothScroll)
+  
+    Vue.config.productionTip = false
+  
+    /* eslint-disable no-new */
+    new Vue({
+      i18n,
+      router,
+      render: h => h(App)
+    }).$mount('#app')
+    })
+    reject(false)
+  } else {
+    console.log("==-------")
+      initConnect().then( initConnectRes => {
+        resolve(initConnectRes)
+      })
+  }
+  
+})
 }).then( result => {
   console.log("==============result=================result")
   console.log("2020-05-11 17:46 cache update")
