@@ -285,14 +285,6 @@ export default {
     closeVote(){
       this.isMaskVote = false
     },
-    browserConnectAjax(){
-      let _this = this;
-      browserConnect().then( res => {
-        if (res.code == 1) {
-          _this.isBrowserConnect = res
-        }
-      })
-    },
     addBlance(){
       let _this = this
       if (this.isAddAvailableVotes) return false
@@ -305,6 +297,9 @@ export default {
         if (res) {  
           _this.myAccount = res.account_name
           _this.queryAccountInfoAjax(res.account_name)
+          _this.queryVotesAjax(res.account_name);
+        } else {
+
           _this.queryVotesAjax(res.account_name);
         }
         

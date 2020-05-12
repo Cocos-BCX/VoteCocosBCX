@@ -28,7 +28,7 @@ let showBrowserConnectMessage = true
 let requestSeconds = 0
 
 // 浏览器插件链接 请求最大秒数
-let requestSecondsMax = 5
+let requestSecondsMax = 10
 
 let promiseObjArr = []
 
@@ -74,7 +74,6 @@ export let browserConnect = function () {
   let currentTimer = null
   let loadingInstance = Loading.service();
   return new Promise(async function (resolve, reject) {
-    console.log("2019-12-17 18:00 update")
     if (window.BcxWeb) {
       bcx = window.BcxWeb
       resolve(true)
@@ -123,15 +122,9 @@ export let browserConnect = function () {
 
 // 获取用户信息
 export let getAccountInfo = function () {
+  if(!bcx) return false
   let loadingInstance = Loading.service();
   return new Promise(async function (resolve, reject) {
-    let browserConnectResult = {}
-    if (window.BcxWeb) {
-      bcx = window.BcxWeb
-    } else {
-      browserConnectResult = await browserConnect('getAccountInfo')
-      if (!browserConnectResult) return false
-    }
     bcx.getAccountInfo().then(res => {
       loadingInstance.close();
       if (res.locked) {
@@ -283,7 +276,6 @@ export let queryAccountBalances = function () {
 
 // 投票列表
 export let queryVotes = function (params) {
-  let loadingInstance = Loading.service();
   return new Promise(function (resolve, reject) {
     
     let param = {
@@ -292,7 +284,6 @@ export let queryVotes = function (params) {
       type: params.type || ''
     }
     bcx.queryVotes(param).then(res => {
-      loadingInstance.close();
       resolve(res)
     }).then( err => {
       console.log('err')

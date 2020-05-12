@@ -44,7 +44,6 @@
         },
         props: ['personalMsgList','feiSeverPage'],
         mounted() {
-            //       console.log(this.personalMsgList)
         },
         methods: {
             handleBottomChange(status){

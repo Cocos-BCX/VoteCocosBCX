@@ -95,8 +95,7 @@ import { MessageBox } from 'mint-ui';
             }
         },
         mounted() {
-    this.showFormData()
-            //       console.log(this.personalMsgList)
+            this.showFormData()
         },
         methods: {
             goback(){
@@ -104,8 +103,6 @@ import { MessageBox } from 'mint-ui';
             },
     showFormData(){
       let _this = this
-      console.log("cacheSession.get('formData')")
-      console.log(cacheSession.get('formData'))
       if (!cacheSession.get('formData')) return false
       let formDataCache = JSON.parse(cacheSession.get('formData'))
       _this.showData = {
@@ -131,8 +128,6 @@ import { MessageBox } from 'mint-ui';
       this.$axios
         .post(resUrl, _this.showData)
         .then(function(response) {
-          console.log('*****')
-          console.log(response)
           if (response.data.error == "ok") {
               
                 MessageBox({
