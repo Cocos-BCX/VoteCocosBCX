@@ -78,7 +78,7 @@ const i18n = new VueI18n({
 
 
 browserConnect().then( ()=>{
-  console.log("2019-12-17 18:00 update")
+  console.log("2019-05-12 15:00 update")
 
   new Vue({
     i18n,

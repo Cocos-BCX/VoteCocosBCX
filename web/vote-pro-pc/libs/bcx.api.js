@@ -74,7 +74,6 @@ export let browserConnect = function () {
   let currentTimer = null
   let loadingInstance = Loading.service();
   return new Promise(async function (resolve, reject) {
-    console.log("2019-12-17 18:00 update")
     if (window.BcxWeb) {
       bcx = window.BcxWeb
       resolve(true)
@@ -82,7 +81,6 @@ export let browserConnect = function () {
     } else {
       currentTimer = setInterval(() => {
         requestSeconds++
-        console.log(requestSeconds)
         if (requestSeconds >= requestSecondsMax) {
           loadingInstance.close();
           clearInterval(currentTimer)
@@ -106,7 +104,6 @@ export let browserConnect = function () {
           return false
         }
         if (window.BcxWeb) {
-          console.log("==========window.BcxWeb", window.BcxWeb)
           loadingInstance.close();
           bcx = window.BcxWeb
           clearInterval(currentTimer)
@@ -125,16 +122,9 @@ export let browserConnect = function () {
 
 // 获取用户信息
 export let getAccountInfo = function () {
+  if(!bcx) return false
   let loadingInstance = Loading.service();
   return new Promise(async function (resolve, reject) {
-    let browserConnectResult = {}
-    if (window.BcxWeb) {
-      console.log('window.BcxWeb', window.BcxWeb)
-      bcx = window.BcxWeb
-    } else {
-      browserConnectResult = await browserConnect()
-      // if (!browserConnectResult) return false
-    }
     bcx.getAccountInfo().then(res => {
       loadingInstance.close();
       if (res.locked) {
@@ -286,7 +276,6 @@ export let queryAccountBalances = function () {
 
 // 投票列表
 export let queryVotes = function (params) {
-  let loadingInstance = Loading.service();
   return new Promise(function (resolve, reject) {
     
     let param = {
@@ -295,7 +284,6 @@ export let queryVotes = function (params) {
       type: params.type || ''
     }
     bcx.queryVotes(param).then(res => {
-      loadingInstance.close();
       resolve(res)
     }).then( err => {
       console.log('err')
