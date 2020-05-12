@@ -347,13 +347,13 @@ input  {
 
 
 
-.mint-indicator-wrapper{
+/* .mint-indicator-wrapper{
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
+     width: 100%;
     height: 100%;
-}
+} */
 .page-loadmore-wrapper {
     overflow: scroll!important;
     z-index: 100!important;
