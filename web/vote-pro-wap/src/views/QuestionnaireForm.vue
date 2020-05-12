@@ -258,17 +258,14 @@ import { Toast } from 'mint-ui';
                 let obj = _this.formData[key]
                 delete _this.formData[key]
                 _this.formData[key] = obj
-                console.log(_this.formData[key])
             },
             getAccountInfoAjax(){
                 let _this = this
                 getAccountInfo().then( res => {
-                    console.log('-----getAccountInfo------')
-                    console.log(res)
                     _this.formData.cocos_address.value = res.account_name
                     if (cacheSession.get('formData')) {
                     let formDataJson = JSON.parse(cacheSession.get('formData'))
-                    console.log(formDataJson)
+                    
                     _this.formData = formDataJson
                     }
                     
@@ -326,12 +323,6 @@ import { Toast } from 'mint-ui';
             }
                 cacheSession.set('formData', JSON.stringify(_this.formData))
                 this.$router.push('/auestionnaireconfirm')
-            // this.$axios
-            //   .post(resUrl, formData)
-            //   .then(function(response) {
-            //     console.log('------------response-------------')
-            //     console.log(response)
-            //   })
             }
         },
     }

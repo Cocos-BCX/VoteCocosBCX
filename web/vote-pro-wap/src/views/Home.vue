@@ -310,7 +310,6 @@ export default {
       })
     },
     async queryAccountVotesAjax(index){
-      console.log('account', this.tableList[index])
       let _this = this
       this.chooseAccVoteListAccName = []
       this.isAccountVotelist = true
@@ -322,13 +321,11 @@ export default {
       })
       this.mySupporter ={}
       if (mysupporter.length != 0) {
-        console.log("=========")
         this.mySupporter = {
           accountName: this.tableList[index].account_name,
           cocosAmount: mysupporter[0].amount_text.replace(' COCOS', '')
         }
       }
-      console.log("........", this.mySupporter)
       for (let i = 0; i < supporters.length; i++) {
         supporters[i].cocosAmount = Number(supporters[i].amount_text.replace(" COCOS", ""))
       }
@@ -346,7 +343,6 @@ export default {
         var new_arr=[];
         var json_arr=[];
         for(var i=0; i<arr.length; i++){
-            console.log(new_arr.indexOf(arr[i][attribute]));
             if(new_arr.indexOf(arr[i][attribute]) ==-1){    //  -1代表没有找到
                 new_arr.push(arr[i][attribute]);   //如果没有找到就把这个name放到arr里面，以便下次循环时用
                 json_arr.push(arr[i]);
@@ -359,7 +355,6 @@ export default {
       for (let i = 0; i < this.chooseAccVoteList.length; i++) {
         let queryAccInfoResult = await queryAccInfo(this.chooseAccVoteList[i].account_id)
         let accName = queryAccInfoResult.data.account.name
-        console.log(accName)
         if (String(accName).length > 12) {
         accName = accName.substring(0, 6) + '...' + accName.substring(accName.length - 6, accName.length)
       } else {
@@ -640,21 +635,6 @@ export default {
         }
       });
     },
-    // queryAccountBalancesAjax(){
-    //   let _this = this;
-    //   queryAccountBalances().then( res => {
-    //     console.log('----------queryAccountBalances----------------')
-    //     console.log(res)
-    //     console.log(_this.numberVotesCast)
-    //     if (res.code == 1) {
-    //       _this.availableVotes = (Number(res.data.COCOS) - Number(_this.numberVotesCast)).toFixed(5)
-    //     } else {
-    //       _this.codeErr(res)
-
-    //     }
-        
-    //   })
-    // },
     initDate(){
       this.currentPage = 1;
       this.votesTotal = 0
@@ -854,7 +834,6 @@ export default {
         type: queryType
       };
       queryVotes(params).then(res => {
-        console.log('queryVotes', res)
         _this.stopLoading = false
         if (res.code == 1) {
           function sortId(a, b) {

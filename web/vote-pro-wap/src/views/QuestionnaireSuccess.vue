@@ -125,7 +125,6 @@
             }
         },
         mounted() {
-            //       console.log(this.personalMsgList)
         },
         methods: {
         },

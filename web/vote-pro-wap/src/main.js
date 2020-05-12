@@ -24,7 +24,6 @@ initRootFontSize();
 browserConnect().then( res => {
 
   return new Promise((resolve,reject)=>{
-  console.log('browserConnect     ', res)
   if (!res) {
     initBcx().then(res => {
       let lang = 'zh'
@@ -54,7 +53,6 @@ browserConnect().then( res => {
     })
     reject(false)
   } else {
-    console.log("==-------")
       initConnect().then( initConnectRes => {
         resolve(initConnectRes)
       })
@@ -62,9 +60,7 @@ browserConnect().then( res => {
   
 })
 }).then( result => {
-  console.log("==============result=================result")
-  console.log("2020-05-11 17:46 cache update")
-  console.log(result)
+  console.log("2020-05-12 15:00 cache update")
   return new Promise((resolve,reject)=>{
     browserConnect().then( res => {
       resolve(res)

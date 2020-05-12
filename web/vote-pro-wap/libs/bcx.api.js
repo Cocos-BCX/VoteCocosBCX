@@ -44,7 +44,6 @@ export let initBcx = function () {
       let nodes = response.data.data.filter(( item )=>{
         return item.name == 'Main'
       })
-      console.log(nodes);
         var _configParams={ 
           ws_node_list:[
               {url:nodes[0].ws,name:nodes[0].name},   
@@ -76,7 +75,6 @@ export let initBcx = function () {
     //     check_cached_nodes_data:false
     // };
       bcx = new BCX(_configParams);
-      console.log('bcx', bcx)
       resolve(true)
     })
     .catch(function (error) {
@@ -187,10 +185,7 @@ export let passwordLogin = function (params) {
 export let walletLanguage = function () {
   
   return new Promise( function (resolve, reject) {
-    console.log('****************************')
     bcx.walletLanguage().then( res => {
-      console.log('****************************')
-      console.log(res)
       resolve(res)
     }).catch( err => {
       console.log(err)
@@ -427,7 +422,6 @@ export let queryAccountVotes = function (params) {
       queryAccount: params.queryAccount,
       type: params.type || ''
     }
-    console.log('param', param)
     bcx.queryVotes(param).then(res => {
       Indicator.close();
       resolve(res)
@@ -444,7 +438,6 @@ export let queryVotes = function (params) {
     spinnerType: 'fading-circle'
   });
   return new Promise(async function (resolve, reject) {
-    console.log('window.BcxWeb', window.BcxWeb)
     let getAccountInfoResult  = ''
     if (window.BcxWeb) {
       getAccountInfoResult = await getAccountInfo()
@@ -457,12 +450,7 @@ export let queryVotes = function (params) {
       type: params.type || ''
     }
     
-    console.log('------queryVotes------param----------------')
-    console.log(param)
     bcx.queryVotes(param).then(res => {
-      console.log('------queryVotes----------res--------')
-      let testres = res
-      console.log('testres', testres)
       Indicator.close();
       resolve(res)
     })
