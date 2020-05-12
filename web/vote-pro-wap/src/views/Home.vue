@@ -1334,6 +1334,9 @@ export default {
   top: 25%;
   left:  -0.1rem;
 }
+.node-lists .node-main .node .node-message .spec p:nth-child(2){
+  width: 1rem;
+}
 .node-lists .node-main .node .node-message .spec p img {
   width: 0.08rem;
   height: 0.07rem;
