@@ -68,7 +68,7 @@ func Witnesses(c *gin.Context) {
 			req.Witnesses[k].Country = witness.Country[lang]
 			req.Witnesses[k].Logo = witness.Logo
 		}
-		if nums, ok := witnessNums[v.AccountName]; ok {
+		if nums, ok := witnessNums[v.WitnessID]; ok {
 			req.Witnesses[k].GeneratedBlockNum = nums.Total
 		} else {
 			req.Witnesses[k].GeneratedBlockNum = "0"
