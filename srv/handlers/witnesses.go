@@ -62,6 +62,7 @@ func Witnesses(c *gin.Context) {
 	if err != nil {
 		fmt.Printf("err:%v",err)
 	}
+	fmt.Printf("witnessNums:%v",witnessNums)
 	for k, v := range req.Witnesses {
 		if witness, ok := witnessesConfig[v.WitnessID]; ok {
 			req.Witnesses[k].Country = witness.Country[lang]
