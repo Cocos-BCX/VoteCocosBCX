@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
+	"time"
 )
 
 type WitnessGeneratedBlockNumber struct {
@@ -15,17 +16,16 @@ type WitnessGeneratedBlockNumber struct {
 
 func FindWitnessesGeneratedBlockNumber() (map[string]WitnessGeneratedBlockNumber, error) {
 	results := map[string]WitnessGeneratedBlockNumber{}
-	query := bson.D{{}}
-	cursor, err := BlockCollection.Find(context.TODO(), query)
+	query := bson.D{}
+	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	cursor, err := BlockCollection.Find(ctx, query)
 	if err != nil {
 		return results, err
 	}
-
 	var res []WitnessGeneratedBlockNumber
-	if err = cursor.All(context.TODO(), &res); err != nil {
+	if err = cursor.All(ctx, &res); err != nil {
 		return results, err
 	}
-
 	for _, result := range res {
 		results[result.WitnessId] = result
 	}
