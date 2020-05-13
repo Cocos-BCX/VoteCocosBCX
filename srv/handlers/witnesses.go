@@ -7,6 +7,8 @@ import (
 	"github.com/Cocos-BCX/VoteCocosBCX/srv/models"
 
 	"github.com/gin-gonic/gin"
+
+	"fmt"
 )
 
 type AmountRaw struct {
@@ -56,8 +58,10 @@ func Witnesses(c *gin.Context) {
 		})
 		return
 	}
-	witnessNums, _ := models.FindWitnessesGeneratedBlockNumber()
-
+	witnessNums, err := models.FindWitnessesGeneratedBlockNumber()
+	if err != nil {
+		fmt.Printf("err:%v",err)
+	}
 	for k, v := range req.Witnesses {
 		if witness, ok := witnessesConfig[v.WitnessID]; ok {
 			req.Witnesses[k].Country = witness.Country[lang]
