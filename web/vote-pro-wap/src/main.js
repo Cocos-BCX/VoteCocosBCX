@@ -13,6 +13,7 @@ import { initRootFontSize } from '../libs/Utils'
 import { Popup, Indicator, Loadmore } from 'mint-ui'
 import 'mint-ui/lib/style.css'
 
+console.log("update 2021-01-25")
 Vue.use(VueI18n);
 Vue.use(Indicator);
 Vue.component(Popup.name, Popup);

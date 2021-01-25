@@ -46,5 +46,5 @@ export const initRootFontSize = function(doc_01 = document, win_01 = window) {
 
 
 export let handleCOCOS = function (COCOS) {
-  return COCOS/Math.pow(10,5)
+  return COCOS/Math.pow(10,8)
 }
