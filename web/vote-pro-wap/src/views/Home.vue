@@ -669,13 +669,13 @@ export default {
           let lockedAsset = 0
           if (res.data.account.asset_locked.locked_total.length == 0) {
             
-            _this.availableVotes = parseInt((Number(balances.balance) - 0)/Math.pow(10,5))
+            _this.availableVotes = parseInt((Number(balances.balance) - 0)/Math.pow(10,8))
           
           } else {
             let lockedAsset = res.data.account.asset_locked.locked_total.filter((lockedblance) => {
               if (lockedblance[0] == "1.3.0") return lockedblance 
             })[0];
-            _this.availableVotes = parseInt((Number(balances.balance) - Number(lockedAsset[1]))/Math.pow(10,5))
+            _this.availableVotes = parseInt((Number(balances.balance) - Number(lockedAsset[1]))/Math.pow(10,8))
           
           }
           
